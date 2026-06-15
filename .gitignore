@@ -1,2 +1,56 @@
-data/raw
-notebooks/01_etl/pontos_a_serem_abordados.txt
+# Dados — nunca vão para o repositório (DEPLOY_GUIDE + especificacao)
+data/raw/
+data/processed/
+data/interim/
+*.parquet
+*.csv
+*.xlsx
+*.xls
+
+# Credenciais locais
+.streamlit/secrets.toml
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+*.nbconvert.ipynb
+
+# Sistema / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Outros
+*.log
+notebooks/01_etl/pontos_a_serem_abordados.txt  # temporário de pontos; pode ser removido depois

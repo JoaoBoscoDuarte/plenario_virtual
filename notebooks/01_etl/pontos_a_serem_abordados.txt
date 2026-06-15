@@ -1,0 +1,19 @@
+# LIMPEZA E EXPLORAÇÂO:
+- Verificar json -----------> OK (delegado para src/json_transforme + src/cleaning)
+- Verificar HTML -----------> OK (verificar se ainda há tags residuais nos campos de nome/complemento)
+- Limpar html sujo --------> Pendente (se necessário)
+- Converter data para datetime --> OK (feito no pipeline)
+
+# ANALISE
+- Análise temporal por classe e tipo 
+- Analisar distribuição de classe e tipos
+- Calcular tempo de tramitação (para processos finalizados)
+- Analisar a natureza das decisões finais
+- Correlação entre variáveis numéricas
+
+# FUTURO
+- Extração de informação dos json's (SE FOR O CASO)
+
+# NOTA DE ORGANIZAÇÃO (2026-06)
+O pipeline de produção agora é `python -m src.cleaning` (ver src/cleaning.py e README).
+O notebook continua útil para auditoria/EDA mas NÃO é necessário para rodar o dashboard.

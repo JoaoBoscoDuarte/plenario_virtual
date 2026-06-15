@@ -21,7 +21,7 @@ from pathlib import Path
 from huggingface_hub import HfApi
 
 # Ajuste conforme seu usuário / repo no Hugging Face
-REPO_ID = os.getenv("HF_REPO", "JoaoBoscoooo/stf-plenario-virtual")
+REPO_ID = os.getenv("HF_REPO", "JoaoBoscoDuarte/stf-plenario-virtual")
 DATASETS = ["andamentos", "decisoes", "deslocamentos", "processos"]  # 4 datasets (inclui a base principal)
 
 # Diretório padrão dos parquets gerados pelo pipeline

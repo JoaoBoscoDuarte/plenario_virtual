@@ -49,9 +49,11 @@ def _load_local(name: str) -> pd.DataFrame:
         if alt.exists():
             path = alt
         else:
+            # Em vez de raise imediato, deixamos o caller decidir o fallback
+            # (o _choose_loader agora captura FileNotFoundError e usa HF)
             raise FileNotFoundError(
-                f"Parquet não encontrado: {path}. Rode `python -m src.cleaning` primeiro "
-                "ou coloque os arquivos em data/processed/."
+                f"Parquet local não encontrado para '{name}'. "
+                "Na nuvem, certifique-se de que USE_LOCAL_DATA=0 e os arquivos estão no HF."
             )
     return pd.read_parquet(path)
 
@@ -68,19 +70,27 @@ def _load_from_hf(name: str, token: str | None = None) -> pd.DataFrame:
 
 
 def _choose_loader() -> Callable[[str], pd.DataFrame]:
-    # Permite forçar local mesmo com HF configurado (útil para debug)
-    if os.getenv("USE_LOCAL_DATA", "1") == "1":
-        # Tenta local primeiro; cai para HF só se explicitamente pedido
+    # Produção no Streamlit Cloud deve usar HF.
+    # Defina USE_LOCAL_DATA=0 nas Environment variables do app na Cloud.
+    # Para dev local com dados locais: USE_LOCAL_DATA=1 (padrão).
+    # Se quiser forçar HF mesmo localmente: FORCE_HF=1.
+    use_local = os.getenv("USE_LOCAL_DATA", "1") == "1"
+    force_hf = os.getenv("FORCE_HF", "0") == "1"
+
+    if use_local and not force_hf:
         def loader(name: str) -> pd.DataFrame:
             try:
                 return _load_local(name)
+            except FileNotFoundError:
+                # Fallback automático para HF se os arquivos locais não existirem
+                # (útil em deploys onde a pasta data/ não foi copiada)
+                return _load_from_hf(name)
             except Exception:
-                if os.getenv("FORCE_HF", "0") == "1":
-                    return _load_from_hf(name)
                 raise
         return loader
-    # Modo HF-first (produção típica no Cloud)
-    return lambda name: _load_from_hf(name)
+
+    # HF como fonte principal (recomendado para Cloud / produção)
+    return _load_from_hf
 
 
 _loader = _choose_loader()

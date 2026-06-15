@@ -5,8 +5,8 @@ Uso típico (após ter as credenciais):
     export HF_TOKEN="hf_..."
     python scripts/upload_hf.py
 
-Ou após login via CLI:
-    huggingface-cli login
+Ou após login via CLI (recomendado - use o novo comando):
+    hf auth login
     python scripts/upload_hf.py
 
 Os arquivos parquet NÃO são versionados no Git — este script é a forma oficial
@@ -21,7 +21,7 @@ from pathlib import Path
 from huggingface_hub import HfApi
 
 # Ajuste conforme seu usuário / repo no Hugging Face
-REPO_ID = os.getenv("HF_REPO", "seu-usuario/stf-plenario-virtual")
+REPO_ID = os.getenv("HF_REPO", "JoaoBoscoooo/stf-plenario-virtual")
 DATASETS = ["andamentos", "decisoes", "deslocamentos", "processos"]  # 4 datasets (inclui a base principal)
 
 # Diretório padrão dos parquets gerados pelo pipeline
@@ -30,7 +30,13 @@ DEFAULT_PROCESSED = Path("data/processed")
 
 def main():
     token = os.getenv("HF_TOKEN")
-    api = HfApi(token=token)
+    if token:
+        api = HfApi(token=token)
+        print("Usando token da variável de ambiente HF_TOKEN.")
+    else:
+        # Usa o token salvo via `hf auth login` (melhor prática atual)
+        api = HfApi()
+        print("Usando token salvo via `hf auth login` (recomendado).")
 
     print(f"Subindo datasets para https://huggingface.co/datasets/{REPO_ID}")
     for nome in DATASETS:

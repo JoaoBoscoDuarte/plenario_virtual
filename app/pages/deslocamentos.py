@@ -7,11 +7,12 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-# Bootstrap for pages: Streamlit can load pages in separate contexts.
-# Must be before any 'app.' or 'src' import.
+# Bootstrap for pages (Cloud multipage + local): add root for 'src' top-level imports.
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from app.data_loader import load_deslocamentos
+__package__ = "app.pages"
+
+from ..data_loader import load_deslocamentos
 
 st.title("🚚 Deslocamentos / Tramitação")
 

@@ -20,15 +20,16 @@ from pathlib import Path
 
 import streamlit as st
 
-# Bootstrap: put project root on sys.path BEFORE any import that mentions 'app' or 'src'.
-# This is mandatory for `streamlit run app/app.py` because Streamlit runs the file
-# as a script and the package context for 'app' is not set up.
+# Bootstrap for Cloud (and local without PYTHONPATH): add project root so 'src'
+# (top-level package) is importable. Set __package__ so relative imports work
+# inside the 'app' package even when the script is executed directly.
 root = Path(__file__).resolve().parents[1]
 if str(root) not in sys.path:
     sys.path.insert(0, str(root))
 
-# Now safe to use absolute imports from the top level 'app' and 'src' packages.
-from app.data_loader import load_all
+__package__ = "app"
+
+from .data_loader import load_all
 
 st.set_page_config(
     page_title="STF — Plenário Virtual",

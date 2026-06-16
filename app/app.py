@@ -1,5 +1,7 @@
 import streamlit as sl
 
+from data import load_parquet
+
 sl.set_page_config(
     page_title="Dashboard - Análise plenário virtual",
     layout="wide",

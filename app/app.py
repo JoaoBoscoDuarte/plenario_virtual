@@ -1,4 +1,4 @@
-import streamlit as sl
+import streamlit as st
 
 from data import load_parquet
 

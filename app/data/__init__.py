@@ -1,1 +1,1 @@
-from .loader import load_parquet
+from .loader import load_parquet, load_evolucao_acervo

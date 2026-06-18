@@ -48,7 +48,8 @@ with col1:
         x="ano",
         y="quantidade_ativos",
         color="classe",
-        text="quantidade_ativos",
+        text_auto=False,
+        #text="quantidade_ativos",
         labels={
             "ano": "Ano de Referência",
             "quantidade_ativos": "Processos Ativos",
@@ -75,7 +76,7 @@ with col2:
         x="ano",
         y="quantidade_ativos",
         color="classe",
-        #text_auto=True,
+        text_auto=False,
         labels={
             "ano": "Ano",
             "quantidade_ativos": "Volume Total",

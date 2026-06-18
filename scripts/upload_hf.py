@@ -27,11 +27,11 @@ REPO_ID = os.getenv("HF_REPO", "JoaoBoscoooo/plenario_virtual")
 # recomendada em IMPLEMENTACAO_GRAFICA.md para o acervo e arquivos atuais).
 # Mantemos os principais datasets flat por compatibilidade atual; acervo usa subpasta.
 FILES = [
-    ("arquivosConcatenados.parquet", "arquivosConcatenados.parquet"),
-    ("dim_andamentos.parquet", "dim_andamentos.parquet"),
-    ("dim_decisoes.parquet", "dim_decisoes.parquet"),
-    ("dim_deslocamentos.parquet", "dim_deslocamentos.parquet"),
-    ("dim_partes.parquet", "dim_partes.parquet"),
+    ("arquivosConcatenados.parquet", "processed/arquivosConcatenados.parquet"),
+    ("dim_andamentos.parquet", "processed/dim_andamentos.parquet"),
+    ("dim_decisoes.parquet", "processed/dim_decisoes.parquet"),
+    ("dim_deslocamentos.parquet", "processed/dim_deslocamentos.parquet"),
+    ("dim_partes.parquet", "processed/dim_partes.parquet"),
     # Acervo histórico (conforme spec do IMPLEMENTACAO_GRAFICA.md)
     ("acervo/evolucao_acervo.parquet", "processed/acervo/evolucao_acervo.parquet"),
 ]

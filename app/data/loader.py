@@ -120,4 +120,5 @@ def load_evolucao_acervo() -> pd.DataFrame:
     Segue a estrutura recomendada no IMPLEMENTACAO_GRAFICA.md.
     """
     # Reaproveita a lógica geral de load_parquet (local + HF + candidatos)
-    return load_parquet(None, "processed/acervo/evolucao_acervo.parquet")
+    # Usamos o repo explicitamente para evitar depender do default em versões antigas
+    return load_parquet("JoaoBoscoooo/plenario_virtual", "processed/acervo/evolucao_acervo.parquet")

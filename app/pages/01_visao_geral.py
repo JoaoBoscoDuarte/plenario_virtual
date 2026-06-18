@@ -14,7 +14,7 @@ from components.filters import date_filter, multiselect_filter
 
 # Usa o repositório real do projeto + caminho correto no HF
 # (os arquivos estão em processed/ no repositório)
-df = load_parquet(None, "processed/arquivosConcatenados.parquet")
+df = load_parquet("JoaoBoscoooo/plenario_virtual", "processed/arquivosConcatenados.parquet")
 
 st.header("Visão Geral")
 

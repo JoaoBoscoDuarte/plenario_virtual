@@ -11,7 +11,7 @@ import bootstrap
 import streamlit as st
 from data.loader import load_parquet
 from components.filters import multiselect_filter, year_range_filter
-from data.filters import filter_by_values
+from data.filters import filter_by_values, filter_by_year_range
 
 # Usa o repositório real do projeto + caminho correto no HF
 # (os arquivos estão em processed/ no repositório)
@@ -38,14 +38,7 @@ if tipos_sel:
 # Filtro de ano (data_protocolo ou coluna ano se existir)
 ai, af = ano_range
 if ai or af:  # (0,0) é fallback sem range útil
-    try:
-        from data.filters import filter_by_year_range
-        df_filtrado = filter_by_year_range(df_filtrado, start=ai, end=af, date_col="data_protocolo")
-        
-    except Exception:
-        # fallback manual
-        if "ano" in df_filtrado.columns:
-            df_filtrado = df_filtrado[df_filtrado["ano"].between(ai, af)].copy()
+    df_filtrado = filter_by_year_range(df_filtrado, start=ai, end=af, date_col="data_protocolo")
 
 if df_filtrado.empty and not df.empty:
     st.warning("Nenhum registro após os filtros atuais.")

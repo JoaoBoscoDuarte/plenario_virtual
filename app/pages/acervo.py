@@ -2,8 +2,11 @@ import sys
 import bootstrap
 import plotly.express as px
 import streamlit as st
+
 from pathlib import Path
 from data.loader import load_evolucao_acervo
+from components.filters import render_sidebar_filters
+from data.filters import filter_by_values
 
 # ── Path setup ───────────────────────────────────────────────────────────────
 _here = Path(__file__).resolve()
@@ -42,13 +45,28 @@ if df.empty:
     st.warning("O dataframe retornou vazio.")
     st.stop()
 
+# ── Filtros (sidebar) + aplicação ────────────────────────────────────────────
+filtros = render_sidebar_filters(df)
+df_filtrado = filter_by_values(df, "classe", filtros.get("classes"))
+
+ai, af = filtros.get("periodo", (df["ano"].min(), df["ano"].max()))
+
+if "ano" in df_filtrado.columns:
+    df_filtrado = df_filtrado[df_filtrado["ano"].between(ai, af)].copy()
+
+if df_filtrado.empty:
+    st.warning("Nenhum registro após aplicação dos filtros.")
+    st.stop()
+
+st.caption(f"Mostrando {len(df_filtrado)} de {len(df)} registros após filtros.")
+
 # ── Gráfico 1: Linha do tempo ────────────────────────────────────────────────
 st.markdown("---")
 st.subheader("Linha do Tempo por Classe")
 st.caption("Clique na legenda para isolar uma classe processual.")
 
 fig_linha = px.line(
-    df,
+    df_filtrado,
     x="ano",
     y="quantidade_ativos",
     color="classe",
@@ -72,7 +90,7 @@ st.subheader("Composição Proporcional do Volume")
 st.caption("Volumetria total acumulada ano a ano, por classe.")
 
 fig_barra = px.bar(
-    df,
+    df_filtrado,
     x="ano",
     y="quantidade_ativos",
     color="classe",

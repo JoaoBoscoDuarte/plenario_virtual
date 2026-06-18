@@ -21,3 +21,9 @@ else:
 
 if str(_app_root) not in sys.path:
     sys.path.insert(0, str(_app_root))
+
+# Also expose project root so `from src.filters import ...` (and src.*) works
+# when running pages directly or without `pip install -e .`.
+_project_root = _app_root.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))

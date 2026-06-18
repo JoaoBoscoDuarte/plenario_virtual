@@ -1,25 +1,26 @@
 # Garante que "data" e "bootstrap" sejam importáveis no Streamlit Cloud
 import sys
+import bootstrap
+import plotly.express as px
+import streamlit as st
+
 from pathlib import Path
+from data.loader import load_evolucao_acervo
+
 _here = Path(__file__).resolve()
 _root = _here.parent.parent if _here.parent.name == "pages" else _here.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-import bootstrap
-import plotly.express as px
-import streamlit as st
-# Importa o carregador centralizado que configuramos no Passo 2
-from data.loader import load_evolucao_acervo
 
 # 1. Configuração da Página para modo Expandido (Wide)
 st.set_page_config(
     page_title="Acervo Histórico - STF",
-    page_icon="📊",
+    page_icon="",
     layout="wide"
 )
 
-st.title("📊 Evolução e Perfil do Acervo")
+st.title("Evolução e Perfil do Acervo")
 st.markdown(
     "Análise evolutiva do estoque de processos ativos do Controle Concentrado (ADI, ADC, ADO e ADPF) entre 1988 e 2025."
 )
@@ -27,6 +28,7 @@ st.markdown(
 # 2. Carregamento Seguro dos Dados
 try:
     df_evolucao_acervo = load_evolucao_acervo()
+
 except Exception as e:
     st.error(f"Erro crítico ao conectar com o Data Lake do Hugging Face: {e}")
     st.info("Dica: Se o repositório for privado, configure HF_TOKEN nos Secrets do Streamlit Cloud.")
@@ -38,7 +40,7 @@ st.markdown("---")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.subheader("📈 Linha do Tempo por Classe")
+    st.subheader("Linha do Tempo por Classe")
     st.caption("Valores marcados nos nós. Clique na legenda lateral para isolar uma classe processual.")
 
     fig1 = px.line(
@@ -65,7 +67,7 @@ with col1:
     st.plotly_chart(fig1, use_container_width=True)
 
 with col2:
-    st.subheader("📊 Composição Proporcional do Volume")
+    st.subheader("Composição Proporcional do Volume")
     st.caption("Visão empilhada demonstrando a volumetria total acumulada ano a ano.")
 
     fig2 = px.bar(
@@ -73,7 +75,7 @@ with col2:
         x="ano",
         y="quantidade_ativos",
         color="classe",
-        text_auto=True,
+        #text_auto=True,
         labels={
             "ano": "Ano",
             "quantidade_ativos": "Volume Total",
@@ -90,7 +92,7 @@ with col2:
 
 # 4. Seção de Conclusões Metodológicas e Jurimétricas
 st.markdown("---")
-with st.expander("📝 Ver Diagnóstico Analítico e Conclusões da Série Histórica", expanded=True):
+with st.expander("Ver Diagnóstico Analítico e Conclusões da Série Histórica", expanded=True):
     st.markdown(
         """
     ### 1. Crescimento Ininterrupto do Acervo Total

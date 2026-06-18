@@ -1,3 +1,12 @@
+# Garante que "data" e "bootstrap" sejam importáveis no Streamlit Cloud
+import sys
+from pathlib import Path
+_here = Path(__file__).resolve()
+_root = _here.parent.parent if _here.parent.name == "pages" else _here.parent
+if str(_root) not in sys.path:
+    sys.path.insert(0, str(_root))
+
+import bootstrap
 import plotly.express as px
 import streamlit as st
 # Importa o carregador centralizado que configuramos no Passo 2
@@ -20,6 +29,7 @@ try:
     df_evolucao_acervo = load_evolucao_acervo()
 except Exception as e:
     st.error(f"Erro crítico ao conectar com o Data Lake do Hugging Face: {e}")
+    st.info("Dica: Se o repositório for privado, configure HF_TOKEN nos Secrets do Streamlit Cloud.")
     st.stop()
 
 st.markdown("---")

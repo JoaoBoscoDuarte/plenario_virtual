@@ -5,13 +5,39 @@ import streamlit as st
 
 from pathlib import Path
 from data.loader import load_evolucao_acervo
-from components.filters import (
-    render_sidebar_filters,
-    class_selector_with_geral,
-    show_values_toggle,
-    prepare_class_or_geral,
-)
 from data.filters import filter_by_values
+
+# --- Defensive import for new global filter components ---
+# On Streamlit Cloud deploys the components/filters.py on the server may still
+# be an older version that does not contain the new functions.
+# We catch the ImportError and provide minimal fallback implementations.
+try:
+    from components.filters import (
+        render_sidebar_filters,
+        class_selector_with_geral,
+        show_values_toggle,
+        prepare_class_or_geral,
+    )
+except ImportError:
+    from components.filters import render_sidebar_filters
+
+    def class_selector_with_geral(df, col="classe"):
+        """Fallback quando a versão do components/filters.py é antiga."""
+        try:
+            from components.filters import filtro_classe
+            classes = filtro_classe(df, col)
+        except Exception:
+            classes = []
+        return {"selected": classes, "use_geral": False}
+
+    def show_values_toggle():
+        """Fallback: não mostra valores por padrão."""
+        return False
+
+    def prepare_class_or_geral(df, value_col, class_col="classe", selection=None):
+        """Fallback: retorna o df sem agregação especial."""
+        return df if df is not None else df
+
 
 # ── Path setup ───────────────────────────────────────────────────────────────
 _here = Path(__file__).resolve()

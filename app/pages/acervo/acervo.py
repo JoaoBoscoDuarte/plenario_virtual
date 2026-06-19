@@ -5,28 +5,17 @@ from pathlib import Path
 
 import streamlit as st
 
-from data.loader import load_evolucao_acervo
-from data.filters import filter_by_values
-from components.filters import (
-    render_sidebar_filters,
-    class_selector_with_geral,
-    show_values_toggle,
-    prepare_class_or_geral,
-)
-from .layout import render_graficos
-
 # ── Path setup ───────────────────────────────────────────────────────────────
+# Precisa vir antes dos imports locais (data, components, pages.acervo.layout)
+# porque st.navigation executa este arquivo via exec(), sem pacote pai —
+# imports relativos (from .layout import ...) não funcionam aqui.
 _here = Path(__file__).resolve()
 _root = _here.parent.parent.parent  # /app
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-# ── Configuração ─────────────────────────────────────────────────────────────
-st.set_page_config(
-    page_title="Acervo Histórico",
-    page_icon="⚖️",
-    layout="wide",
-)
+from data.loader import load_evolucao_acervo
+from pages.acervo.layout import render_graficos
 
 # ── Dados ────────────────────────────────────────────────────────────────────
 try:
@@ -48,36 +37,22 @@ if df.empty:
 
 # ── Cabeçalho ────────────────────────────────────────────────────────────────
 st.title("Acervo")
-st.markdown(
-    "Evolução anual do acervo geral de Controle Concentrado (ADI, ADC, ADO e ADPF), "
-    "período 1988–2025, referência 31/12 de cada ano. Unidade: processo."
-)
-with st.expander("Critério / Caminho dos dados"):
-    st.markdown("""
-- **Período:** 1988 a 2025.
-- **Data de referência:** 31/12 de cada ano.
-- **Unidade:** processo.
-> Excluídos processos com andamentos de "baixa ao arquivo", "baixa definitiva dos autos",
-> "baixa dos autos" ou "processo findo" ao longo do ano.
-    """)
+st.markdown("""
+Esta seção analisa o **acervo histórico de Controle Concentrado** do STF, compreendendo as 
+quatro classes processuais de competência originatária do tribunal: ADI, ADC, ADO e ADPF. 
+O acervo é medido como o estoque de processos **ativos ao final de cada ano** (referência 31/12), 
+construindo uma série histórica desde a promulgação da Constituição de 1988 até 2025.
 
-# ── Filtros ───────────────────────────────────────────────────────────────────
-filtros = render_sidebar_filters(df)
-class_sel = class_selector_with_geral(df)
-show_values = show_values_toggle()
+O objetivo é revelar a dinâmica de crescimento, a distribuição por classe e os padrões 
+de litigiosidade que moldam a pauta do tribunal ao longo do tempo.
+""")
 
-ai, af = filtros.get("periodo", (int(df["ano"].min()), int(df["ano"].max())))
-df_filtrado = filter_by_values(df, "classe", filtros.get("classes"))
-df_filtrado = df_filtrado[df_filtrado["ano"].between(ai, af)].copy()
-df_filtrado = prepare_class_or_geral(
-    df_filtrado, value_col="quantidade_ativos", class_col="classe", selection=class_sel
-)
-
-if df_filtrado.empty:
-    st.warning("Nenhum registro após aplicação dos filtros.")
-    st.stop()
-
-st.caption(f"Mostrando {len(df_filtrado)} registros após filtros (período {ai}–{af}).")
+st.markdown("""
+**Nesta seção:**
+- **Total de Processos Ativos por Ano** — visão consolidada do crescimento do acervo, agregando todas as classes.
+- **Evolução do Acervo Ativo por Classe** — desagregação por classe processual, permitindo comparar ADI, ADC, ADO e ADPF ao longo do tempo.
+- **Dados Brutos por Ano e Classe** — tabela com valores absolutos e percentuais por classe, incluindo total anual.
+""")
 
 # ── Renderização ──────────────────────────────────────────────────────────────
-render_graficos(df_filtrado, show_values=show_values)
+render_graficos(df)

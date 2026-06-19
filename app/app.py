@@ -3,16 +3,23 @@ import streamlit as st
 
 from pathlib import Path
 
+st.set_page_config(layout="wide")
+
+# ── Path setup ───────────────────────────────────────────────────────────────
 _root = Path(__file__).resolve().parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-st.set_page_config(
-    page_title="Dashboard - Análise plenário virtual",
-    layout="wide",
-    page_icon="⚖️",
-    initial_sidebar_state="expanded"
+# ── Navegação ────────────────────────────────────────────────────────────────
+pg = st.navigation(
+    {
+        "Acervo": [
+            st.Page("pages/acervo/acervo.py", title="Acervo Histórico", icon="📦"),
+        ],
+        "Visão Geral": [
+            st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
+        ],
+    }
 )
 
-st.title("Dashboard - Análise plenário virtual")
-st.markdown("Selecione uma área de análise no menu lateral.")
+pg.run()

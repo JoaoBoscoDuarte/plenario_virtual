@@ -49,9 +49,14 @@ de litigiosidade que moldam a pauta do tribunal ao longo do tempo.
 
 st.markdown("""
 **Nesta seção:**
-- **Total de Processos Ativos por Ano** — visão consolidada do crescimento do acervo, agregando todas as classes.
-- **Evolução do Acervo Ativo por Classe** — desagregação por classe processual, permitindo comparar ADI, ADC, ADO e ADPF ao longo do tempo.
-- **Dados Brutos por Ano e Classe** — tabela com valores absolutos e percentuais por classe, incluindo total anual.
+- **Evolução Total do Acervo por Ano** — série histórica do total geral (ativos + inativos), todas as classes somadas.
+- **Evolução Total do Acervo por Classe** — mesmo total desagregado por ADI, ADC, ADO e ADPF.
+- **Evolução do Acervo Ativo por Ano** — processos sem baixa definitiva, todas as classes somadas.
+- **Evolução do Acervo Ativo por Classe** — ativos desagregados por classe.
+- **Evolução do Acervo Inativo por Ano** — processos encerrados acumulados, todas as classes somadas.
+- **Evolução do Acervo Inativo por Classe** — inativos desagregados por classe.
+- **Composição Proporcional por Classe** — distribuição empilhada do acervo ativo.
+- **Dados Brutos** — tabela com valores absolutos e percentuais por classe e ano.
 """)
 
 # ── Renderização ──────────────────────────────────────────────────────────────

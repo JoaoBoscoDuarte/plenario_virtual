@@ -3,7 +3,6 @@
 from __future__ import annotations
 import streamlit as st
 import pandas as pd
-from data.filters import filter_by_values, prepare_class_or_geral
 from .plots import fig_total_por_ano, fig_evolucao_acervo, fig_composicao_proporcional
 
 
@@ -104,6 +103,7 @@ def _render_tabela(df: pd.DataFrame) -> None:
     st.caption(
         "Valores absolutos e participação percentual de cada classe no total anual."
     )
+
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
             "- **Fonte:** `data/processed/evolucao_acervo.parquet`  \n"
@@ -112,6 +112,7 @@ def _render_tabela(df: pd.DataFrame) -> None:
 
     opcoes = sorted(df["classe"].dropna().unique().tolist())
     c1, c2 = st.columns([3, 3])
+
     with c1:
         y_min, y_max = _year_range(df)
         periodo = st.slider(
@@ -122,6 +123,7 @@ def _render_tabela(df: pd.DataFrame) -> None:
             step=1,
             key="tab_periodo",
         )
+
     with c2:
         classes_sel = st.multiselect(
             "Classes", options=opcoes, default=opcoes, key="tab_classes"
@@ -135,20 +137,25 @@ def _render_tabela(df: pd.DataFrame) -> None:
     pivot = df_f.pivot_table(
         index="ano", columns="classe", values="quantidade_ativos", aggfunc="sum"
     )
+
     pivot = pivot.reindex(sorted(pivot.columns), axis=1)
     pivot["Total"] = pivot.sum(axis=1)
 
     # Percentuais por classe
     pct_cols = {}
+
     for col in [c for c in pivot.columns if c != "Total"]:
         pct_cols[f"{col} (%)"] = (pivot[col] / pivot["Total"] * 100).round(1)
+
     pct_df = pd.DataFrame(pct_cols)
 
     # Intercala valor absoluto + percentual por classe, depois Total
     classes_ord = [c for c in pivot.columns if c != "Total"]
     cols_intercaladas = []
+
     for c in classes_ord:
         cols_intercaladas.append(c)
+
         if f"{c} (%)" in pct_df.columns:
             cols_intercaladas.append(f"{c} (%)")
 

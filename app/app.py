@@ -1,8 +1,6 @@
 import sys
 import streamlit as st
-import bootstrap
 
-from data import load_parquet
 from pathlib import Path
 
 _root = Path(__file__).resolve().parent

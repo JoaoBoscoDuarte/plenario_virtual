@@ -7,7 +7,6 @@ _root = _here.parent.parent if _here.parent.name == "pages" else _here.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-import bootstrap
 import streamlit as st
 from data.loader import load_parquet
 from components.filters import multiselect_filter, year_range_filter

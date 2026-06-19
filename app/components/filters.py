@@ -137,3 +137,110 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict[str, Any]:
         "periodo": periodo,   # (ano_inicio, ano_fim)
         "classes": classes,   # ["ADI", "ADC", ...]
     }
+
+
+# ------------------------------------------------------------------
+# Novos componentes globais exigidos para a lista de gráficos
+# (regras de toggle de valores, classe + Geral, etc.)
+# ------------------------------------------------------------------
+
+def show_values_toggle() -> bool:
+    """Checkbox global 'Exibir valores nos gráficos'.
+
+    Default = False (sem poluição visual).
+    Retorna True quando o usuário quer ver os rótulos numéricos.
+    """
+    return st.sidebar.checkbox(
+        "Exibir valores nos gráficos",
+        value=False,
+        help="Quando marcado, mostra os valores totais sobre barras/pontos nos gráficos (respeitando os filtros aplicados)."
+    )
+
+
+def class_selector_with_geral(df: pd.DataFrame, col: str = "classe") -> dict[str, Any]:
+    """Seletor de classe com suporte explícito a 'Geral (todas as classes)'.
+
+    Retorna:
+      {
+        "selected": list[str] | None,   # None ou lista de classes específicas
+        "use_geral": bool               # True quando deve agregar tudo
+      }
+
+    Comportamento:
+    - Se o usuário marcar "Geral (todas as classes)", use_geral=True e selected pode ser ignorado (soma).
+    - Caso contrário, usa as classes selecionadas no multiselect.
+    """
+    opcoes = [str(x) for x in _safe_unique_sorted(df, col)]
+    if not opcoes:
+        return {"selected": [], "use_geral": False}
+
+    use_geral = st.sidebar.checkbox(
+        "Geral (todas as classes)",
+        value=False,
+        help="Quando marcado, o gráfico mostra apenas a série agregada (soma de todas as classes)."
+    )
+
+    if use_geral:
+        # Quando Geral está marcado, o multiselect fica desabilitado visualmente (mas ainda mostramos para referência)
+        st.sidebar.multiselect(
+            "Classe processual (ignorada no modo Geral)",
+            options=opcoes,
+            default=opcoes,
+            disabled=True
+        )
+        return {"selected": opcoes, "use_geral": True}
+
+    selected = st.sidebar.multiselect(
+        "Classe processual",
+        options=opcoes,
+        default=opcoes
+    )
+    return {"selected": selected, "use_geral": False}
+
+
+def prepare_class_or_geral(
+    df: pd.DataFrame,
+    value_col: str,
+    class_col: str = "classe",
+    selection: dict[str, Any] | None = None
+) -> pd.DataFrame:
+    """Prepara o DataFrame para plot conforme seleção de classe/Geral.
+
+    - Se use_geral=True: agrupa por ano (ou outra chave temporal) somando value_col e cria coluna "classe" = "Geral".
+    - Caso contrário: filtra para as classes selecionadas.
+
+    Retorna cópia do df pronto para uso no gráfico.
+    """
+    if df is None or df.empty:
+        return df
+
+    work = df.copy()
+
+    if selection is None:
+        return work
+
+    use_geral = selection.get("use_geral", False)
+    selected = selection.get("selected", [])
+
+    if use_geral:
+        # Agregar tudo (mantendo colunas de ano/outros se existirem)
+        group_keys = [c for c in work.columns if c != class_col and c != value_col]
+        if not group_keys:
+            # fallback: tentar encontrar coluna de ano
+            for c in ["ano", "year"]:
+                if c in work.columns:
+                    group_keys = [c]
+                    break
+        if group_keys:
+            agg = work.groupby(group_keys, as_index=False)[value_col].sum()
+            agg[class_col] = "Geral"
+            return agg
+        else:
+            # último recurso
+            total = work[value_col].sum()
+            return pd.DataFrame({class_col: ["Geral"], value_col: [total]})
+
+    if selected:
+        work = work[work[class_col].astype(str).isin([str(s) for s in selected])]
+
+    return work

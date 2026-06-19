@@ -5,7 +5,12 @@ import streamlit as st
 
 from pathlib import Path
 from data.loader import load_evolucao_acervo
-from components.filters import render_sidebar_filters
+from components.filters import (
+    render_sidebar_filters,
+    class_selector_with_geral,
+    show_values_toggle,
+    prepare_class_or_geral,
+)
 from data.filters import filter_by_values
 
 # ── Path setup ───────────────────────────────────────────────────────────────
@@ -27,6 +32,16 @@ st.markdown(
     "(ADI, ADC, ADO e ADPF) entre 1988 e 2025."
 )
 
+with st.expander("Critério / Caminho dos dados (Gráficos 1 e 2)"):
+    st.markdown("""
+**Gráfico 1 (Geral) e Gráfico 2 (por classe):**
+- Período: 1988 a 2025 (ou a partir de 2000 se dados iniciais inconsistentes).
+- Data de referência: 31/12 de cada ano.
+- Unidade: processo.
+- Exclui processos com andamentos de “baixa ao arquivo”, “baixa definitiva dos autos”, “baixa dos autos” ou “processo findo” ao longo do ano (ou usa critério de processos que tiveram algum andamento no ano).
+- Fonte principal: `evolucao_acervo.parquet` (pré-computado) com filtros dinâmicos de ano e classe/Geral aplicados no app.
+""")
+
 # ── Carregamento dos dados ───────────────────────────────────────────────────
 try:
     df = load_evolucao_acervo()
@@ -45,27 +60,61 @@ if df.empty:
     st.warning("O dataframe retornou vazio.")
     st.stop()
 
-# ── Filtros (sidebar) + aplicação ────────────────────────────────────────────
+# ── Filtros globais (novos componentes exigidos) ─────────────────────────────
 filtros = render_sidebar_filters(df)
+
+# Novo seletor de classe com opção "Geral"
+class_sel = class_selector_with_geral(df)
+
+# Toggle global de exibição de valores
+show_values = show_values_toggle()
+
 df_filtrado = filter_by_values(df, "classe", filtros.get("classes"))
 
-ai, af = filtros.get("periodo", (df["ano"].min(), df["ano"].max()))
-
+ai, af = filtros.get("periodo", (int(df["ano"].min()), int(df["ano"].max())))
 if "ano" in df_filtrado.columns:
     df_filtrado = df_filtrado[df_filtrado["ano"].between(ai, af)].copy()
+
+# Aplicar lógica de "Geral" (agregação) ou classes específicas
+df_filtrado = prepare_class_or_geral(
+    df_filtrado,
+    value_col="quantidade_ativos",
+    class_col="classe",
+    selection=class_sel
+)
 
 if df_filtrado.empty:
     st.warning("Nenhum registro após aplicação dos filtros.")
     st.stop()
 
-st.caption(f"Mostrando {len(df_filtrado)} de {len(df)} registros após filtros.")
+st.caption(f"Mostrando {len(df_filtrado)} registros após filtros (período {ai}–{af}).")
 
-# ── Gráfico 1: Linha do tempo ────────────────────────────────────────────────
+# ── Controles específicos do Gráfico de Evolução do Acervo ───────────────────
 st.markdown("---")
-st.subheader("Linha do Tempo por Classe")
-st.caption("Clique na legenda para isolar uma classe processual.")
 
-fig_linha = px.line(
+# Radio específico exigido para o Gráfico de Evolução anual do acervo por classe
+chart_type = st.radio(
+    "Tipo de visualização (Evolução do Acervo)",
+    options=["Gráfico de Linhas", "Gráfico de Barras"],
+    horizontal=True,
+    index=0
+)
+
+# Checkbox específico para rótulos em linha (sincronizado com o global)
+labels_disabled = not show_values
+local_line_labels = st.checkbox(
+    "Exibir rótulos nos pontos",
+    value=show_values,
+    disabled=labels_disabled,
+    help="Ativa rótulos nos pontos da linha. Desabilitado quando o toggle global 'Exibir valores nos gráficos' está desligado."
+)
+
+# ── Gráfico principal de Evolução (suporta Linha/Barras + toggle de valores) ─
+st.subheader("Evolução do Acervo Ativo")
+
+use_bar = chart_type == "Gráfico de Barras"
+
+fig = px.line(
     df_filtrado,
     x="ano",
     y="quantidade_ativos",
@@ -76,15 +125,42 @@ fig_linha = px.line(
         "quantidade_ativos": "Processos Ativos",
         "classe": "Classe",
     },
+    title="Evolução anual do acervo – por classe / Geral",
 )
-fig_linha.update_layout(
-    template="plotly_white",
-    xaxis=dict(dtick=4),
-    margin=dict(l=20, r=20, t=20, b=20),
-)
-st.plotly_chart(fig_linha, use_container_width=True)
 
-# ── Gráfico 2: Composição proporcional ──────────────────────────────────────
+if use_bar:
+    # Reconstrói como barras quando o usuário escolher
+    fig = px.bar(
+        df_filtrado,
+        x="ano",
+        y="quantidade_ativos",
+        color="classe",
+        labels={
+            "ano": "Ano de Referência",
+            "quantidade_ativos": "Processos Ativos",
+            "classe": "Classe",
+        },
+        title="Evolução anual do acervo – por classe / Geral",
+    )
+
+# Controle de rótulos de valor (global + específico da linha)
+if show_values:
+    text_val = df_filtrado["quantidade_ativos"] if "quantidade_ativos" in df_filtrado.columns else None
+    fig.update_traces(
+        text=text_val,
+        textposition="top center" if not use_bar else "outside"
+    )
+
+fig.update_layout(
+    template="plotly_white",
+    xaxis=dict(dtick=1),
+    yaxis=dict(autorange=True),
+    margin=dict(l=20, r=20, t=40, b=20),
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# ── Gráfico secundário (composição) ──────────────────────────────────────────
 st.markdown("---")
 st.subheader("Composição Proporcional do Volume")
 st.caption("Volumetria total acumulada ano a ano, por classe.")
@@ -100,6 +176,10 @@ fig_barra = px.bar(
         "classe": "Classe",
     },
 )
+
+if show_values:
+    fig_barra.update_traces(text=df_filtrado["quantidade_ativos"], textposition="outside")
+
 fig_barra.update_layout(
     template="plotly_white",
     xaxis=dict(dtick=4),

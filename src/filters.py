@@ -56,3 +56,38 @@ def filter_by_text_search(df: pd.DataFrame, columns: list[str], query: str | Non
             mask |= df[col].astype(str).str.lower().str.contains(q, na=False)
             
     return df[mask].copy()
+
+
+def filter_by_year_range(
+    df: pd.DataFrame,
+    year: int | None = None,
+    start: int | None = None,
+    end: int | None = None,
+    year_col: str = "ano",
+    date_col: str = "data_protocolo",
+) -> pd.DataFrame:
+    """Filtra por ano exato, ou por intervalo de anos.
+
+    Aceita year_col (int) ou date_col (extrai ano). Retorna cópia.
+    """
+    if df is None or df.empty:
+        return df
+
+    work = df.copy()
+
+    if year_col in work.columns:
+        years = pd.to_numeric(work[year_col], errors="coerce")
+    elif date_col in work.columns:
+        years = pd.to_datetime(work[date_col], errors="coerce").dt.year
+    else:
+        return work
+
+    mask = pd.Series([True] * len(work), index=work.index)
+    if year is not None:
+        mask &= years == year
+    if start is not None:
+        mask &= years >= start
+    if end is not None:
+        mask &= years <= end
+
+    return work[mask].copy()

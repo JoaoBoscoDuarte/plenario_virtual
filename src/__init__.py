@@ -27,6 +27,8 @@ from .json_transforme import (
     processar_deslocamentos,
 )
 
+from . import filters as filters  # reexport module: from src.filters import ...
+
 __all__ = [
     "load_raw_csv",
     "parse_liminar",
@@ -37,4 +39,5 @@ __all__ = [
     "processar_andamentos",
     "processar_decisoes",
     "processar_deslocamentos",
+    "filters",
 ]

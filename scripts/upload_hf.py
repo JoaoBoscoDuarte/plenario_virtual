@@ -36,8 +36,8 @@ FILES = [
     ("acervo/evolucao_acervo.parquet", "processed/acervo/evolucao_acervo.parquet"),
 ]
 
-# Diretório padrão dos parquets gerados pelo pipeline
-DEFAULT_PROCESSED = Path("data/processed")
+# Diretório padrão dos parquets — relativo à raiz do projeto (pai de scripts/)
+DEFAULT_PROCESSED = Path(__file__).resolve().parent.parent / "data" / "processed"
 
 
 def main():

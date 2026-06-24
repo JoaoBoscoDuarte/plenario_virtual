@@ -3,18 +3,7 @@
 from __future__ import annotations
 import streamlit as st
 import pandas as pd
-from .plots import (
-    fig_total_geral_por_ano,
-    fig_total_geral_por_classe,
-    fig_total_por_ano,
-    fig_evolucao_acervo,
-    fig_total_inativos_por_ano,
-    fig_inativos_por_classe,
-    fig_composicao_proporcional,
-)
-
-_TIPOS_GERAL = ["Linhas", "Barras"]
-_TIPOS_CLASSE = ["Linhas", "Barras", "Barras Empilhadas"]
+from .plots import fig_total_ativo_anual, fig_ativo_por_classe
 
 
 def _year_range(df: pd.DataFrame) -> tuple[int, int]:
@@ -22,132 +11,37 @@ def _year_range(df: pd.DataFrame) -> tuple[int, int]:
     return int(years.min()), int(years.max())
 
 
-def _controles_geral(key_prefix: str, df: pd.DataFrame) -> tuple[pd.DataFrame, str, bool]:
-    """Filtros para gráficos de série única (sem classe)."""
-    c1, c2, c3 = st.columns([3, 2, 1])
-    with c1:
-        y_min, y_max = _year_range(df)
-        periodo = st.slider("Período", y_min, y_max, (y_min, y_max), step=1, key=f"{key_prefix}_periodo")
-    with c2:
-        chart_type = st.radio("Tipo", _TIPOS_GERAL, horizontal=True, key=f"{key_prefix}_tipo")
-    with c3:
-        st.write("&nbsp;", unsafe_allow_html=True)
-        show_values = st.checkbox("Valores", value=False, key=f"{key_prefix}_valores")
-    ai, af = periodo
-    return df[df["ano"].between(ai, af)].copy(), chart_type, show_values
-
-
-def _controles_classe(key_prefix: str, df: pd.DataFrame) -> tuple[pd.DataFrame, str, bool]:
-    """Filtros para gráficos desagregados por classe."""
-    opcoes = sorted(df["classe"].dropna().unique().tolist())
-    c1, c2, c3, c4 = st.columns([3, 2, 2, 1])
-    with c1:
-        y_min, y_max = _year_range(df)
-        periodo = st.slider("Período", y_min, y_max, (y_min, y_max), step=1, key=f"{key_prefix}_periodo")
-    with c2:
-        classes_sel = st.multiselect("Classes", opcoes, default=opcoes, key=f"{key_prefix}_classes")
-    with c3:
-        chart_type = st.radio("Tipo", _TIPOS_CLASSE, horizontal=True, key=f"{key_prefix}_tipo")
-    with c4:
-        st.write("&nbsp;", unsafe_allow_html=True)
-        show_values = st.checkbox("Valores", value=False, key=f"{key_prefix}_valores")
-    ai, af = periodo
-    sel = classes_sel if classes_sel else opcoes
-    return df[df["ano"].between(ai, af) & df["classe"].isin(sel)].copy(), chart_type, show_values
-
-
-def _section(title: str, caption: str, fonte: str):
-    st.subheader(title)
-    st.caption(caption)
+def _render_total_ativo(df: pd.DataFrame) -> None:
+    st.subheader("Evolução do Acervo Ativo Anual")
+    st.caption("Total de processos ativos ao final de cada ano, somando todas as classes.")
     with st.expander("Critério / Caminho dos dados"):
-        st.markdown(f"- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n- **Referência:** 31/12 de cada ano  \n{fonte}")
+        st.markdown(
+            "- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n"
+            "- **Métrica:** `quantidade_ativos` — soma de ADI + ADC + ADO + ADPF  \n"
+            "- **Referência:** 31/12 de cada ano  \n"
+            "- **Marcos:** ER 51/2016, ER 52/2019, ER 53/2020 e ESPIN (2020–2022)"
+        )
+    show_values = st.checkbox("Exibir valores", value=False, key="total_show_values")
+    st.plotly_chart(fig_total_ativo_anual(df, show_values), use_container_width=True)
 
 
-# ── Seções de plotagem ────────────────────────────────────────────────────────
+def _render_por_classe(df: pd.DataFrame) -> None:
+    st.subheader("Evolução do Acervo Ativo Anual por Classe")
+    st.caption("Barras da classe selecionada com linha do total geral no eixo secundário.")
+    with st.expander("Critério / Caminho dos dados"):
+        st.markdown(
+            "- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n"
+            "- **Eixo esquerdo:** `quantidade_ativos` da classe  \n"
+            "- **Eixo direito:** total geral do STF (todas as classes)  \n"
+            "- **Marcos:** ER 51/2016, ER 52/2019, ER 53/2020 e ESPIN (2020–2022)"
+        )
+    show_values = st.checkbox("Exibir valores", value=False, key="classe_show_values")
 
-def _render_total_geral_ano(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução Total do Acervo por Ano",
-        "Soma de todas as classes (ADI + ADC + ADO + ADPF) ao final de cada ano.",
-        "- **Métrica:** `total_geral` — soma de ativos e inativos",
-    )
-    df_f, ct, sv = _controles_geral("tga", df)
-    st.plotly_chart(fig_total_geral_por_ano(df_f, ct, sv), use_container_width=True)
-
-
-def _render_total_geral_classe(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução Total do Acervo por Classe",
-        "Total de processos (ativos + inativos) por classe processual ao longo dos anos.",
-        "- **Métrica:** `total_geral` por classe",
-    )
-    df_f, ct, sv = _controles_classe("tgc", df)
-    st.plotly_chart(fig_total_geral_por_classe(df_f, ct, sv), use_container_width=True)
-
-
-def _render_ativo_ano(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução do Acervo Ativo por Ano",
-        "Processos ativos ao final de cada ano, agregando todas as classes.",
-        "- **Métrica:** `quantidade_ativos` — processos sem baixa definitiva",
-    )
-    df_f, ct, sv = _controles_geral("ata", df)
-    st.plotly_chart(fig_total_por_ano(df_f, ct, sv), use_container_width=True)
-
-
-def _render_ativo_classe(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução do Acervo Ativo por Classe",
-        "Desagregação dos processos ativos por classe processual ao longo dos anos.",
-        "- **Métrica:** `quantidade_ativos` por classe",
-    )
-    df_f, ct, sv = _controles_classe("atc", df)
-    st.plotly_chart(fig_evolucao_acervo(df_f, ct, sv), use_container_width=True)
-
-
-def _render_inativo_ano(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução do Acervo Inativo por Ano",
-        "Processos encerrados (baixa definitiva) acumulados ao final de cada ano.",
-        "- **Métrica:** `quantidade_inativos` — processos com baixa definitiva",
-    )
-    df_f, ct, sv = _controles_geral("ina", df)
-    st.plotly_chart(fig_total_inativos_por_ano(df_f, ct, sv), use_container_width=True)
-
-
-def _render_inativo_classe(df: pd.DataFrame) -> None:
-    _section(
-        "Evolução do Acervo Inativo por Classe",
-        "Desagregação dos processos encerrados por classe processual ao longo dos anos.",
-        "- **Métrica:** `quantidade_inativos` por classe",
-    )
-    df_f, ct, sv = _controles_classe("inc", df)
-    st.plotly_chart(fig_inativos_por_classe(df_f, ct, sv), use_container_width=True)
-
-
-def _render_composicao(df: pd.DataFrame) -> None:
-    _section(
-        "Composição Proporcional por Classe",
-        "Distribuição empilhada do acervo ativo por classe processual.",
-        "- **Métrica:** `quantidade_ativos` — empilhamento absoluto por classe",
-    )
-    opcoes = sorted(df["classe"].dropna().unique().tolist())
-    c1, c2, c3 = st.columns([3, 3, 1])
-    with c1:
-        y_min, y_max = _year_range(df)
-        periodo = st.slider("Período", y_min, y_max, (y_min, y_max), step=1, key="comp_periodo")
-    with c2:
-        classes_sel = st.multiselect("Classes", opcoes, default=opcoes, key="comp_classes")
-    with c3:
-        st.write("&nbsp;", unsafe_allow_html=True)
-        show_values = st.checkbox("Valores", value=False, key="comp_valores")
-    ai, af = periodo
-    sel = classes_sel if classes_sel else opcoes
-    df_f = df[df["ano"].between(ai, af) & df["classe"].isin(sel)].copy()
-    if df_f.empty:
-        st.warning("Nenhum registro para os filtros selecionados.")
-        return
-    st.plotly_chart(fig_composicao_proporcional(df_f, show_values), use_container_width=True)
+    classes = sorted(df["classe"].dropna().unique().tolist())
+    tabs = st.tabs(classes)
+    for tab, classe in zip(tabs, classes):
+        with tab:
+            st.plotly_chart(fig_ativo_por_classe(df, classe, show_values), use_container_width=True)
 
 
 def _render_tabela(df: pd.DataFrame) -> None:
@@ -189,57 +83,41 @@ def _render_tabela(df: pd.DataFrame) -> None:
         rows.append(row)
 
     tabela = pd.DataFrame(rows).sort_values("Ano", ascending=False).set_index("Ano")
-
     int_cols = [c for c in tabela.columns if "%" not in c]
     pct_cols = [c for c in tabela.columns if "%" in c]
     fmt = {c: "{:,.0f}" for c in int_cols}
     fmt.update({c: "{:.1f}%" for c in pct_cols})
-
     st.dataframe(tabela.style.format(fmt, na_rep="—"), use_container_width=True, height=460)
 
 
-# ── Ponto de entrada ──────────────────────────────────────────────────────────
-
 def render_graficos(df: pd.DataFrame) -> None:
     st.markdown("---")
-    _render_total_geral_ano(df)
+    _render_total_ativo(df)
 
     st.markdown("---")
-    _render_total_geral_classe(df)
+    _render_por_classe(df)
 
     st.markdown("---")
-    _render_ativo_ano(df)
-
-    st.markdown("---")
-    _render_ativo_classe(df)
-
-    st.markdown("---")
-    _render_inativo_ano(df)
-
-    st.markdown("---")
-    _render_inativo_classe(df)
+    _render_tabela(df)
 
     st.markdown("---")
     with st.expander("Diagnóstico Analítico e Conclusões da Série Histórica", expanded=True):
         st.markdown("""
-### Crescimento Ininterrupto e a "Explosão" do Acervo Total
-O dado mais alarmante e evidente é o crescimento estrito e contínuo do acervo total, que saltou de apenas **11 processos em 1988** para **9.142 processos ativos em 2025**. Em nenhum ano da série histórica houve redução do estoque de processos de um ano para o outro. Isso demonstra um cenário de litigiosidade acumulada: a taxa de entrada de novas ações e o tempo de tramitação superam consistentemente a capacidade de baixa definitiva do tribunal, consolidando o fenômeno da judicialização da política e das políticas públicas no Brasil pós-1988.
+### 1. O Impacto das Reformas Regimentais (ER 51, 52 e 53)
+Diferente de uma visão puramente cumulativa, os gráficos de acervo ativo revelam que o tribunal iniciou um processo de "limpeza" e aceleração de baixas a partir de 2016.
 
-### A Hegemonia Absoluta da ADI
-A Ação Direta de Inconstitucionalidade (ADI) é o verdadeiro motor do acervo do controle concentrado. Desde o primeiro ano, ela representa a esmagadora maioria dos casos. Em 2025, com **7.678 processos**, as ADIs sozinhas respondem por aproximadamente **84% de todo o acervo ativo** do tribunal. Isso indica que o principal uso do controle concentrado historicamente tem sido o questionamento direto e a tentativa de derrubada de leis e atos normativos federais e estaduais.
+- **ER 51/2016 e ER 52/2019:** Marcam o início de uma tendência de estabilização e posterior queda no estoque pendente, ao conferir maior agilidade aos julgamentos monocráticos e virtuais.
+- **ER 53/2020:** Este é o marco mais visível. Mesmo durante a pandemia, a expansão do Plenário Virtual permitiu que o STF reduzisse o acervo ativo de forma drástica, revertendo a curva de crescimento que durava décadas.
 
-### A Ascensão Meteórica da ADPF
-A Arguição de Descumprimento de Preceito Fundamental (ADPF) surge no acervo no ano 2000 com apenas 10 processos ativos (logo após sua regulamentação pela Lei nº 9.882/1999). O seu crescimento, no entanto, foi o mais agressivo proporcionalmente: chegou a **1.279 processos em 2025**, consolidando-se isoladamente como a segunda maior classe processual. O salto mais expressivo ocorreu na última década (de 314 em 2014 para 1.279 em 2025).
+### 2. Bipolaridade: ADI vs. ADPF
+O perfil da litigiosidade concentrada mudou de face:
 
-### O Papel Periférico e Estabilizado de ADCs e ADOs
-Diferente das ADIs e ADPFs, a Ação Declaratória de Constitucionalidade (ADC) e a Ação Direta de Inconstitucionalidade por Omissão (ADO) possuem um papel nitidamente residual no volume total do acervo:
+- **Hegemonia da ADI:** Embora continue sendo a classe majoritária, a ADI apresentou sua primeira queda sustentada de volume na última década, saindo de picos históricos para níveis mais controláveis em 2025.
+- **Protagonismo da ADPF:** Enquanto as ADIs estabilizaram, as ADPFs tornaram-se o instrumento preferencial para questões urgentes e direitos fundamentais, mantendo uma curva de relevância alta mesmo com os esforços de redução de acervo.
 
-- **ADC:** Teve início em 1993 (com a Emenda Constitucional nº 3) e encerrou 2025 com apenas **95 processos**. Por ser um instrumento que visa confirmar a constitucionalidade de uma lei federal em face de controvérsia judicial relevante, seu uso é muito mais restrito e estratégico.
+### 3. O Efeito ESPIN (2020–2022)
+O período da Emergência em Saúde Pública (ESPIN) não paralisou o tribunal. Pelo contrário, os dados mostram que a produtividade em ambiente virtual superou a entrada de novos casos no período. O sombreado no gráfico demonstra que o acervo continuou a cair durante a crise sanitária, provando a resiliência operacional do modelo de julgamento digital adotado.
 
-- **ADO:** Passou a figurar no acervo em 2008 (com a regulamentação pela Lei nº 12.063/2009) e chegou a 2025 com **90 processos ativos**. Embora trate de omissões legislativas (falta de regulamentação de direitos constitucionais), o tribunal compartilha essa demanda de forma pulverizada com o Mandado de Injunção no controle difuso, o que mantém o estoque concentrado em patamares baixos.
-
-O perfil do acervo migrou de um modelo de classe única (focado quase que exclusivamente em ADIs entre 1988 e 1999) para um **modelo bipolarizado** a partir dos anos 2000, dividido entre ADIs (foco em leis) e ADPFs (foco em atos governamentais e direitos fundamentais). O principal desafio revelado por essa tabela é de gestão judiciária: o tribunal lida com um acervo de controle abstrato que se expande de forma linear, exigindo cada vez mais mecanismos de julgamento em bloco (como as sessões virtuais) para tentar conter o represamento dessas ações.
+### 4. Eficiência Operacional e Acervo Residual
+A queda acentuada nos últimos 5 anos sugere que o tribunal está conseguindo enfrentar o "estoque histórico". O desafio para 2025 em diante deixa de ser apenas o volume bruto e passa a ser a gestão das novas ações que entram com complexidade jurídica cada vez maior, exigindo que a celeridade do Plenário Virtual não comprometa a densidade dos debates.
         """)
-
-    st.markdown("---")
-    _render_tabela(df)

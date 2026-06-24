@@ -1,138 +1,124 @@
-"""Funções de construção de figuras Plotly para a página de Acervo."""
+"""Figuras Plotly para a página de Acervo."""
 
 from __future__ import annotations
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
-_CORES = {
-    "ADI":  "#1f77b4",
-    "ADPF": "#ff7f0e",
-    "ADC":  "#2ca02c",
-    "ADO":  "#d62728",
-}
+_CORES = {"ADI": "#1f77b4", "ADPF": "#ff7f0e", "ADC": "#2ca02c", "ADO": "#d62728"}
 
-_LAYOUT_BASE = dict(
-    template="plotly_white",
-    height=480,
-    xaxis=dict(dtick=1, tickangle=-45),
-    hovermode="x unified",
-    legend_title="Classe Processual",
-    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-    margin=dict(l=20, r=20, t=30, b=60),
+_LEGEND = dict(
+    orientation="h", yanchor="top", y=-0.40, xanchor="center", x=0.5,
+    font=dict(size=10, color="#333333"), bgcolor="#fcfcfc",
+    bordercolor="#cccccc", borderwidth=1,
 )
 
-
-def _apply_values_line(fig: go.Figure, show_values: bool) -> None:
-    if show_values:
-        fig.update_traces(mode="lines+markers+text", textposition="top center")
-
-
-def _apply_values_bar(fig: go.Figure, df: pd.DataFrame, val_col: str, position: str, show_values: bool) -> None:
-    if not show_values:
-        return
-    for trace in fig.data:
-        mask = df["classe"] == trace.name if "classe" in df.columns else pd.Series([True] * len(df))
-        vals = df.loc[mask, val_col].tolist()
-        trace.update(text=vals, textposition=position)
+_MARCOS = [
+    ("ER 51/2016", 2016, "purple", 1.16),
+    ("ER 52/2019", 2019, "#d9822b", 1.08),
+    ("ER 53/2020", 2020, "red", 1.00),
+]
 
 
-def _bar_or_line(df, x, y, color=None, chart_type="Linhas", show_values=False,
-                 color_map=None, single_color=None, labels=None):
-    """Helper: constrói fig de linha, barra agrupada ou empilhada."""
-    kw = dict(x=x, y=y, labels=labels or {})
-    if color:
-        kw["color"] = color
-        kw["color_discrete_map"] = color_map or _CORES
+def _add_marcos(fig: go.Figure, use_paper_ref: bool = True, max_y: float = 1.0) -> None:
+    """Adiciona ESPIN e linhas ER ao gráfico."""
+    fig.add_vrect(x0=2020, x1=2022, fillcolor="green", opacity=0.1, layer="below", line_width=0)
 
-    if chart_type == "Linhas":
-        fig = px.line(df, markers=True, **kw)
-        if single_color:
-            fig.update_traces(line_color=single_color, line_width=2)
-        _apply_values_line(fig, show_values)
+    if use_paper_ref:
+        fig.add_annotation(x=2021, y=0.95, yref="paper", text="<b>ESPIN</b>",
+                           showarrow=False, xanchor="center", yanchor="top",
+                           font=dict(color="green", size=10))
+        for label, x, color, y1 in _MARCOS:
+            fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=y1,
+                          xref="x", yref="paper",
+                          line=dict(color=color, width=1.5, dash="dash"))
+            fig.add_annotation(x=x, y=y1, yref="paper", text=label,
+                               showarrow=False, xanchor="center", yanchor="bottom",
+                               font=dict(color=color, size=10))
+    else:
+        fig.add_annotation(x=2021, y=max_y * 0.95, text="<b>ESPIN</b>",
+                           showarrow=False, xanchor="center", yanchor="top",
+                           font=dict(color="green", size=9))
+        heights = {"ER 51/2016": 1.15, "ER 52/2019": 1.08, "ER 53/2020": 1.00}
+        for label, x, color, _ in _MARCOS:
+            h = max_y * heights[label]
+            fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=h,
+                          line=dict(color=color, width=1.2, dash="dash"))
+            fig.add_annotation(x=x, y=h, text=label.split("/")[0],
+                               showarrow=False, xanchor="center", yanchor="bottom",
+                               font=dict(color=color, size=9))
 
-    elif chart_type == "Barras Empilhadas":
-        fig = px.bar(df, barmode="stack", **kw)
-        if color:
-            _apply_values_bar(fig, df, y, "inside", show_values)
-        elif show_values:
-            fig.update_traces(text=df[y], textposition="inside")
-
-    else:  # Barras
-        fig = px.bar(df, barmode="group", **kw)
-        if color:
-            _apply_values_bar(fig, df, y, "outside", show_values)
-        elif show_values:
-            fig.update_traces(text=df[y], textposition="outside")
-
-    return fig
-
-
-# ── Gráficos de TOTAL (df_totais: groupby ano) ────────────────────────────────
-
-def fig_total_geral_por_ano(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 1 — evolução do total_geral (todas as classes somadas)."""
-    df_t = df.groupby("ano", as_index=False)["total_geral"].sum()
-    fig = _bar_or_line(df_t, "ano", "total_geral", chart_type=chart_type,
-                       show_values=show_values, single_color="#4C72B0",
-                       labels={"ano": "Ano de Referência", "total_geral": "Processos"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
-    return fig
+    # Traces fake para a legenda
+    for label, _, color, _ in _MARCOS:
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
+                                 line=dict(color=color, width=1.5, dash="dash"), name=label))
+    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers",
+                             marker=dict(color="green", symbol="square", size=12, opacity=0.2),
+                             name="Período da ESPIN (Portaria GM/MS nº 186/2020 e nº 913/2020)"))
 
 
-def fig_total_geral_por_classe(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 2 — evolução do total_geral por classe."""
-    fig = _bar_or_line(df, "ano", "total_geral", color="classe",
-                       chart_type=chart_type, show_values=show_values,
-                       labels={"ano": "Ano de Referência", "total_geral": "Processos", "classe": "Classe Processual"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
-    return fig
-
-
-def fig_total_por_ano(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 3 — evolução do acervo ATIVO (todas as classes somadas)."""
+def fig_total_ativo_anual(df: pd.DataFrame, show_values: bool = False) -> go.Figure:
+    """Barras do acervo ativo total anual com marcos históricos."""
     df_t = df.groupby("ano", as_index=False)["quantidade_ativos"].sum()
-    fig = _bar_or_line(df_t, "ano", "quantidade_ativos", chart_type=chart_type,
-                       show_values=show_values, single_color="#2ca02c",
-                       labels={"ano": "Ano de Referência", "quantidade_ativos": "Processos Ativos"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
+
+    fig = px.bar(df_t, x="ano", y="quantidade_ativos",
+                 labels={"ano": "Ano de Referência", "quantidade_ativos": "Processos Ativos"})
+    fig.update_traces(
+        marker_color="#3498db",
+        text=df_t["quantidade_ativos"] if show_values else None,
+        textposition="outside",
+        cliponaxis=False,
+        name="Processos Ativos",
+        showlegend=True,
+    )
+
+    _add_marcos(fig, use_paper_ref=True)
+
+    fig.update_layout(
+        template="plotly_white",
+        xaxis=dict(dtick=1, title="Ano de Referência"),
+        yaxis=dict(title="Quantidade de Processos Ativos"),
+        uniformtext_minsize=8, uniformtext_mode="hide",
+        margin=dict(t=140, b=160),
+        legend=_LEGEND,
+    )
     return fig
 
 
-def fig_evolucao_acervo(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 4 — evolução do acervo ATIVO por classe."""
-    fig = _bar_or_line(df, "ano", "quantidade_ativos", color="classe",
-                       chart_type=chart_type, show_values=show_values,
-                       labels={"ano": "Ano de Referência", "quantidade_ativos": "Processos Ativos", "classe": "Classe Processual"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
-    return fig
+def fig_ativo_por_classe(df: pd.DataFrame, classe: str, show_values: bool = False) -> go.Figure:
+    """Barras da classe + linha do total geral (eixo secundário) com marcos."""
+    df_classe = df[df["classe"] == classe]
+    df_geral = df.groupby("ano", as_index=False)["quantidade_ativos"].sum()
 
+    max_y = int(df_classe["quantidade_ativos"].max()) if not df_classe.empty else 1
+    if max_y == 0:
+        max_y = 1
 
-def fig_total_inativos_por_ano(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 5 — evolução do acervo INATIVO (todas as classes somadas)."""
-    df_t = df.groupby("ano", as_index=False)["quantidade_inativos"].sum()
-    fig = _bar_or_line(df_t, "ano", "quantidade_inativos", chart_type=chart_type,
-                       show_values=show_values, single_color="#d62728",
-                       labels={"ano": "Ano de Referência", "quantidade_inativos": "Processos Inativos"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
-    return fig
+    fig = go.Figure()
+    fig.set_subplots(specs=[[{"secondary_y": True}]])
 
+    fig.add_trace(go.Scatter(
+        x=df_geral["ano"], y=df_geral["quantidade_ativos"],
+        mode="lines+markers", line=dict(color="#7f7f7f", width=2),
+        marker=dict(size=4), name="Acervo Total Geral (STF)",
+    ), secondary_y=True)
 
-def fig_inativos_por_classe(df: pd.DataFrame, chart_type="Linhas", show_values=False) -> go.Figure:
-    """Fig 6 — evolução do acervo INATIVO por classe."""
-    fig = _bar_or_line(df, "ano", "quantidade_inativos", color="classe",
-                       chart_type=chart_type, show_values=show_values,
-                       labels={"ano": "Ano de Referência", "quantidade_inativos": "Processos Inativos", "classe": "Classe Processual"})
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
-    return fig
+    fig.add_trace(go.Bar(
+        x=df_classe["ano"], y=df_classe["quantidade_ativos"],
+        marker_color=_CORES.get(classe, "#4C72B0"),
+        text=df_classe["quantidade_ativos"] if show_values else None,
+        textposition="outside", cliponaxis=False,
+        name=f"Classe: {classe}",
+    ), secondary_y=False)
 
+    _add_marcos(fig, use_paper_ref=False, max_y=max_y)
 
-def fig_composicao_proporcional(df: pd.DataFrame, show_values=False) -> go.Figure:
-    """Barras empilhadas de composição proporcional do acervo ativo."""
-    fig = px.bar(df, x="ano", y="quantidade_ativos", color="classe",
-                 barmode="stack", color_discrete_map=_CORES,
-                 labels={"ano": "Ano", "quantidade_ativos": "Processos Ativos", "classe": "Classe Processual"})
-    if show_values:
-        _apply_values_bar(fig, df, "quantidade_ativos", "inside", True)
-    fig.update_layout(**_LAYOUT_BASE, yaxis_title="Quantidade de Processos")
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(t=120, b=160),
+        legend=_LEGEND,
+    )
+    fig.update_xaxes(dtick=1, title_text="Ano de Referência")
+    fig.update_yaxes(title_text="Processos da Classe (Barras)", secondary_y=False)
+    fig.update_yaxes(title_text="Acervo Total Geral (Linha)", secondary_y=True)
     return fig

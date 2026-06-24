@@ -49,13 +49,8 @@ de litigiosidade que moldam a pauta do tribunal ao longo do tempo.
 
 st.markdown("""
 **Nesta seção:**
-- **Evolução Total do Acervo por Ano** — série histórica do total geral (ativos + inativos), todas as classes somadas.
-- **Evolução Total do Acervo por Classe** — mesmo total desagregado por ADI, ADC, ADO e ADPF.
-- **Evolução do Acervo Ativo por Ano** — processos sem baixa definitiva, todas as classes somadas.
-- **Evolução do Acervo Ativo por Classe** — ativos desagregados por classe.
-- **Evolução do Acervo Inativo por Ano** — processos encerrados acumulados, todas as classes somadas.
-- **Evolução do Acervo Inativo por Classe** — inativos desagregados por classe.
-- **Composição Proporcional por Classe** — distribuição empilhada do acervo ativo.
+- **Evolução do Acervo Ativo Anual** — total de processos ativos por ano (todas as classes), com marcos dos Regimentos Internos e período da ESPIN.
+- **Evolução por Classe** — barras de cada classe com linha do total geral no eixo secundário.
 - **Dados Brutos** — tabela com valores absolutos e percentuais por classe e ano.
 """)
 

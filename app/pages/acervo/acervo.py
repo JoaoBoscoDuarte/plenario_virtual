@@ -49,9 +49,14 @@ de litigiosidade que moldam a pauta do tribunal ao longo do tempo.
 
 st.markdown("""
 **Nesta seção:**
-- **Evolução do Acervo Ativo Anual** — total de processos ativos por ano (todas as classes), com marcos dos Regimentos Internos e período da ESPIN.
-- **Evolução por Classe** — barras de cada classe com linha do total geral no eixo secundário.
-- **Dados Brutos** — tabela com valores absolutos e percentuais por classe e ano.
+- **Acervo Ativo** — estoque de processos pendentes de julgamento ao final de cada ano, no total e por classe.
+- **Acervo Inativo** — estoque acumulado de processos encerrados ao final de cada ano, no total e por classe.
+- **Total Geral** — soma de ativos e inativos por ano, refletindo o volume total de ações já distribuídas.
+- **Baixas Anuais** — fluxo anual de processos encerrados, indicador direto da produtividade do tribunal.
+- **Distribuições (Entrada)** — fluxo anual de novos processos distribuídos, indicador da pressão de entrada.
+- **Dados Brutos** — tabela consolidada com todos os indicadores (absolutos e percentuais) por classe e ano.
+
+Todos os gráficos incluem os marcos das **Emendas Regimentais** (ER 51/2016, ER 52/2019, ER 53/2020) e o período da **ESPIN** (2020–2022), permitindo correlacionar eventos institucionais com as variações no acervo.
 """)
 
 # ── Renderização ──────────────────────────────────────────────────────────────

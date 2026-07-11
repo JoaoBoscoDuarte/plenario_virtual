@@ -17,39 +17,39 @@ Este documento é o controle oficial de implementação dos gráficos listados e
 |---|-------|--------------------------|----------------------|--------------|--------|---------------------------|
 | 1 | ACERVO | Evolução anual do acervo – geral | 1988 a 2025. Excluir processos com baixa definitiva ao longo do ano (ou usar critério de "processos ativos"). Snapshot 31/12. | Parcial | `acervo.py` (Gráfico Geral) | (a definir) |
 | 2 | ACERVO | Evolução anual do acervo – por classe | Idem ao anterior, separado por classe (ADI, ADC, ADO, ADPF). | Parcial | `acervo.py` (Gráfico por Classe + Geral) | (a definir) |
-| 3 | BAIXA | Número de processos que tiveram baixa, por classe | 1988 a 2025, anual, 31/12. | Não | | |
-| 4 | DISTRIBUIÇÃO | Número de processos distribuídos, por classe | 1988 a 2025, anual, 31/12. | Não | | |
-| 5 | INCLUSÕES EM PAUTA | Geral. Anual PV e PP | 2020-2025 anual. PV e PP (comparação). Unidade: inclusão em pauta. | Não | | |
-| 6 | INCLUSÕES EM PAUTA | Por classe. Anual PV | 2020-2025 anual, por classe, PV. | Não | | |
-| 7 | INCLUSÕES EM PAUTA | Por classe. Anual PP | 2020-2025 anual, por classe, PP. | Não | | |
-| 8 | INCLUSÕES EM PAUTA | Geral. Período. Concluídos e Não Concluídos. PV | 2020-2025. Separar concluídos / não. | Não | | |
-| 9 | INCLUSÕES EM PAUTA | Geral. Período. Concluídos e Não Concluídos. PP | Idem no PP. | Não | | |
-| 10 | INCLUSÕES EM PAUTA | Geral. Anual. Concluídos e Não. PV | Anual, PV. | Não | | |
-| 11 | INCLUSÕES EM PAUTA | Geral. Anual. Concluídos e Não. PP | Anual, PP. | Não | | |
-| 12 | INCLUSÕES EM PAUTA | Geral. Concluídos. PV | Excluindo não concluídos. | Não | | |
-| 13 | INCLUSÕES EM PAUTA | Geral. Concluídos. PP | Idem PP. | Não | | |
-| 14 | INCLUSÕES EM PAUTA | Por classe. Não Concluídos. PV | Por classe. | Não | | |
-| 15 | INCLUSÕES EM PAUTA | Por classe. Não Concluídos. PP | Por classe, PP. | Não | | |
-| 16 | INCLUSÕES EM PAUTA | Por classe. Concluídos. PV | Por classe. | Não | | |
-| 17 | INCLUSÕES EM PAUTA | Por classe. Concluídos. PP | Por classe, PP. | Não | | |
-| 18 | TIPO DE QUESTÃO | Geral. Não Concluídos. PV | Por tipo de questão (PR, RC ou IJ). | Não | | |
-| 19 | TIPO DE QUESTÃO | Geral. Não Concluídos. PP | Idem PP. | Não | | |
-| 20 | TIPO DE QUESTÃO | Geral. Concluídos. PV | Por tipo de questão. | Não | | |
-| 21 | TIPO DE QUESTÃO | Geral. Concluídos. PP | Idem PP. | Não | | |
-| 22 | DESFECHO CONCLUÍDO | por CATEGORIA. Período. PV | Categorias: unânime, maioria com relator, maioria vencido relator + bloco não concluído. | Não | | |
-| 23 | DESFECHO CONCLUÍDO | por CATEGORIA. Período. PP | Idem PP. | Não | | |
-| 24 | DESFECHO CONCLUÍDO | por CATEGORIA. Por Ano. PV | Por ano. | Não | | |
-| 25 | DESFECHO CONCLUÍDO | por CATEGORIA. Por Ano. PP | Por ano, PP. | Não | | |
-| 26 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Período. PV | + tipo de questão. | Não | | |
-| 27 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Período. PP | + tipo de questão, PP. | Não | | |
-| 28 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Por Ano. PV | Por ano. | Não | | |
-| 29 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Por Ano. PP | Por ano, PP. | Não | | |
-| 30 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. PV | Categorias: pedido de vista, destaque, motivos diversos. | Não | | |
-| 31 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. PP | Idem PP (destaque = 0). | Não | | |
-| 32 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Por Classe. PV | Por classe. | Não | | |
-| 33 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Por Classe. PP | Por classe, PP. | Não | | |
-| 34 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PV | + tipo de questão. | Não | | |
-| 35 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PP | + tipo de questão, PP. | Não | | |
+| 3 | BAIXA | Número de processos que tiveram baixa, por classe | 1988 a 2025, anual, 31/12. | Sim | `acervo.py` (aba Baixas Anuais) | (a definir) |
+| 4 | DISTRIBUIÇÃO | Número de processos distribuídos, por classe | 1988 a 2025, anual, 31/12. | Sim | `acervo.py` (aba Distribuições) | (a definir) |
+| 5 | INCLUSÕES EM PAUTA | Geral. Anual PV e PP | 2020-2025 anual. PV e PP (comparação). Unidade: inclusão em pauta. | Sim | `inclusoes.py` — G5 | — |
+| 6 | INCLUSÕES EM PAUTA | Por classe. Anual PV | 2020-2025 anual, por classe, PV. | Sim | `inclusoes.py` — G6 | — |
+| 7 | INCLUSÕES EM PAUTA | Por classe. Anual PP | 2020-2025 anual, por classe, PP. | Sim | `inclusoes.py` — G7 | — |
+| 8 | INCLUSÕES EM PAUTA | Geral. Período. Concluídos e Não Concluídos. PV | 2020-2025. Separar concluídos / não. | Sim | `inclusoes.py` — G8 | — |
+| 9 | INCLUSÕES EM PAUTA | Geral. Período. Concluídos e Não Concluídos. PP | Idem no PP. | Sim | `inclusoes.py` — G9 | — |
+| 10 | INCLUSÕES EM PAUTA | Geral. Anual. Concluídos e Não. PV | Anual, PV. | Sim | `inclusoes.py` — G10 | — |
+| 11 | INCLUSÕES EM PAUTA | Geral. Anual. Concluídos e Não. PP | Anual, PP. | Sim | `inclusoes.py` — G11 | — |
+| 12 | INCLUSÕES EM PAUTA | Geral. Concluídos. PV | Excluindo não concluídos. | Sim | `inclusoes.py` — G12 | — |
+| 13 | INCLUSÕES EM PAUTA | Geral. Concluídos. PP | Idem PP. | Sim | `inclusoes.py` — G13 | — |
+| 14 | INCLUSÕES EM PAUTA | Por classe. Não Concluídos. PV | Por classe. | Sim | `inclusoes.py` — G14 | — |
+| 15 | INCLUSÕES EM PAUTA | Por classe. Não Concluídos. PP | Por classe, PP. | Sim | `inclusoes.py` — G15 | — |
+| 16 | INCLUSÕES EM PAUTA | Por classe. Concluídos. PV | Por classe. | Sim | `inclusoes.py` — G16 | — |
+| 17 | INCLUSÕES EM PAUTA | Por classe. Concluídos. PP | Por classe, PP. | Sim | `inclusoes.py` — G17 | — |
+| 18 | TIPO DE QUESTÃO | Geral. Não Concluídos. PV | Por tipo de questão (PR, RC ou IJ→QI). | Sim | `inclusoes.py` — G18 | — |
+| 19 | TIPO DE QUESTÃO | Geral. Não Concluídos. PP | Idem PP. | Sim | `inclusoes.py` — G19 | — |
+| 20 | TIPO DE QUESTÃO | Geral. Concluídos. PV | Por tipo de questão. | Sim | `inclusoes.py` — G20 | — |
+| 21 | TIPO DE QUESTÃO | Geral. Concluídos. PP | Idem PP. | Sim | `inclusoes.py` — G21 | — |
+| 22 | DESFECHO CONCLUÍDO | por CATEGORIA. Período. PV | Categorias: unânime, maioria com relator, maioria vencido relator + bloco não concluído. | Sim | `inclusoes.py` — G22 | — |
+| 23 | DESFECHO CONCLUÍDO | por CATEGORIA. Período. PP | Idem PP. | Sim | `inclusoes.py` — G23 | — |
+| 24 | DESFECHO CONCLUÍDO | por CATEGORIA. Por Ano. PV | Por ano. | Sim | `inclusoes.py` — G24 | — |
+| 25 | DESFECHO CONCLUÍDO | por CATEGORIA. Por Ano. PP | Por ano, PP. | Sim | `inclusoes.py` — G25 | — |
+| 26 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Período. PV | + tipo de questão. | Sim | `inclusoes.py` — G26 | — |
+| 27 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Período. PP | + tipo de questão, PP. | Sim | `inclusoes.py` — G27 | — |
+| 28 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Por Ano. PV | Por ano; sub-abas por tipo. | Sim | `inclusoes.py` — G28 | — |
+| 29 | DESFECHO CONCLUÍDO | por CATEGORIA e TIPO DE QUESTÃO. Por Ano. PP | Por ano, PP; sub-abas por tipo. | Sim | `inclusoes.py` — G29 | — |
+| 30 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. PV | Categorias: pedido de vista, destaque, motivos diversos. | Sim | `inclusoes.py` — G30 | — |
+| 31 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. PP | Idem PP (destaque = 0). | Sim | `inclusoes.py` — G31 | — |
+| 32 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Por Classe. PV | Por classe; sub-abas por classe. | Sim | `inclusoes.py` — G32 | — |
+| 33 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Por Classe. PP | Por classe, PP; sub-abas por classe. | Sim | `inclusoes.py` — G33 | — |
+| 34 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PV | + tipo de questão; sub-abas por tipo. | Sim | `inclusoes.py` — G34 | — |
+| 35 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PP | + tipo de questão, PP; sub-abas por tipo. | Sim | `inclusoes.py` — G35 | — |
 | - | DESTAQUES CANCELADOS | Geral. Período | Processos com andamento “destaque cancelado”. 2020-2025. | Não | | |
 | - | REAJUSTE DE VOTO | Geral. Período. PV | Expressões específicas + menção a ministro/relator. | Não | | |
 | - | REAJUSTE DE VOTO | Geral. Período. PP | Idem PP. | Não | | |

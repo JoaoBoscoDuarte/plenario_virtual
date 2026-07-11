@@ -92,3 +92,8 @@ def load_parquet(repo_id: str, filename: str) -> pd.DataFrame:
 def load_evolucao_acervo() -> pd.DataFrame:
     """Carrega o dataset de evolução anual do acervo histórico."""
     return load_parquet(HF_REPO_ID, HF_FILES["evolucao_acervo"])
+
+
+def load_inclusoes_em_pauta() -> pd.DataFrame:
+    """Carrega o dataset de inclusões em pauta (2020–2025)."""
+    return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])

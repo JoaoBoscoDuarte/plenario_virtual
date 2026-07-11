@@ -16,6 +16,9 @@ pg = st.navigation(
         "Acervo": [
             st.Page("pages/acervo/acervo.py", title="Acervo Histórico", icon="📦"),
         ],
+        "Inclusões em Pauta": [
+            st.Page("pages/inclusoes/inclusoes.py", title="Inclusões em Pauta", icon="📅"),
+        ],
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],

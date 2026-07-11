@@ -1,258 +1,126 @@
-# Extração do Arcabouço de Plotagem para Dashboard Streamlit
+Esta documentação foi elaborada para orientar a equipe de desenvolvimento (ou você mesmo) na integração deste script de gráficos Plotly em um Dashboard (como Streamlit, Dash, ou um frontend customizado).
 
-Este documento extrai toda a lógica de visualização do notebook original (`acervo.ipynb`) e a adapta para uso no **Streamlit**, preservando integralmente os gráficos, a função de plotagem, os marcos históricos, as cores e a tabela de proporção.
+Abaixo, detalhamos a arquitetura do código, os requisitos de dados, o catálogo de gráficos gerados e os ajustes necessários para transpor o código do ambiente de cadernos (Jupyter/Colab) para uma aplicação web.
 
 ---
 
-## 1. Estrutura de Dados
+## 1. Requisitos e Estrutura de Dados
 
-O notebook gera e salva um dataset `evolucao_acervo.parquet` com as seguintes colunas:
+Para que os gráficos funcionem corretamente no dashboard, o *dataframe* base (`df_final`) deve conter obrigatoriamente as seguintes colunas:
 
-- `ano` (int)
-- `classe` (str): ADI, ADC, ADO, ADPF, CC
-- `total_geral`
-- `quantidade_ativos`
-- `quantidade_inativos`
-- `quantidade_baixas`
-- `quantidade_distribuidos`
+* **`ano`**: Numérico ou categórico (ex: 2020, 2021).
+* **`ambiente`**: Texto classificando o local (ex: `'Plenário Virtual'`, `'Plenário Físico'`).
+* **`classe`**: Sigla da classe processual (ex: `'ADI'`, `'ADPF'`, `'ADC'`, `'ADO'`).
+* **`desfecho`**: Texto detalhado com o resultado do julgamento.
 
-No Streamlit, carregamos esse arquivo uma única vez:
+**Transformação Inicial Necessária:**
+O script exige a criação de uma coluna derivada chamada `macro_desfecho` logo na carga dos dados. Ela padroniza o detalhamento dos desfechos em três grandes categorias:
 
 ```python
-import pandas as pd
-import streamlit as st
+def macro_desfecho(d):
+    if str(d).startswith('Concluído'): return 'Concluído'
+    if str(d).startswith('Não concluído'): return 'Não concluído'
+    return 'Sem registro'
 
-@st.cache_data
-def load_data():
-    return pd.read_parquet("caminho/para/evolucao_acervo.parquet")
+df_final['macro_desfecho'] = df_final['desfecho'].apply(macro_desfecho)
 
-df = load_data()
 ```
 
 ---
 
-## 2. Função de Plotagem (adaptada para Streamlit)
+## 2. Identidade Visual (Design System)
 
-A função `plotar_grafico_stf` foi extraída e adaptada para:
+O código centraliza a paleta de cores em dicionários globais. Isso garante consistência visual em todo o dashboard. Mantenha estas variáveis no topo do seu arquivo de configuração:
 
-- Usar `st.plotly_chart(fig)` em vez de `fig.show()`
-- Remover a configuração do renderizador do Colab
-- Manter todos os elementos visuais (linhas de ER, ESPIN, legendas, eixos duplos)
+| Categoria | Dicionário/Variável | Cores (Hex) |
+| --- | --- | --- |
+| **Classes Judiciais** | `CORES_CLASSE` | ADI (Azul: `#2563eb`), ADPF (Laranja: `#f59e0b`), ADC (Verde: `#16a34a`), ADO (Vermelho: `#ef4444`) |
+| **Status (Macro)** | `CORES_MACRO` | Concluído (Verde: `#16a34a`), Não concluído (Vermelho: `#ef4444`), Sem registro (Cinza: `#94a3b8`) |
+| **Totais** | `COR_TOTAL` | Azul Claro: `#3498db` |
+| **Linhas de Tendência** | `COR_LINHA` | Cinza Escuro: `#7f7f7f` |
 
-```python
-import plotly.graph_objects as go
-import streamlit as st
-
-# Cores padronizadas
-CORES_CLASSE = {
-    "ADI": "#3498db",
-    "ADC": "#1abc9c",
-    "ADO": "#9b59b6",
-    "ADPF": "#e67e22",
-}
-
-def plotar_grafico_stf(df_dados, classe_nome, coluna_metrica, label_metrica, titulo_sufixo):
-    """
-    Gera gráfico com barras (classe ou total) e linha do total geral (se classe específica).
-    """
-    # Total geral anual para a métrica
-    df_total_geral = df_dados.groupby("ano")[coluna_metrica].sum().reset_index()
-
-    fig = go.Figure()
-
-    if classe_nome.upper() == "TOTAL":
-        fig.set_subplots(specs=[[{"secondary_y": False}]])
-        max_y = df_total_geral[coluna_metrica].max()
-        fig.add_trace(
-            go.Bar(
-                x=df_total_geral["ano"],
-                y=df_total_geral[coluna_metrica],
-                marker_color="#3498db",
-                text=df_total_geral[coluna_metrica],
-                textposition="outside",
-                cliponaxis=False,
-                name=f"Total Geral ({label_metrica})"
-            )
-        )
-    else:
-        fig.set_subplots(specs=[[{"secondary_y": True}]])
-        df_filtrado = df_dados[df_dados["classe"] == classe_nome]
-        max_y = df_filtrado[coluna_metrica].max()
-
-        # Linha do total geral (eixo secundário)
-        fig.add_trace(
-            go.Scatter(
-                x=df_total_geral["ano"],
-                y=df_total_geral[coluna_metrica],
-                mode="lines+markers",
-                line=dict(color="#7f7f7f", width=2),
-                marker=dict(size=4),
-                name=f"Total Geral ({label_metrica})"
-            ),
-            secondary_y=True
-        )
-
-        # Barras da classe (eixo primário)
-        fig.add_trace(
-            go.Bar(
-                x=df_filtrado["ano"],
-                y=df_filtrado[coluna_metrica],
-                marker_color=CORES_CLASSE.get(classe_nome, "#3498db"),
-                text=df_filtrado[coluna_metrica],
-                textposition="outside",
-                cliponaxis=False,
-                name=f"Classe: {classe_nome}"
-            ),
-            secondary_y=False
-        )
-
-    if max_y == 0 or pd.isna(max_y):
-        max_y = 1
-
-    # --- Marcos históricos (ERs e ESPIN) ---
-    fig.add_vrect(x0=2020, x1=2022, fillcolor="green", opacity=0.08, layer="below", line_width=0)
-    fig.add_annotation(
-        x=2021, y=max_y * 0.95,
-        text="<b>ESPIN</b>", showarrow=False,
-        xanchor="center", yanchor="top",
-        font=dict(color="green", size=9)
-    )
-
-    fig.add_shape(type="line", x0=2016, x1=2016, y0=0, y1=max_y * 1.15,
-                  line=dict(color="purple", width=1.2, dash="dash"))
-    fig.add_annotation(x=2016, y=max_y * 1.15, text="ER 51", showarrow=False,
-                       xanchor="center", yanchor="bottom", font=dict(color="purple", size=9))
-
-    fig.add_shape(type="line", x0=2019, x1=2019, y0=0, y1=max_y * 1.08,
-                  line=dict(color="#d9822b", width=1.2, dash="dash"))
-    fig.add_annotation(x=2019, y=max_y * 1.08, text="ER 52", showarrow=False,
-                       xanchor="center", yanchor="bottom", font=dict(color="#d9822b", size=9))
-
-    fig.add_shape(type="line", x0=2020, x1=2020, y0=0, y1=max_y * 1.00,
-                  line=dict(color="red", width=1.2, dash="dash"))
-    fig.add_annotation(x=2020, y=max_y * 1.00, text="ER 53", showarrow=False,
-                       xanchor="center", yanchor="bottom", font=dict(color="red", size=9))
-
-    # Itens fictícios para legenda
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
-                  line=dict(color="purple", width=1.5, dash="dash"), name="ER 51/2016"))
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
-                  line=dict(color="#d9822b", width=1.5, dash="dash"), name="ER 52/2019"))
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
-                  line=dict(color="red", width=1.5, dash="dash"), name="ER 53/2020"))
-    fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers",
-                  marker=dict(color="green", symbol="square", size=12, opacity=0.2), name="Período da ESPIN"))
-
-    # Layout
-    titulo_peca = "Total Geral" if classe_nome.upper() == "TOTAL" else f"Classe {classe_nome}"
-    fig.update_layout(
-        title_text=f"Evolução Anual ({titulo_sufixo}) — {titulo_peca}",
-        template="plotly_white",
-        margin=dict(t=120, b=160),
-        legend=dict(
-            orientation="h", yanchor="top", y=-0.22, xanchor="center", x=0.5,
-            font=dict(size=10, color="#333333"),
-            bgcolor="#fcfcfc", bordercolor="#cccccc", borderwidth=1
-        )
-    )
-
-    fig.update_xaxes(dtick=1, title_text="Ano de Referência", range=[1987.5, 2025.5])
-
-    if classe_nome.upper() == "TOTAL":
-        fig.update_yaxes(title_text=f"Quantidade Total de {label_metrica}")
-    else:
-        fig.update_yaxes(title_text=f"{label_metrica} da Classe (Barras)", secondary_y=False)
-        fig.update_yaxes(title_text=f"Total Geral do Tribunal (Linha)", secondary_y=True)
-
-    return fig
-```
+> **Nota sobre o `LAYOUT_BASE`:** O dicionário `LAYOUT_BASE` está definido no seu código, mas as funções atualmente usam `fig.update_layout(...)` com parâmetros reescritos. Recomenda-se injetar o `LAYOUT_BASE` diretamente nas funções para evitar repetição de código no dashboard.
 
 ---
 
-## 3. Geração de Todos os Gráficos no Streamlit
+## 3. Funções Geradoras (Helpers)
 
-No Streamlit, você pode organizar os gráficos em abas (`st.tabs`) ou colunas. Exemplo:
+O sistema utiliza duas funções principais de abstração. Elas devem ser colocadas em um módulo de utilitários (ex: `utils_charts.py`).
 
-```python
-import streamlit as st
+### `plotar_barras_stf`
 
-st.set_page_config(layout="wide")
-st.title("Evolução do Acervo do STF")
+Função versátil para criar gráficos de barras simples ou empilhadas (agrupadas), com suporte opcional a uma linha de total no eixo Y secundário.
 
-# Carregar dados
-df = load_data()
+* **Uso ideal:** Evolução temporal (anos no eixo X) de métricas quebradas por classe ou desfecho.
+* **Atenção na Integração:** O parâmetro `df_dados` já deve chegar filtrado para a função.
 
-classes = ["ADI", "ADC", "ADO", "ADPF"]
+### `plotar_pizza_stf`
 
-# Abas para organizar as visualizações
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    ["Acervo Ativo", "Baixas", "Distribuições", "Tabela de Proporção", "Comparativos"]
-)
-
-with tab1:
-    st.header("Acervo Ativo")
-    # Total
-    fig_total = plotar_grafico_stf(df, "TOTAL", "quantidade_ativos", "Processos Ativos", "Acervo Ativo Total")
-    st.plotly_chart(fig_total, use_container_width=True)
-
-    # Por classe
-    for cls in classes:
-        fig_classe = plotar_grafico_stf(df, cls, "quantidade_ativos", "Processos Ativos", "Evolução do Acervo Ativo")
-        st.plotly_chart(fig_classe, use_container_width=True)
-
-with tab2:
-    st.header("Baixas Anuais")
-    fig_total_baixas = plotar_grafico_stf(df, "TOTAL", "quantidade_baixas", "Processos Baixados", "Total Geral de Baixas por Ano")
-    st.plotly_chart(fig_total_baixas, use_container_width=True)
-
-    for cls in classes:
-        fig_classe_baixas = plotar_grafico_stf(df, cls, "quantidade_baixas", "Processos Baixados", "Fluxo Anual de Baixas")
-        st.plotly_chart(fig_classe_baixas, use_container_width=True)
-
-with tab3:
-    st.header("Distribuições Anuais")
-    fig_total_dist = plotar_grafico_stf(df, "TOTAL", "quantidade_distribuidos", "Processos Distribuídos", "Volume Total de Distribuição Anual")
-    st.plotly_chart(fig_total_dist, use_container_width=True)
-
-    for cls in classes:
-        fig_classe_dist = plotar_grafico_stf(df, cls, "quantidade_distribuidos", "Processos Distribuídos", "Novos Processos Distribuídos")
-        st.plotly_chart(fig_classe_dist, use_container_width=True)
-
-with tab4:
-    st.header("Tabela de Proporção do Acervo por Classe")
-    # Reconstruir a tabela de proporção
-    df_tabela = df.pivot(index='ano', columns='classe', values='quantidade_ativos').fillna(0).astype(int)
-    df_tabela['TOTAL_GERAL'] = df_tabela.sum(axis=1)
-    for cls in ['ADC', 'ADI', 'ADO', 'ADPF']:
-        df_tabela[f'%_{cls}'] = (df_tabela[cls] / df_tabela['TOTAL_GERAL'] * 100).round(2)
-    colunas = ['TOTAL_GERAL'] + [c for cls in ['ADC', 'ADI', 'ADO', 'ADPF'] for c in (cls, f'%_{cls}')]
-    st.dataframe(df_tabela[colunas], use_container_width=True)
-
-with tab5:
-    st.header("Comparativos entre classes")
-    # Opcional: gráfico de linhas comparando as classes para uma métrica
-    # Exemplo: ativos por classe ao longo do tempo
-    fig_comp = go.Figure()
-    for cls in classes:
-        df_cls = df[df['classe'] == cls]
-        fig_comp.add_trace(go.Scatter(
-            x=df_cls['ano'], y=df_cls['quantidade_ativos'],
-            mode='lines+markers', name=cls, line=dict(color=CORES_CLASSE[cls])
-        ))
-    fig_comp.update_layout(title="Comparação do Acervo Ativo por Classe",
-                           xaxis_title="Ano", yaxis_title="Quantidade de Ativos",
-                           template="plotly_white")
-    st.plotly_chart(fig_comp, use_container_width=True)
-```
+Gera gráficos de proporção. Aceita o parâmetro `buraco` (hole), permitindo alternar entre formato Pizza tradicional (`buraco=0`) ou Rosca/Donut (`buraco=0.4`).
 
 ---
 
-## 4. Observações Finais
+## 4. Catálogo de Gráficos para o Dashboard
 
-- **Cache**: Use `@st.cache_data` para carregar o parquet apenas uma vez.
-- **Caminho do arquivo**: Ajuste o caminho para o local onde `evolucao_acervo.parquet` está armazenado (pode ser no mesmo diretório ou em um bucket S3, etc.).
-- **Estilo**: A função de plotagem mantém todos os elementos visuais originais (ERs, ESPIN, eixos duplos). As cores das classes são preservadas.
-- **Tabela de proporção**: Reconstruída exatamente como no notebook, com colunas de valores absolutos e percentuais.
-- **Responsividade**: `use_container_width=True` faz os gráficos ocuparem toda a largura disponível.
+Aqui está o mapeamento de todos os gráficos gerados pelo código, prontos para serem distribuídos nas abas ou seções do seu dashboard:
 
-Com essa estrutura, você terá um dashboard completo e fiel ao notebook original, pronto para ser executado no Streamlit.
+### Visão Geral de Inclusões
+
+| ID | Título/Objetivo | Tipo Plotly | Segmentação |
+| --- | --- | --- | --- |
+| **5** | Inclusões por Ano e Ambiente | Barras Agrupadas | Plenário Virtual vs. Físico ao longo do tempo. |
+| **5b** | Proporção PV vs PP (Total) | Pizza | Proporção histórica entre os dois ambientes. |
+
+### Inclusões por Classe Processual
+
+| ID | Título/Objetivo | Tipo Plotly | Segmentação |
+| --- | --- | --- | --- |
+| **6** | Inclusões por Classe (PV) | Barras + Linha (Total) | Evolução anual de ADI, ADPF, ADC, ADO no Virtual. |
+| **6b** | Proporção por Classe (PV) | Pizza | Participação de cada classe no total do Virtual. |
+| **7** | Inclusões por Classe (PP) | Barras + Linha (Total) | Evolução anual de classes no Físico. |
+| **7b** | Proporção por Classe (PP) | Pizza | Participação de cada classe no total do Físico. |
+
+### Desempenho e Desfechos (Geral e Anual)
+
+| ID | Título/Objetivo | Tipo Plotly | Segmentação |
+| --- | --- | --- | --- |
+| **8** | Concluídos vs Não Concluídos (PV) | Pizza | Resumo geral de sucesso no Virtual. |
+| **8b** | Desfecho Detalhado (PV) | Rosca (`buraco=0.3`) | Quebra específica dos motivos e resultados. |
+| **9** | Concluídos vs Não Concluídos (PP) | Pizza | Resumo geral de sucesso no Físico. |
+| **10** | Status Macro por Ano (PV) | Barras Agrupadas | Evolução temporal de concluídos/não concluídos. |
+| **11** | Status Macro por Ano (PP) | Barras Agrupadas | O mesmo que o 10, aplicado ao Físico. |
+
+### Aprofundamento Analítico (Filtros Específicos)
+
+| ID | Título/Objetivo | Tipo Plotly | Segmentação |
+| --- | --- | --- | --- |
+| **12** | Apenas Concluídos por Ano (PV) | Barras Simples | Foco exclusivo no volume de entregas anuais (Virtual). |
+| **13** | Apenas Concluídos por Ano (PP) | Barras Simples | Foco exclusivo no volume de entregas anuais (Físico). |
+| **14** | Não Concluídos por Classe (PV) | Barras + Linha (Total) | Gargalos: o que ficou pendente por classe no Virtual. |
+| **15** | Não Concluídos por Classe (PP) | Barras + Linha (Total) | Gargalos: o que ficou pendente por classe no Físico. |
+| **16** | Concluídos por Classe (PV) | Barras + Linha (Total) | Entregas detalhadas por classe ao longo dos anos. |
+| **17** | Concluídos por Classe (PP) | Barras + Linha (Total) | O mesmo que o 16, aplicado ao Físico. |
+
+---
+
+## 5. Passos para Adaptação no Dashboard
+
+Como o código original foi escrito para um ambiente de cadernos/análise (com comandos `.show()`), você precisará fazer pequenos ajustes na hora de renderizá-los em um dashboard de produção.
+
+**1. Remova os comandos `.show()`:**
+Dentro das funções `plotar_barras_stf` e `plotar_pizza_stf`, assim como nos scripts soltos, remova ou comente a linha `fig.show()`. Em um dashboard, você deve retornar o objeto `fig` para que a interface o desenhe.
+
+**2. Renderização por Framework:**
+
+* **Se usar Streamlit:** Substitua `fig.show()` por `st.plotly_chart(fig, use_container_width=True)`.
+* **Se usar Dash (Plotly):** Passe a figura para a propriedade `figure` de um componente Graph: `dcc.Graph(figure=fig)`.
+* **Se usar Frontend customizado (React/Vue/Angular):** Converta a figura para JSON ao final da função retornando `fig.to_json()` e passe isso para a biblioteca `plotly.js` no client-side.
+
+**3. Correção de Sintaxe (Aviso de Bug):**
+No código do **Gráfico 14**, há um erro de digitação na criação do gráfico de linha que impedirá a execução em produção.
+
+* **Linha atual:** `x=total14['ano'], y=total14['n'],a`
+* **Correção:** Remova a letra `,a` perdida no final do eixo Y. Ficará: `x=total14['ano'], y=total14['n'],`
+
+**4. Otimização de Performance:**
+Atualmente, para os gráficos 14 a 17, você está criando um subset dos dados e calculando o *groupby* várias vezes (para o `tab` e para o `total`). Em um dashboard onde a velocidade importa, recomenda-se realizar o cálculo do DataFrame uma única vez, armazená-lo em cache (ex: `@st.cache_data` no Streamlit), e repassá-lo para a função de plotagem.

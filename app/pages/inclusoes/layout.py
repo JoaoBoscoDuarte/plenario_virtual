@@ -20,208 +20,289 @@ from .plots import (
     g34_nc_cat_tipo_pv, g35_nc_cat_tipo_pp,
 )
 
+# Catálogo: (label do selectbox, subtítulo, descrição, callable)
+# Para gráficos que retornam dict, o callable retorna dict e _render trata.
+_CATALOGO: list[tuple[str, str, str, object]] = [
+    # ── Inclusões em Pauta ────────────────────────────────────────────────────
+    (
+        "G5 — Inclusões por Ano e Ambiente (PV vs PP)",
+        "Inclusões em Pauta por Ano e Ambiente",
+        "Comparação anual do volume de inclusões em pauta entre o Plenário Virtual e o Plenário Físico. "
+        "Inclui pizza com a proporção acumulada no período.",
+        g5_anual_ambiente,
+    ),
+    (
+        "G6 — Inclusões por Classe e Ano — PV",
+        "Inclusões por Classe — Plenário Virtual",
+        "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total geral no eixo secundário. "
+        "Inclui pizza com a distribuição por classe no período.",
+        g6_pv_por_classe,
+    ),
+    (
+        "G7 — Inclusões por Classe e Ano — PP",
+        "Inclusões por Classe — Plenário Físico",
+        "Mesmo recorte do G6, aplicado ao Plenário Físico.",
+        g7_pp_por_classe,
+    ),
+    (
+        "G8 — Desfecho Geral — PV (período total)",
+        "Desfecho — Plenário Virtual (período total)",
+        "Pizza com a proporção de concluídos e não concluídos no PV ao longo de todo o período, "
+        "mais pizza com o desfecho detalhado (unânime, maioria, pedido de vista etc.).",
+        g8_desfecho_pv,
+    ),
+    (
+        "G9 — Desfecho Geral — PP (período total)",
+        "Desfecho — Plenário Físico (período total)",
+        "Pizza com a proporção de concluídos e não concluídos no PP ao longo de todo o período.",
+        g9_desfecho_pp,
+    ),
+    (
+        "G10 — Concluídos e Não Concluídos por Ano — PV",
+        "Macro-Desfecho Anual — Plenário Virtual",
+        "Evolução anual do volume de inclusões concluídas e não concluídas no PV.",
+        g10_macro_anual_pv,
+    ),
+    (
+        "G11 — Concluídos e Não Concluídos por Ano — PP",
+        "Macro-Desfecho Anual — Plenário Físico",
+        "Evolução anual do volume de inclusões concluídas e não concluídas no PP.",
+        g11_macro_anual_pp,
+    ),
+    (
+        "G12 — Concluídos por Ano — PV",
+        "Inclusões Concluídas por Ano — Plenário Virtual",
+        "Fluxo anual de inclusões com desfecho concluído no PV, excluindo não concluídos.",
+        g12_concluidos_pv,
+    ),
+    (
+        "G13 — Concluídos por Ano — PP",
+        "Inclusões Concluídas por Ano — Plenário Físico",
+        "Fluxo anual de inclusões com desfecho concluído no PP.",
+        g13_concluidos_pp,
+    ),
+    (
+        "G14 — Não Concluídos por Classe e Ano — PV",
+        "Não Concluídos por Classe — Plenário Virtual",
+        "Barras por classe com linha do total de não concluídos no PV.",
+        g14_nao_concluidos_classe_pv,
+    ),
+    (
+        "G15 — Não Concluídos por Classe e Ano — PP",
+        "Não Concluídos por Classe — Plenário Físico",
+        "Barras por classe com linha do total de não concluídos no PP.",
+        g15_nao_concluidos_classe_pp,
+    ),
+    (
+        "G16 — Concluídos por Classe e Ano — PV",
+        "Concluídos por Classe — Plenário Virtual",
+        "Barras por classe com linha do total de concluídos no PV.",
+        g16_concluidos_classe_pv,
+    ),
+    (
+        "G17 — Concluídos por Classe e Ano — PP",
+        "Concluídos por Classe — Plenário Físico",
+        "Barras por classe com linha do total de concluídos no PP.",
+        g17_concluidos_classe_pp,
+    ),
+    # ── Tipo de Questão ───────────────────────────────────────────────────────
+    (
+        "G18 — Não Concluídos por Tipo de Questão — PV",
+        "Não Concluídos por Tipo de Questão — Plenário Virtual",
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de não concluídos no PV. "
+        "IJ renomeado para QI na exibição.",
+        g18_nc_tipo_pv,
+    ),
+    (
+        "G19 — Não Concluídos por Tipo de Questão — PP",
+        "Não Concluídos por Tipo de Questão — Plenário Físico",
+        "Mesmo recorte do G18 para o Plenário Físico.",
+        g19_nc_tipo_pp,
+    ),
+    (
+        "G20 — Concluídos por Tipo de Questão — PV",
+        "Concluídos por Tipo de Questão — Plenário Virtual",
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de concluídos no PV.",
+        g20_c_tipo_pv,
+    ),
+    (
+        "G21 — Concluídos por Tipo de Questão — PP",
+        "Concluídos por Tipo de Questão — Plenário Físico",
+        "Mesmo recorte do G20 para o Plenário Físico.",
+        g21_c_tipo_pp,
+    ),
+    # ── Desfecho Concluído por Categoria ─────────────────────────────────────
+    (
+        "G22 — Categoria de Desfecho — PV (período total)",
+        "Categoria de Desfecho — Plenário Virtual (período total)",
+        "Pizza com as 4 categorias: Unânime, Maioria (relator vencedor), Maioria (relator vencido) "
+        "e Não concluído (bloco agregado).",
+        g22_cat_periodo_pv,
+    ),
+    (
+        "G23 — Categoria de Desfecho — PP (período total)",
+        "Categoria de Desfecho — Plenário Físico (período total)",
+        "Mesmo recorte do G22 para o Plenário Físico.",
+        g23_cat_periodo_pp,
+    ),
+    (
+        "G24 — Categoria de Desfecho por Ano — PV",
+        "Categoria de Desfecho por Ano — Plenário Virtual",
+        "Evolução anual das 4 categorias de desfecho no PV.",
+        g24_cat_anual_pv,
+    ),
+    (
+        "G25 — Categoria de Desfecho por Ano — PP",
+        "Categoria de Desfecho por Ano — Plenário Físico",
+        "Evolução anual das 4 categorias de desfecho no PP.",
+        g25_cat_anual_pp,
+    ),
+    (
+        "G26 — Categoria × Tipo de Questão — PV (período total)",
+        "Categoria de Desfecho por Tipo de Questão — Plenário Virtual",
+        "Eixo X = tipo de questão (PR/RC/QI); barras empilhadas pelas 4 categorias. Período total, PV.",
+        g26_cat_tipo_periodo_pv,
+    ),
+    (
+        "G27 — Categoria × Tipo de Questão — PP (período total)",
+        "Categoria de Desfecho por Tipo de Questão — Plenário Físico",
+        "Mesmo recorte do G26 para o Plenário Físico.",
+        g27_cat_tipo_periodo_pp,
+    ),
+    (
+        "G28 — Categoria × Tipo de Questão por Ano — PV",
+        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Virtual",
+        "Um gráfico por tipo de questão (PR, RC, QI) mostrando a evolução anual das categorias no PV. "
+        "Selecione o tipo na sub-aba.",
+        g28_cat_tipo_anual_pv,
+    ),
+    (
+        "G29 — Categoria × Tipo de Questão por Ano — PP",
+        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Físico",
+        "Mesmo recorte do G28 para o Plenário Físico.",
+        g29_cat_tipo_anual_pp,
+    ),
+    # ── Desfecho Não Concluído por Categoria ──────────────────────────────────
+    (
+        "G30 — Não Concluídos por Categoria e Ano — PV",
+        "Não Concluídos por Categoria — Plenário Virtual",
+        "Evolução anual das 4 categorias de não conclusão: Pedido de vista, Destaque, "
+        "Retirado de pauta e Motivos diversos. PV.",
+        g30_nc_cat_anual_pv,
+    ),
+    (
+        "G31 — Não Concluídos por Categoria e Ano — PP",
+        "Não Concluídos por Categoria — Plenário Físico",
+        "Mesmo recorte do G30 para o PP. Destaque = 0 no Plenário Físico.",
+        g31_nc_cat_anual_pp,
+    ),
+    (
+        "G32 — Não Concluídos por Categoria e Classe — PV",
+        "Não Concluídos por Categoria e Classe — Plenário Virtual",
+        "Um gráfico por classe (ADI, ADPF, ADC, ADO) com as categorias de não conclusão no PV. "
+        "Selecione a classe na sub-aba.",
+        g32_nc_cat_classe_pv,
+    ),
+    (
+        "G33 — Não Concluídos por Categoria e Classe — PP",
+        "Não Concluídos por Categoria e Classe — Plenário Físico",
+        "Mesmo recorte do G32 para o PP.",
+        g33_nc_cat_classe_pp,
+    ),
+    (
+        "G34 — Não Concluídos por Categoria e Tipo — PV",
+        "Não Concluídos por Categoria e Tipo de Questão — Plenário Virtual",
+        "Um gráfico por tipo de questão (PR, RC, QI) com as categorias de não conclusão no PV. "
+        "Selecione o tipo na sub-aba.",
+        g34_nc_cat_tipo_pv,
+    ),
+    (
+        "G35 — Não Concluídos por Categoria e Tipo — PP",
+        "Não Concluídos por Categoria e Tipo de Questão — Plenário Físico",
+        "Mesmo recorte do G34 para o PP.",
+        g35_nc_cat_tipo_pp,
+    ),
+]
 
-def _chart(fig) -> None:
-    st.plotly_chart(fig, use_container_width=True)
+_LABELS = [item[0] for item in _CATALOGO]
+
+_SUMARIO = {
+    "Inclusões em Pauta (G5–G17)": [
+        "G5 — volume anual por ambiente (PV vs PP)",
+        "G6/G7 — volume por classe e ano (PV e PP)",
+        "G8/G9 — desfecho geral no período (PV e PP)",
+        "G10/G11 — macro-desfecho anual (PV e PP)",
+        "G12/G13 — concluídos por ano (PV e PP)",
+        "G14/G15 — não concluídos por classe (PV e PP)",
+        "G16/G17 — concluídos por classe (PV e PP)",
+    ],
+    "Tipo de Questão (G18–G21)": [
+        "G18/G19 — não concluídos por tipo PR/RC/QI (PV e PP)",
+        "G20/G21 — concluídos por tipo PR/RC/QI (PV e PP)",
+    ],
+    "Desfecho Concluído por Categoria (G22–G29)": [
+        "G22/G23 — distribuição por categoria no período (PV e PP)",
+        "G24/G25 — evolução anual por categoria (PV e PP)",
+        "G26/G27 — categoria × tipo de questão no período (PV e PP)",
+        "G28/G29 — categoria × tipo de questão por ano (PV e PP)",
+    ],
+    "Desfecho Não Concluído por Categoria (G30–G35)": [
+        "G30/G31 — categorias de não conclusão por ano (PV e PP)",
+        "G32/G33 — categorias de não conclusão por classe (PV e PP)",
+        "G34/G35 — categorias de não conclusão por tipo de questão (PV e PP)",
+    ],
+}
 
 
-def _dict_subtabs(figs: dict[str, object]) -> None:
-    """Renderiza um dict {label: figura} como sub-abas."""
-    if not figs:
-        st.info("Sem dados para exibir.")
-        return
-    keys = list(figs.keys())
-    subtabs = st.tabs(keys)
-    for tab, key in zip(subtabs, keys):
-        with tab:
-            _chart(figs[key])
+def _render(fn, df: pd.DataFrame) -> None:
+    result = fn(df)
+    if isinstance(result, dict):
+        if not result:
+            st.info("Sem dados para exibir.")
+            return
+        subtabs = st.tabs(list(result.keys()))
+        for tab, fig in zip(subtabs, result.values()):
+            with tab:
+                st.plotly_chart(fig, use_container_width=True)
+    elif isinstance(result, tuple):
+        for fig in result:
+            st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.plotly_chart(result, use_container_width=True)
 
 
 def render_graficos(df: pd.DataFrame) -> None:
-    # ── Bloco INCLUSÕES EM PAUTA ──────────────────────────────────────────────
-    st.subheader("Inclusões em Pauta")
-    tabs_ip = st.tabs([
-        "G5 — Anual/Ambiente",
-        "G6 — PV/Classe",
-        "G7 — PP/Classe",
-        "G8 — Desfecho PV",
-        "G9 — Desfecho PP",
-        "G10 — Macro Anual PV",
-        "G11 — Macro Anual PP",
-        "G12 — Concluídos PV",
-        "G13 — Concluídos PP",
-        "G14 — NC/Classe PV",
-        "G15 — NC/Classe PP",
-        "G16 — C/Classe PV",
-        "G17 — C/Classe PP",
-    ])
-
-    with tabs_ip[0]:
-        st.caption("Volume total de inclusões por ano — PV vs PP.")
-        fig, fig_p = g5_anual_ambiente(df)
-        _chart(fig)
-        _chart(fig_p)
-
-    with tabs_ip[1]:
-        st.caption("Inclusões por classe e ano — Plenário Virtual.")
-        fig, fig_p = g6_pv_por_classe(df)
-        _chart(fig); _chart(fig_p)
-
-    with tabs_ip[2]:
-        st.caption("Inclusões por classe e ano — Plenário Físico.")
-        fig, fig_p = g7_pp_por_classe(df)
-        _chart(fig); _chart(fig_p)
-
-    with tabs_ip[3]:
-        st.caption("Proporção concluído/não concluído — PV (período total).")
-        fig_macro, fig_det = g8_desfecho_pv(df)
-        c1, c2 = st.columns(2)
-        with c1: _chart(fig_macro)
-        with c2: _chart(fig_det)
-
-    with tabs_ip[4]:
-        st.caption("Proporção concluído/não concluído — PP (período total).")
-        _chart(g9_desfecho_pp(df))
-
-    with tabs_ip[5]:
-        st.caption("Evolução anual do desfecho macro — PV.")
-        _chart(g10_macro_anual_pv(df))
-
-    with tabs_ip[6]:
-        st.caption("Evolução anual do desfecho macro — PP.")
-        _chart(g11_macro_anual_pp(df))
-
-    with tabs_ip[7]:
-        st.caption("Fluxo anual de inclusões concluídas — PV.")
-        _chart(g12_concluidos_pv(df))
-
-    with tabs_ip[8]:
-        st.caption("Fluxo anual de inclusões concluídas — PP.")
-        _chart(g13_concluidos_pp(df))
-
-    with tabs_ip[9]:
-        st.caption("Não concluídos por classe e ano — PV.")
-        _chart(g14_nao_concluidos_classe_pv(df))
-
-    with tabs_ip[10]:
-        st.caption("Não concluídos por classe e ano — PP.")
-        _chart(g15_nao_concluidos_classe_pp(df))
-
-    with tabs_ip[11]:
-        st.caption("Concluídos por classe e ano — PV.")
-        _chart(g16_concluidos_classe_pv(df))
-
-    with tabs_ip[12]:
-        st.caption("Concluídos por classe e ano — PP.")
-        _chart(g17_concluidos_classe_pp(df))
+    # ── Sumário ───────────────────────────────────────────────────────────────
+    with st.expander("Sumário — visualizações disponíveis", expanded=True):
+        cols = st.columns(2)
+        items = list(_SUMARIO.items())
+        for i, (bloco, graficos) in enumerate(items):
+            with cols[i % 2]:
+                st.markdown(f"**{bloco}**")
+                for g in graficos:
+                    st.markdown(f"- {g}")
 
     st.markdown("---")
 
-    # ── Bloco TIPO DE QUESTÃO ─────────────────────────────────────────────────
-    st.subheader("Tipo de Questão")
-    tabs_tq = st.tabs([
-        "G18 — NC/Tipo PV",
-        "G19 — NC/Tipo PP",
-        "G20 — C/Tipo PV",
-        "G21 — C/Tipo PP",
-    ])
+    # ── Seletor único ─────────────────────────────────────────────────────────
+    escolha = st.selectbox(
+        "Selecione a visualização",
+        options=_LABELS,
+        index=0,
+        key="inclusoes_selectbox",
+    )
 
-    with tabs_tq[0]:
-        st.caption("Não concluídos por tipo de questão (PR/RC/QI) e ano — PV.")
-        _chart(g18_nc_tipo_pv(df))
+    idx = _LABELS.index(escolha)
+    _, subtitulo, descricao, fn = _CATALOGO[idx]
 
-    with tabs_tq[1]:
-        st.caption("Não concluídos por tipo de questão (PR/RC/QI) e ano — PP.")
-        _chart(g19_nc_tipo_pp(df))
+    st.subheader(subtitulo)
+    st.caption(descricao)
+    with st.expander("Critério / Caminho dos dados"):
+        st.markdown(
+            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
+            "- **Período:** 2020–2025  \n"
+            "- **Unidade:** inclusão em pauta (uma linha por inclusão)  \n"
+            "- **Renomeação:** `IJ` → `QI` (Questão Incidental) apenas na exibição"
+        )
 
-    with tabs_tq[2]:
-        st.caption("Concluídos por tipo de questão (PR/RC/QI) e ano — PV.")
-        _chart(g20_c_tipo_pv(df))
-
-    with tabs_tq[3]:
-        st.caption("Concluídos por tipo de questão (PR/RC/QI) e ano — PP.")
-        _chart(g21_c_tipo_pp(df))
-
-    st.markdown("---")
-
-    # ── Bloco DESFECHO CONCLUÍDO POR CATEGORIA ────────────────────────────────
-    st.subheader("Desfecho Concluído por Categoria")
-    tabs_dc = st.tabs([
-        "G22 — Período PV",
-        "G23 — Período PP",
-        "G24 — Anual PV",
-        "G25 — Anual PP",
-        "G26 — Tipo/Período PV",
-        "G27 — Tipo/Período PP",
-        "G28 — Tipo/Anual PV",
-        "G29 — Tipo/Anual PP",
-    ])
-
-    with tabs_dc[0]:
-        st.caption("Distribuição por categoria de desfecho — PV (período total).")
-        _chart(g22_cat_periodo_pv(df))
-
-    with tabs_dc[1]:
-        st.caption("Distribuição por categoria de desfecho — PP (período total).")
-        _chart(g23_cat_periodo_pp(df))
-
-    with tabs_dc[2]:
-        st.caption("Evolução anual das categorias de desfecho — PV.")
-        _chart(g24_cat_anual_pv(df))
-
-    with tabs_dc[3]:
-        st.caption("Evolução anual das categorias de desfecho — PP.")
-        _chart(g25_cat_anual_pp(df))
-
-    with tabs_dc[4]:
-        st.caption("Categoria de desfecho por tipo de questão — PV (período total).")
-        _chart(g26_cat_tipo_periodo_pv(df))
-
-    with tabs_dc[5]:
-        st.caption("Categoria de desfecho por tipo de questão — PP (período total).")
-        _chart(g27_cat_tipo_periodo_pp(df))
-
-    with tabs_dc[6]:
-        st.caption("Categoria de desfecho por tipo de questão e ano — PV. Sub-abas por tipo.")
-        _dict_subtabs(g28_cat_tipo_anual_pv(df))
-
-    with tabs_dc[7]:
-        st.caption("Categoria de desfecho por tipo de questão e ano — PP. Sub-abas por tipo.")
-        _dict_subtabs(g29_cat_tipo_anual_pp(df))
-
-    st.markdown("---")
-
-    # ── Bloco DESFECHO NÃO CONCLUÍDO POR CATEGORIA ───────────────────────────
-    st.subheader("Desfecho Não Concluído por Categoria")
-    tabs_nc = st.tabs([
-        "G30 — Anual PV",
-        "G31 — Anual PP",
-        "G32 — Classe PV",
-        "G33 — Classe PP",
-        "G34 — Tipo PV",
-        "G35 — Tipo PP",
-    ])
-
-    with tabs_nc[0]:
-        st.caption("Não concluídos por categoria (vista/destaque/retirado/outros) e ano — PV.")
-        _chart(g30_nc_cat_anual_pv(df))
-
-    with tabs_nc[1]:
-        st.caption("Não concluídos por categoria e ano — PP (destaque = 0 no PP).")
-        _chart(g31_nc_cat_anual_pp(df))
-
-    with tabs_nc[2]:
-        st.caption("Não concluídos por categoria e ano, por classe — PV. Sub-abas por classe.")
-        _dict_subtabs(g32_nc_cat_classe_pv(df))
-
-    with tabs_nc[3]:
-        st.caption("Não concluídos por categoria e ano, por classe — PP. Sub-abas por classe.")
-        _dict_subtabs(g33_nc_cat_classe_pp(df))
-
-    with tabs_nc[4]:
-        st.caption("Não concluídos por categoria e ano, por tipo de questão — PV. Sub-abas por tipo.")
-        _dict_subtabs(g34_nc_cat_tipo_pv(df))
-
-    with tabs_nc[5]:
-        st.caption("Não concluídos por categoria e ano, por tipo de questão — PP. Sub-abas por tipo.")
-        _dict_subtabs(g35_nc_cat_tipo_pp(df))
+    _render(fn, df)

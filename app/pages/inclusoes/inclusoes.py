@@ -23,11 +23,26 @@ if df.empty:
     st.warning("O dataframe retornou vazio.")
     st.stop()
 
+# ── Cabeçalho ─────────────────────────────────────────────────────────────────
 st.title("Inclusões em Pauta")
-st.markdown(
-    "Análise das inclusões em pauta de **Controle Concentrado** (ADI, ADC, ADO, ADPF) "
-    "no STF entre 2020 e 2025, comparando o **Plenário Virtual** e o **Plenário Físico** "
-    "e detalhando os desfechos (concluído / não concluído) por classe e por ano."
-)
+st.markdown("""
+Esta seção analisa as **inclusões em pauta de Controle Concentrado** (ADI, ADC, ADO e ADPF)
+no STF entre **2020 e 2025**, comparando o **Plenário Virtual** e o **Plenário Físico**.
 
+A unidade de análise é a **inclusão em pauta** — cada vez que um processo é colocado em pauta
+para julgamento, independentemente de ter sido julgado antes. Um mesmo processo pode aparecer
+múltiplas vezes se foi incluído em sessões distintas.
+
+Os gráficos cobrem quatro dimensões de análise:
+
+- **Volume** — quantas inclusões ocorreram por ano, por ambiente e por classe processual.
+- **Desfecho macro** — se a inclusão resultou em julgamento concluído ou não concluído.
+- **Categoria de desfecho concluído** — se a decisão foi unânime, por maioria com o relator
+  ou por maioria com o relator vencido.
+- **Categoria de não conclusão** — pedido de vista, destaque, retirado de pauta ou motivos diversos.
+""")
+
+st.markdown("---")
+
+# ── Renderização ──────────────────────────────────────────────────────────────
 render_graficos(df)

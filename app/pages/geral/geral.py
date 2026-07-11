@@ -1,54 +1,51 @@
-# pages/01_visao_geral.py
-# Garante que "data" e "bootstrap" sejam importáveis no Streamlit Cloud
+"""Página: Visão Geral."""
+
 import sys
 from pathlib import Path
+
+import streamlit as st
+
 _here = Path(__file__).resolve()
-_root = _here.parent.parent if _here.parent.name == "pages" else _here.parent
+_root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-import streamlit as st
 from data.loader import load_parquet
-from components.filters import multiselect_filter, year_range_filter
+from components.filters import render_sidebar_filters
 from data.filters import filter_by_values, filter_by_year_range
+from pages.geral.layout import render_metricas, render_timeline
 
-# Usa o repositório real do projeto + caminho correto no HF
-# (os arquivos estão em processed/ no repositório)
-df = load_parquet("JoaoBoscoooo/plenario_virtual", "processed/arquivosConcatenados.parquet")
+from config import HF_REPO_ID
 
-st.header("Visão Geral")
-st.caption("Visão geral dos processos do Plenário Virtual (tabela principal). Use os filtros no sidebar.")
+df = load_parquet(HF_REPO_ID, "processed/arquivosConcatenados.parquet")
 
-# ── Filtros no sidebar (não mutam df aqui) ────────────────────────────────────
-with st.sidebar:
-    st.header("Filtros")
-    classes_sel = multiselect_filter(df, "classe", "Classe processual")
-    tipos_sel = multiselect_filter(df, "tipo_processo", "Tipo de Processo")
-    ano_range = year_range_filter(df, col="ano", date_col_fallback="data_protocolo")
+st.title("Visão Geral")
+st.markdown(
+    "Panorama dos processos do **Plenário Virtual** do STF. "
+    "Use os filtros no sidebar para recortar por classe, tipo e período."
+)
 
-# ── Aplicação dos filtros (sempre sobre cópia / encadeado) ───────────────────
-df_filtrado = df
-if classes_sel:
-    df_filtrado = filter_by_values(df_filtrado, "classe", classes_sel)
+# ── Filtros ───────────────────────────────────────────────────────────────────
+filtros = render_sidebar_filters(df)
+ai, af = filtros["periodo"]
 
-if tipos_sel:
-    df_filtrado = filter_by_values(df_filtrado, "tipo_processo", tipos_sel)
+df_f = df
+if filtros["classes"]:
+    df_f = filter_by_values(df_f, "classe", filtros["classes"])
+if ai and af:
+    df_f = filter_by_year_range(df_f, start=ai, end=af)
 
-# Filtro de ano (data_protocolo ou coluna ano se existir)
-ai, af = ano_range
-if ai or af:  # (0,0) é fallback sem range útil
-    df_filtrado = filter_by_year_range(df_filtrado, start=ai, end=af, date_col="data_protocolo")
-
-if df_filtrado.empty and not df.empty:
+if df_f.empty and not df.empty:
     st.warning("Nenhum registro após os filtros atuais.")
-    df_filtrado = df.head(0)  # evita quebra das métricas
+    df_f = df.head(0)
 
-# ── Métricas (baseadas em colunas reais) ─────────────────────────────────────
-col1, col2, col3 = st.columns(3)
-col1.metric("Total (filtrado)", len(df_filtrado))
-col2.metric("Classes únicas", df_filtrado["classe"].nunique() if "classe" in df_filtrado.columns else 0)
-col3.metric("Tipos de processo", df_filtrado["tipo_processo"].nunique() if "tipo_processo" in df_filtrado.columns else 0)
+# ── Métricas ──────────────────────────────────────────────────────────────────
+render_metricas(df_f)
 
-# Diagnóstico rápido (útil durante desenvolvimento)
 with st.expander("Colunas disponíveis no dataset", expanded=False):
-    st.write(list(df.columns) if hasattr(df, "columns") else "N/A")
+    st.write(list(df.columns))
+
+st.markdown("---")
+
+# ── Linha do tempo ────────────────────────────────────────────────────────────
+render_timeline()

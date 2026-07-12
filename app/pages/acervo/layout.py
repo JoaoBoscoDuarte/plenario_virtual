@@ -60,14 +60,14 @@ def _render_aba_metrica(df: pd.DataFrame, col: str, label: str, key_prefix: str)
     with sub_tabs[0]:
         st.plotly_chart(
             plotar_grafico_stf(df, "TOTAL", col, label, show_values),
-            use_container_width=True,
+            width="stretch",
         )
 
     for tab, classe in zip(sub_tabs[1:], classes):
         with tab:
             st.plotly_chart(
                 plotar_grafico_stf(df, classe, col, label, show_values),
-                use_container_width=True,
+                width="stretch",
             )
 
 

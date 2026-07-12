@@ -263,12 +263,12 @@ def _render(fn, df: pd.DataFrame) -> None:
         subtabs = st.tabs(list(result.keys()))
         for tab, fig in zip(subtabs, result.values()):
             with tab:
-                st.plotly_chart(fig, use_container_width=True)
+                st.plotly_chart(fig, width="stretch")
     elif isinstance(result, tuple):
         for fig in result:
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
     else:
-        st.plotly_chart(result, use_container_width=True)
+        st.plotly_chart(result, width="stretch")
 
 
 def render_graficos(df: pd.DataFrame) -> None:

@@ -130,7 +130,7 @@ def render_timeline() -> None:
     fig.update_xaxes(range=[-0.15, 1.0], visible=False, fixedrange=True)
     fig.update_yaxes(range=[0, y_max], visible=False, fixedrange=True)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
 
 def render_metricas(df: pd.DataFrame) -> None:

@@ -103,4 +103,4 @@ def render_graficos(df: pd.DataFrame) -> None:
             "- **Unidade:** inclusão em pauta (uma linha por inclusão)"
         )
 
-    st.plotly_chart(fn(df), use_container_width=True)
+    st.plotly_chart(fn(df), width="stretch")

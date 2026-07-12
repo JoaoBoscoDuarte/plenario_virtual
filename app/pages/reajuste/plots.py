@@ -23,14 +23,14 @@ _LEGEND = dict(
     bgcolor="#fcfcfc", bordercolor="#cccccc", borderwidth=1,
 )
 _LAYOUT_PIZZA = dict(
-    template="plotly_white", height=420,
-    margin=dict(t=80, b=60),
+    template="plotly_white", height=500,
+    margin=dict(t=120, b=80, l=60, r=60),
     legend=_LEGEND,
-    showlegend=False,
+    showlegend=True,
 )
 _LAYOUT_BAR = dict(
-    template="plotly_white", height=460,
-    margin=dict(t=100, b=80, l=60, r=40),
+    template="plotly_white", height=500,
+    margin=dict(t=120, b=80, l=60, r=60),
     legend=_LEGEND,
     xaxis=dict(dtick=1, title="Ano", tickangle=-45),
     yaxis=dict(title="Inclusões com reajuste de voto"),
@@ -68,6 +68,8 @@ def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
         marker=dict(colors=cores, line=dict(color="white", width=2)),
         textinfo="label+value+percent",
         textfont=dict(size=13),
+        textposition="auto",
+        insidetextorientation="radial",
     ))
     fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
     return fig

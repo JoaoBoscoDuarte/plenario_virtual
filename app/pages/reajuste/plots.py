@@ -71,7 +71,7 @@ def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
         textposition="auto",
         insidetextorientation="radial",
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
+    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA, showlegend=False)
     return fig
 
 

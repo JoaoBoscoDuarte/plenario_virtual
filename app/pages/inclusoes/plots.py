@@ -32,6 +32,14 @@ CORES_NC = {
     "3 - Retirado de pauta": "#f59e0b",
     "4 - Motivos diversos":  "#9ca3af",
 }
+CORES_SUST = {
+    "Com sustentação oral": "#0891b2",
+    "Sem sustentação oral": "#e5e7eb",
+}
+CORES_REAJUSTE = {
+    "Com reajuste de voto": "#dc2626",
+    "Sem reajuste de voto": "#e5e7eb",
+}
 COR_LINHA = "#7f7f7f"
 COR_PV    = "#2563eb"
 COR_PP    = "#94a3b8"
@@ -462,3 +470,61 @@ def g35_nc_cat_tipo_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
                               f"Não Concluídos por Categoria — {t} — PP",
                               "Inclusões em pauta", f"Total {t} PP (Linha)")
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# GRUPO 5 — Sustentação oral  (gráficos 36–39)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _pizza_bool(df: pd.DataFrame, col: str, label_true: str,
+                label_false: str, cores: dict, titulo: str) -> go.Figure:
+    """Pizza para proporção de uma coluna booleana."""
+    serie = df[col].map({True: label_true, False: label_false}).value_counts()
+    return _pizza(serie, titulo,
+                  cores=[cores.get(l, "#999") for l in serie.index])
+
+
+def g36_sust_periodo_pv(df: pd.DataFrame) -> go.Figure:
+    sub = df[df["ambiente"] == "Plenário Virtual"]
+    return _pizza_bool(sub, "teve_sustentacao",
+                       "Com sustentação oral", "Sem sustentação oral",
+                       CORES_SUST,
+                       "Inclusões com sustentação oral — Plenário Virtual (2020–2025)")
+
+
+def g37_sust_periodo_pp(df: pd.DataFrame) -> go.Figure:
+    sub = df[df["ambiente"] == "Plenário Físico"]
+    return _pizza_bool(sub, "teve_sustentacao",
+                       "Com sustentação oral", "Sem sustentação oral",
+                       CORES_SUST,
+                       "Inclusões com sustentação oral — Plenário Físico (2020–2025)")
+
+
+def g38_sust_anual_pv(df: pd.DataFrame) -> go.Figure:
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]]
+    tab = (sub.groupby("ano").size().reset_index(name="n")
+           .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
+    fig = _bar_fig()
+    fig.add_trace(go.Bar(
+        x=tab["ano"], y=tab["n"], name="Com sustentação oral",
+        marker_color=CORES_SUST["Com sustentação oral"],
+        text=tab["n"], textposition="outside", cliponaxis=False,
+    ))
+    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Virtual",
+                      yaxis_title="Inclusões com sustentação")
+    return fig
+
+
+def g39_sust_anual_pp(df: pd.DataFrame) -> go.Figure:
+    sub = df[(df["ambiente"] == "Plenário Físico") & df["teve_sustentacao"]]
+    tab = (sub.groupby("ano").size().reset_index(name="n")
+           .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
+    fig = _bar_fig()
+    fig.add_trace(go.Bar(
+        x=tab["ano"], y=tab["n"], name="Com sustentação oral",
+        marker_color=CORES_SUST["Com sustentação oral"],
+        text=tab["n"], textposition="outside", cliponaxis=False,
+    ))
+    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Físico",
+                      yaxis_title="Inclusões com sustentação")
+    return fig

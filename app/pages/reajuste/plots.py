@@ -129,62 +129,6 @@ def gr6_classe_pp(df: pd.DataFrame) -> go.Figure:
     )
 
 
-# ── G-R7 — Pizza tramitação por ambiente (processos distintos) ───────────────
-
-def gr7_tramitacao(df: pd.DataFrame) -> go.Figure:
-    serie = (
-        df.drop_duplicates("incidente")["tramitacao"]
-        .value_counts()
-    )
-    cores = [CORES_TRAM.get(l, "#999") for l in serie.index]
-    fig = go.Figure(go.Pie(
-        labels=serie.index, values=serie.values,
-        hole=0.4,
-        marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="label+value+percent",
-        textfont=dict(size=13),
-        textposition="auto",
-        insidetextorientation="radial",
-    ))
-    fig.update_layout(
-        title_text="Tramitação por Ambiente — Processos CC (2020–2025)",
-        **_LAYOUT_PIZZA,
-    )
-    return fig
-
-
-# ── G-R8 — Barras: processos em ambos os ambientes por tipo de questão ────────
-
-def gr8_ambos_por_tipo(df: pd.DataFrame) -> go.Figure:
-    ambos = (
-        df[df["tramitou_ambos"]]
-        .drop_duplicates("incidente")
-        .copy()
-    )
-    ambos["tipo_questao"] = ambos["tipo_questao"].replace({"IJ": "QI"})
-    tab = ambos["tipo_questao"].value_counts().reset_index()
-    tab.columns = ["tipo_questao", "n"]
-    tab = tab.sort_values("tipo_questao")
-
-    fig = go.Figure()
-    for _, row in tab.iterrows():
-        fig.add_trace(go.Bar(
-            x=[row["tipo_questao"]], y=[row["n"]],
-            name=row["tipo_questao"],
-            marker_color=CORES_TIPO.get(row["tipo_questao"], "#999"),
-            text=[row["n"]], textposition="outside",
-            cliponaxis=False,
-        ))
-    fig.update_layout(
-        title_text="Processos em Ambos os Ambientes por Tipo de Questão (2020–2025)",
-        **_LAYOUT_BAR,
-        xaxis=dict(title="Tipo de Questão"),
-        yaxis=dict(title="Processos distintos"),
-        barmode="group",
-    )
-    return fig
-
-
 def _barras_classe(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
     sub = df_amb[df_amb["teve_reajuste"]]
     tab = sub.groupby(["ano", "classe"]).size().reset_index(name="n")

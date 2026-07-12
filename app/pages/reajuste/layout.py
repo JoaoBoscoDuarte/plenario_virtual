@@ -7,7 +7,6 @@ from .plots import (
     gr1_pizza_pv, gr2_pizza_pp,
     gr3_anual_pv, gr4_anual_pp,
     gr5_classe_pv, gr6_classe_pp,
-    gr7_tramitacao, gr8_ambos_por_tipo,
 )
 
 _CATALOGO = [
@@ -50,22 +49,6 @@ _CATALOGO = [
         "Mesmo recorte do R5 para o Plenário Físico.",
         gr6_classe_pp,
     ),
-    (
-        "R7 — Tramitação por Ambiente (processos distintos)",
-        "Tramitação por Ambiente — Processos CC (2020–2025)",
-        "Pizza com a distribuição dos processos distintos por ambiente de tramitação: "
-        "só no Plenário Virtual, só no Plenário Físico, ou em ambos. "
-        "Unidade: processo (incidente único), não inclusão.",
-        gr7_tramitacao,
-    ),
-    (
-        "R8 — Processos em Ambos os Ambientes por Tipo de Questão",
-        "Processos em Ambos os Ambientes por Tipo de Questão (2020–2025)",
-        "Barras com o volume de processos distintos que tramitaram em ambos os ambientes, "
-        "agrupados por tipo de questão (PR / RC / QI). "
-        "IJ renomeado para QI na exibição.",
-        gr8_ambos_por_tipo,
-    ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
@@ -82,10 +65,6 @@ _SUMARIO = {
     "Por classe (R5–R6)": [
         "R5 — reajustes por ano e classe — PV",
         "R6 — reajustes por ano e classe — PP",
-    ],
-    "Tramitação por ambiente (R7–R8)": [
-        "R7 — distribuição dos processos por ambiente (só PV / só PP / ambos)",
-        "R8 — processos em ambos os ambientes por tipo de questão",
     ],
 }
 
@@ -116,10 +95,9 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.subheader(subtitulo)
     st.caption(descricao)
     with st.expander("Critério / Caminho dos dados"):
-        unidade = "processo (incidente único)" if idx >= 6 else "inclusão em pauta"
         st.markdown(
             "- **Fonte:** `data/processed/inclusoes_com_pauta.parquet`  \n"
-            f"- **Unidade:** {unidade}  \n"
+            "- **Unidade:** inclusão em pauta  \n"
             "- **Período:** 2020–2025"
         )
 

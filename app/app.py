@@ -22,6 +22,9 @@ pg = st.navigation(
         "Reajuste de Voto": [
             st.Page("pages/reajuste/reajuste.py", title="Reajuste de Voto", icon="🔄"),
         ],
+        "Tramitação": [
+            st.Page("pages/tramitacao/tramitacao.py", title="Tramitação por Ambiente", icon="🔀"),
+        ],
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],

@@ -76,7 +76,9 @@ def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
              else dict(line=dict(color="white", width=2))
     fig = go.Figure(go.Pie(
         labels=series.index, values=series.values, hole=buraco,
-        textinfo="label+percent+value", textposition="outside",
+        textinfo="label+percent+value",
+        textposition="auto",
+        insidetextorientation="radial",
         marker=marker,
     ))
     fig.update_layout(

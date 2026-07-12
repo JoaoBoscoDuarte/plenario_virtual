@@ -97,3 +97,8 @@ def load_evolucao_acervo() -> pd.DataFrame:
 def load_inclusoes_em_pauta() -> pd.DataFrame:
     """Carrega o dataset de inclusões em pauta (2020–2025)."""
     return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])
+
+
+def load_inclusoes_com_pauta() -> pd.DataFrame:
+    """Carrega o dataset de inclusões em pauta com coluna teve_reajuste."""
+    return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_com_pauta"])

@@ -35,7 +35,8 @@ FILES = [
     # Acervo histórico (conforme spec do IMPLEMENTACAO_GRAFICA.md)
     ("acervo/evolucao_acervo.parquet", "processed/acervo/evolucao_acervo.parquet"),
     # Inclusões em pauta
-    ("inclusoes_em_pauta.parquet", "processed/inclusoes_em_pauta.parquet"),
+    ("inclusoes_em_pauta.parquet",  "processed/inclusoes_em_pauta.parquet"),
+    ("inclusoes_com_pauta.parquet", "processed/inclusoes_com_pauta.parquet"),
 ]
 
 # Diretório padrão dos parquets — relativo à raiz do projeto (pai de scripts/)

@@ -19,6 +19,9 @@ pg = st.navigation(
         "Inclusões em Pauta": [
             st.Page("pages/inclusoes/inclusoes.py", title="Inclusões em Pauta", icon="📅"),
         ],
+        "Reajuste de Voto": [
+            st.Page("pages/reajuste/reajuste.py", title="Reajuste de Voto", icon="🔄"),
+        ],
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],

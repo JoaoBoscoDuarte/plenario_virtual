@@ -51,12 +51,12 @@ Este documento é o controle oficial de implementação dos gráficos listados e
 | 34 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PV | + tipo de questão; sub-abas por tipo. | Sim | `inclusoes.py` — G34 | — |
 | 35 | DESFECHO NÃO CONCLUÍDO | por CATEGORIA. Anual. Tipo de Questão. PP | + tipo de questão, PP; sub-abas por tipo. | Sim | `inclusoes.py` — G35 | — |
 | - | DESTAQUES CANCELADOS | Geral. Período | Processos com andamento “destaque cancelado”. 2020-2025. | Não | | |
-| - | REAJUSTE DE VOTO | Geral. Período. PV | Expressões específicas + menção a ministro/relator. | Não | | |
-| - | REAJUSTE DE VOTO | Geral. Período. PP | Idem PP. | Não | | |
-| - | REAJUSTE DE VOTO | Geral. Ano. PV | Anual. | Não | | |
-| - | REAJUSTE DE VOTO | Geral. Ano. PP | Anual, PP. | Não | | |
-| - | REAJUSTE DE VOTO | Anual. Classe. PV | Por classe. | Não | | |
-| - | REAJUSTE DE VOTO | Anual. Classe. PP | Por classe, PP. | Não | | |
+| - | REAJUSTE DE VOTO | Geral. Período. PV | Expressões específicas + menção a ministro/relator. | Sim | `reajuste.py` — R1 | — |
+| - | REAJUSTE DE VOTO | Geral. Período. PP | Idem PP. | Sim | `reajuste.py` — R2 | — |
+| - | REAJUSTE DE VOTO | Geral. Ano. PV | Anual. | Sim | `reajuste.py` — R3 | — |
+| - | REAJUSTE DE VOTO | Geral. Ano. PP | Anual, PP. | Sim | `reajuste.py` — R4 | — |
+| - | REAJUSTE DE VOTO | Anual. Classe. PV | Por classe. | Sim | `reajuste.py` — R5 | — |
+| - | REAJUSTE DE VOTO | Anual. Classe. PP | Por classe, PP. | Sim | `reajuste.py` — R6 | — |
 | - | TRAMITAÇÃO NOS 2 AMBIENTES | Geral. Período | Processos que tramitaram nos dois ambientes. | Não | | |
 | - | TRAMITAÇÃO NOS 2 AMBIENTES | Geral. Período. Tipo de Questão | + tipo de questão. | Não | | |
 | - | SUSTENTAÇÃO ORAL | Período. PV | 2020-2025. | Não | | |

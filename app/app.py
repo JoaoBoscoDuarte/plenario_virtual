@@ -25,6 +25,9 @@ pg = st.navigation(
         "Tramitação": [
             st.Page("pages/tramitacao/tramitacao.py", title="Tramitação por Ambiente", icon="🔀"),
         ],
+        "Sustentação Oral": [
+            st.Page("pages/sustentacao/sustentacao.py", title="Sustentação Oral", icon="🎤"),
+        ],
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],

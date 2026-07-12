@@ -115,7 +115,7 @@ def _render_tabela(df: pd.DataFrame) -> None:
 
     tabela = pd.DataFrame(rows).sort_values("Ano", ascending=False).set_index("Ano")
     fmt = {c: ("{:.1f}%" if "%" in c else "{:,.0f}") for c in tabela.columns}
-    st.dataframe(tabela.style.format(fmt, na_rep="—"), use_container_width=True, height=460)
+    st.dataframe(tabela.style.format(fmt, na_rep="—"), width="stretch", height=460)
 
 
 def render_graficos(df: pd.DataFrame) -> None:

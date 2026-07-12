@@ -113,7 +113,7 @@ def gt1_tramitacao(df: pd.DataFrame) -> go.Figure:
 
 def gt2_tram_por_classe(df: pd.DataFrame) -> go.Figure:
     proc = _proc(df)
-    tab = proc.groupby(["classe", "tramitacao"]).size().reset_index(name="n")
+    tab = proc.groupby(["classe", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "classe", "tramitacao", CORES_TRAM,
         "Tramitação por Ambiente e Classe — Processos CC (2020–2025)",
@@ -128,7 +128,7 @@ def gt2_tram_por_classe(df: pd.DataFrame) -> go.Figure:
 def gt3_tram_por_tipo(df: pd.DataFrame) -> go.Figure:
     proc = _proc(df)
     proc = proc[proc["tipo_questao"].isin(_TIPOS)]
-    tab = proc.groupby(["tipo_questao", "tramitacao"]).size().reset_index(name="n")
+    tab = proc.groupby(["tipo_questao", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tipo_questao", "tramitacao", CORES_TRAM,
         "Tramitação por Ambiente e Tipo de Questão — Processos CC (2020–2025)",
@@ -168,7 +168,7 @@ def gt4_ambos_por_tipo(df: pd.DataFrame) -> go.Figure:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def gt5_macro_por_tram(df: pd.DataFrame) -> go.Figure:
-    tab = df.groupby(["tramitacao", "macro_desfecho"]).size().reset_index(name="n")
+    tab = df.groupby(["tramitacao", "macro_desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "macro_desfecho", CORES_MACRO,
         "Macro-Desfecho por Ambiente de Tramitação — Inclusões (2020–2025)",
@@ -181,7 +181,7 @@ def gt5_macro_por_tram(df: pd.DataFrame) -> go.Figure:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def gt6_desfecho_por_tram(df: pd.DataFrame) -> go.Figure:
-    tab = df.groupby(["tramitacao", "desfecho"]).size().reset_index(name="n")
+    tab = df.groupby(["tramitacao", "desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "desfecho", CORES_DESFECHO,
         "Desfecho Detalhado por Ambiente de Tramitação — Inclusões (2020–2025)",
@@ -236,11 +236,12 @@ def gt8_tipo_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
 
 def gt9_taxa_conclusao(df: pd.DataFrame) -> go.Figure:
     tab = (
-        df.groupby(["tramitacao", "classe"])["macro_desfecho"]
+        df.groupby(["tramitacao", "classe"], observed=True)["macro_desfecho"]
         .apply(lambda s: (s == "Concluído").mean() * 100)
         .reset_index(name="n")
     )
     tab["n"] = tab["n"].round(1)
+    tab = tab[tab["n"] > 0]
     return _barras_grupo(
         tab, "tramitacao", "classe", CORES_CLASSE,
         "Taxa de Conclusão (%) por Ambiente de Tramitação e Classe (2020–2025)",

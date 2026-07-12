@@ -207,7 +207,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.caption(f"{len(tab):,} processos exibidos")
     st.dataframe(
         tab.drop(columns=["Incidente"]),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "Processo":           st.column_config.TextColumn(width="medium"),

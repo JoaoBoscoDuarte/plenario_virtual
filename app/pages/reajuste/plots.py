@@ -25,8 +25,7 @@ _LEGEND = dict(
 _LAYOUT_PIZZA = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
-    legend=_LEGEND,
-    showlegend=True,
+    showlegend=False,
 )
 _LAYOUT_BAR = dict(
     template="plotly_white", height=500,
@@ -71,7 +70,7 @@ def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
         textposition="auto",
         insidetextorientation="radial",
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA, showlegend=False)
+    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
     return fig
 
 

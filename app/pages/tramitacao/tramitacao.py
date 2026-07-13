@@ -51,6 +51,4 @@ st.markdown("""
 - **Tabela Consolidada** — dados brutos por processo com contagem de inclusões por ambiente.
 """)
 
-st.markdown("---")
-
 render_graficos(df)

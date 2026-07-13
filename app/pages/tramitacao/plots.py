@@ -297,6 +297,7 @@ def gt10_tabulador(
     grupo: str,
     metrica: str = "inclusoes",
     barmode: str = "group",
+    show_values: bool = True,
 ) -> go.Figure:
     """Gráfico de barras reconfigurável: eixo X, grupo/cor e métrica livres."""
     d = df.copy()
@@ -329,7 +330,7 @@ def gt10_tabulador(
             y=d_g["n"],
             name=str(g),
             marker_color=cor,
-            text=d_g["n"].apply(lambda v: f"{v:.1f}%" if barmode == "100%" else str(int(v))),
+            text=d_g["n"].apply(lambda v: f"{v:.1f}%" if barmode == "100%" else str(int(v))) if show_values else None,
             textposition="outside" if bm != "stack" else "inside",
             cliponaxis=False,
         ))

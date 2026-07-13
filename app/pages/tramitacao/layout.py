@@ -17,11 +17,13 @@ from .plots import (
     DIMENSOES,
 )
 
+# Catálogo dos gráficos pré-definidos T1–T9
+# (label_seletor, subtítulo, descrição, função)
 _CATALOGO = [
     (
         "T1 — Tramitação por Ambiente (pizza geral)",
         "Tramitação por Ambiente — Processos CC (2020–2025)",
-        "Pizza com a distribuição dos 2.834 processos distintos por ambiente: "
+        "Pizza com a distribuição dos processos distintos por ambiente: "
         "só PV, só PP ou ambos. Unidade: processo (incidente único).",
         gt1_tramitacao,
     ),
@@ -42,7 +44,7 @@ _CATALOGO = [
     (
         "T4 — Processos em Ambos os Ambientes por Tipo de Questão",
         "Processos em Ambos os Ambientes por Tipo de Questão (2020–2025)",
-        "Recorte dos 478 processos que tramitaram em ambos os ambientes, "
+        "Recorte dos processos que tramitaram em ambos os ambientes, "
         "distribuídos por tipo de questão (PR / RC / QI). Unidade: processo.",
         gt4_ambos_por_tipo,
     ),
@@ -81,73 +83,63 @@ _CATALOGO = [
         "tramitação e classe processual. Unidade: inclusão em pauta.",
         gt9_taxa_conclusao,
     ),
-    (
-        "T10 — Tabulador Interativo",
-        "Tabulador Interativo — Tramitação por Ambiente (2020–2025)",
-        "Configure livremente os eixos, agrupamento, métrica e modo de barras. "
-        "Pré-definidos disponíveis como ponto de partida.",
-        None,  # renderizado diretamente em render_graficos
-    ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
 
-_SUMARIO = {
-    "Distribuição geral (T1–T4)": [
-        "T1 — pizza geral por ambiente (só PV / só PP / ambos)",
-        "T2 — tramitação por ambiente e classe",
-        "T3 — tramitação por ambiente e tipo de questão",
-        "T4 — processos em ambos os ambientes por tipo de questão",
-    ],
-    "Desfecho por tramitação (T5–T6)": [
-        "T5 — macro-desfecho (concluído / não concluído) por ambiente",
-        "T6 — desfecho detalhado (7 categorias) por ambiente",
-    ],
-    "Composição interna por ambiente (T7–T9)": [
-        "T7 — distribuição por classe dentro de cada ambiente",
-        "T8 — distribuição por tipo de questão dentro de cada ambiente",
-        "T9 — taxa de conclusão (%) por ambiente e classe",
-    ],
-    "Tabulador interativo (T10)": [
-        "T10 — escolha livre de eixo X, grupo/cor, métrica e modo de barras",
-    ],
-}
+# Unidade de análise por índice do catálogo (para o expander de critério)
+_UNIDADE = {0: "processo", 1: "processo", 2: "processo", 3: "processo",
+            4: "inclusão em pauta", 5: "inclusão em pauta",
+            6: "processo", 7: "processo", 8: "inclusão em pauta"}
 
+# ── Tabulador ─────────────────────────────────────────────────────────────────
+
+_PREDEFINIDOS = [
+    ("Ambiente × Classe (inclusões, agrupado)",          "tramitacao",    "classe",         "inclusoes", "group"),
+    ("Ambiente × Macro-Desfecho (inclusões, agrupado)",  "tramitacao",    "macro_desfecho", "inclusoes", "group"),
+    ("Ambiente × Tipo de Questão (processos, agrupado)", "tramitacao",    "tipo_questao",   "processos", "group"),
+    ("Classe × Ambiente (inclusões, empilhado 100%)",    "classe",        "tramitacao",     "inclusoes", "100%"),
+    ("Classe × Macro-Desfecho (inclusões, empilhado)",   "classe",        "macro_desfecho", "inclusoes", "stack"),
+    ("Ano × Ambiente (inclusões, empilhado)",            "ano",           "tramitacao",     "inclusoes", "stack"),
+    ("Ano × Macro-Desfecho (inclusões, empilhado 100%)", "ano",           "macro_desfecho", "inclusoes", "100%"),
+    ("Tipo de Questão × Desfecho (inclusões, agrupado)", "tipo_questao",  "macro_desfecho", "inclusoes", "group"),
+]
+_LABELS_PRE  = [p[0] for p in _PREDEFINIDOS]
+_DIMS_LABEL  = list(DIMENSOES.keys())
+
+
+# ── helpers ───────────────────────────────────────────────────────────────────
 
 def _build_tabela(df: pd.DataFrame) -> pd.DataFrame:
     """Consolida uma linha por processo com contagens de inclusões por ambiente."""
-    proc = df.drop_duplicates("incidente").copy()
+    proc      = df.drop_duplicates("incidente").copy()
     inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
-    inc_pv = (
-        df[df["ambiente"] == "Plenário Virtual"]
-        .groupby("incidente").size().rename("Inclusões PV")
-    )
-    inc_pp = (
-        df[df["ambiente"] == "Plenário Físico"]
-        .groupby("incidente").size().rename("Inclusões PP")
-    )
+    inc_pv    = (df[df["ambiente"] == "Plenário Virtual"]
+                 .groupby("incidente").size().rename("Inclusões PV"))
+    inc_pp    = (df[df["ambiente"] == "Plenário Físico"]
+                 .groupby("incidente").size().rename("Inclusões PP"))
     tab = (
         proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao", "tramitacao"]]
         .join(inc_total, on="incidente")
-        .join(inc_pv, on="incidente")
-        .join(inc_pp, on="incidente")
+        .join(inc_pv,    on="incidente")
+        .join(inc_pp,    on="incidente")
     )
     tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
     tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
     tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
-    tab = tab.rename(columns={
-        "incidente":     "Incidente",
-        "nome_processo": "Processo",
-        "classe":        "Classe",
-        "relator":       "Relator",
-        "tipo_questao":  "Tipo",
-        "tramitacao":    "Tramitação",
-    })
-    return tab.sort_values("Processo").reset_index(drop=True)
+    return (
+        tab.rename(columns={
+            "incidente": "Incidente", "nome_processo": "Processo",
+            "classe": "Classe", "relator": "Relator",
+            "tipo_questao": "Tipo", "tramitacao": "Tramitação",
+        })
+        .sort_values("Processo")
+        .reset_index(drop=True)
+    )
 
 
-def _render(fn, df: pd.DataFrame) -> None:
-    result = fn(df)
+def _render(fn, df: pd.DataFrame, show_values: bool = False) -> None:
+    result = fn(df) if fn.__code__.co_varnames[0] == "df" and fn.__code__.co_argcount == 1 else fn(df)
     if isinstance(result, dict):
         if not result:
             st.info("Sem dados para exibir.")
@@ -160,56 +152,51 @@ def _render(fn, df: pd.DataFrame) -> None:
         st.plotly_chart(result, width="stretch")
 
 
-# Pré-definidos do tabulador: (label, eixo_x, grupo, metrica, barmode)
-_PREDEFINIDOS = [
-    ("Ambiente × Classe (inclusões, agrupado)",        "tramitacao",   "classe",        "inclusoes",  "group"),
-    ("Ambiente × Macro-Desfecho (inclusões, agrupado)","tramitacao",   "macro_desfecho","inclusoes",  "group"),
-    ("Ambiente × Tipo de Questão (processos, agrupado)","tramitacao",  "tipo_questao",  "processos",  "group"),
-    ("Classe × Ambiente (inclusões, empilhado 100%)",  "classe",       "tramitacao",    "inclusoes",  "100%"),
-    ("Classe × Macro-Desfecho (inclusões, empilhado)", "classe",       "macro_desfecho","inclusoes",  "stack"),
-    ("Ano × Ambiente (inclusões, empilhado)",          "ano",          "tramitacao",    "inclusoes",  "stack"),
-    ("Ano × Macro-Desfecho (inclusões, empilhado 100%)","ano",         "macro_desfecho","inclusoes",  "100%"),
-    ("Tipo de Questão × Desfecho (inclusões, agrupado)","tipo_questao","macro_desfecho","inclusoes",  "group"),
-]
-_LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
-_DIMS_LABEL = list(DIMENSOES.keys())
+# ── Tabulador interativo ───────────────────────────────────────────────────────
 
-
-def _render_tabulador(df: pd.DataFrame) -> None:
-    """Bloco T10: pré-definidos + configuração livre."""
-    st.markdown("**Pré-definidos**")
-    pre_escolha = st.selectbox(
-        "Ponto de partida",
-        options=[""] + _LABELS_PRE,
-        index=0,
-        key="tab_predefinido",
-        help="Selecione um pré-definido para preencher os controles abaixo automaticamente.",
+def _render_tabulador(df: pd.DataFrame, show_values: bool) -> None:
+    st.info(
+        "💡 **Tabulador Interativo** — escolha qualquer combinação de dimensões nos controles abaixo. "
+        "Não sabe por onde começar? Selecione um **pré-definido** para carregar uma configuração pronta.",
+        icon=None,
     )
 
-    # valores padrão ou vindos do pré-definido
-    if pre_escolha:
-        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS if p[0] == pre_escolha)
-        def_x   = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
-        def_g   = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
-        def_m   = ["inclusoes", "processos"].index(pm)
-        def_bm  = ["group", "stack", "100%"].index(pbm)
-    else:
-        def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+    # Pré-definidos
+    col_pre, _ = st.columns([2, 1])
+    with col_pre:
+        pre_escolha = st.selectbox(
+            "🔖 Pré-definidos (configurações prontas)",
+            options=["— escolha um pré-definido ou configure abaixo —"] + _LABELS_PRE,
+            index=0,
+            key="tab_predefinido",
+        )
 
-    st.markdown("**Configuração livre**")
+    # Resolve índices padrão
+    if pre_escolha.startswith("—"):
+        def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+    else:
+        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS if p[0] == pre_escolha)
+        def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+        def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+        def_m  = ["inclusoes", "processos"].index(pm)
+        def_bm = ["group", "stack", "100%"].index(pbm)
+
+    st.markdown("**Ou configure manualmente:**")
     c1, c2, c3, c4 = st.columns(4)
     with c1:
-        eixo_x_lbl = st.selectbox("Eixo X",   _DIMS_LABEL, index=def_x, key="tab_x")
+        eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="tab_x")
     with c2:
         grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="tab_g")
     with c3:
-        metrica    = st.selectbox("Métrica",   ["inclusoes", "processos"],
-                                  index=def_m, key="tab_m",
-                                  format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos")
+        metrica = st.selectbox(
+            "Métrica", ["inclusoes", "processos"], index=def_m, key="tab_m",
+            format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos",
+        )
     with c4:
-        barmode    = st.selectbox("Modo",      ["group", "stack", "100%"],
-                                  index=def_bm, key="tab_bm",
-                                  format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v])
+        barmode = st.selectbox(
+            "Modo", ["group", "stack", "100%"], index=def_bm, key="tab_bm",
+            format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v],
+        )
 
     eixo_x = DIMENSOES[eixo_x_lbl]
     grupo  = DIMENSOES[grupo_lbl]
@@ -218,23 +205,28 @@ def _render_tabulador(df: pd.DataFrame) -> None:
         st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
         return
 
-    fig = gt10_tabulador(df, eixo_x, grupo, metrica, barmode)
+    fig = gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values)
     st.plotly_chart(fig, width="stretch")
 
 
+# ── Ponto de entrada ──────────────────────────────────────────────────────────
+
 def render_graficos(df: pd.DataFrame) -> None:
-    # ── Sumário ───────────────────────────────────────────────────────────────
-    with st.expander("Sumário — visualizações disponíveis", expanded=True):
-        cols = st.columns(4)
-        for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
-            with cols[i]:
-                st.markdown(f"**{bloco}**")
-                for g in graficos:
-                    st.markdown(f"- {g}")
+    # ── Controles globais ─────────────────────────────────────────────────────
+    show_values = st.checkbox("Exibir valores nos gráficos", value=False, key="tram_show_values")
 
     st.markdown("---")
 
-    # ── Seletor único ─────────────────────────────────────────────────────────
+    # ── Tabulador (primeiro elemento) ─────────────────────────────────────────
+    st.subheader("Tabulador Interativo")
+    _render_tabulador(df, show_values)
+
+    st.markdown("---")
+
+    # ── Gráficos pré-definidos ────────────────────────────────────────────────
+    st.subheader("Visualizações Pré-definidas")
+    st.caption("Selecione um dos gráficos temáticos abaixo.")
+
     escolha = st.selectbox(
         "Selecione a visualização",
         options=_LABELS,
@@ -248,17 +240,13 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.subheader(subtitulo)
     st.caption(descricao)
     with st.expander("Critério / Caminho dos dados"):
-        unidade = "processo (incidente único)" if idx in (0, 1, 2, 3, 6, 7) else "inclusão em pauta"
         st.markdown(
             "- **Fonte:** `data/processed/inclusoes_com_pauta.parquet`  \n"
-            f"- **Unidade:** {unidade}  \n"
+            f"- **Unidade:** {_UNIDADE.get(idx, 'inclusão em pauta')}  \n"
             "- **Período:** 2020–2025"
         )
 
-    if idx == len(_CATALOGO) - 1:  # T10
-        _render_tabulador(df)
-    else:
-        _render(fn, df)
+    _render(fn, df, show_values)
 
     # ── Tabela consolidada ────────────────────────────────────────────────────
     st.markdown("---")
@@ -268,7 +256,7 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        classes = st.multiselect("Classe", sorted(tab["Classe"].unique()), key="tab_classe")
+        classes  = st.multiselect("Classe",     sorted(tab["Classe"].unique()),     key="tab_classe")
     with col2:
         ambientes = st.multiselect("Tramitação", sorted(tab["Tramitação"].unique()), key="tab_tram")
     with col3:

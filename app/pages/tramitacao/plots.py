@@ -247,3 +247,105 @@ def gt9_taxa_conclusao(df: pd.DataFrame) -> go.Figure:
         "Taxa de Conclusão (%) por Ambiente de Tramitação e Classe (2020–2025)",
         "% de inclusões concluídas", "Tramitação",
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# T10 — Tabulador interativo
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Mapeamento legível das dimensões disponíveis
+DIMENSOES: dict[str, str] = {
+    "Ambiente de Tramitação": "tramitacao",
+    "Classe":                 "classe",
+    "Tipo de Questão":        "tipo_questao",
+    "Ambiente (PV/PP)":       "ambiente",
+    "Macro-Desfecho":         "macro_desfecho",
+    "Desfecho Detalhado":     "desfecho",
+    "Ano":                    "ano",
+    "Reajuste de Voto":       "teve_reajuste",
+    "Sustentação Oral":       "teve_sustentacao",
+}
+
+# Paleta de fallback para dimensões sem cor definida
+_PALETA_FALLBACK = [
+    "#2563eb", "#f59e0b", "#16a34a", "#ef4444",
+    "#8b5cf6", "#ec4899", "#f97316", "#9ca3af",
+    "#0ea5e9", "#84cc16",
+]
+
+_CORES_POR_COLUNA: dict[str, dict] = {
+    "tramitacao":    CORES_TRAM,
+    "classe":        CORES_CLASSE,
+    "tipo_questao":  CORES_TIPO,
+    "macro_desfecho": CORES_MACRO,
+    "desfecho":      CORES_DESFECHO,
+    "ambiente":      {"Plenário Virtual": "#2563eb", "Plenário Físico": "#f59e0b"},
+    "teve_reajuste": {True: "#ef4444", False: "#9ca3af"},
+    "teve_sustentacao": {True: "#2563eb", False: "#9ca3af"},
+}
+
+
+def _cores_para(coluna: str, valores: list) -> list[str]:
+    mapa = _CORES_POR_COLUNA.get(coluna, {})
+    return [mapa.get(v, _PALETA_FALLBACK[i % len(_PALETA_FALLBACK)])
+            for i, v in enumerate(valores)]
+
+
+def gt10_tabulador(
+    df: pd.DataFrame,
+    eixo_x: str,
+    grupo: str,
+    metrica: str = "inclusoes",
+    barmode: str = "group",
+) -> go.Figure:
+    """Gráfico de barras reconfigurável: eixo X, grupo/cor e métrica livres."""
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+
+    if metrica == "processos":
+        d = d.drop_duplicates("incidente")
+        label_y = "Processos distintos"
+    else:
+        label_y = "Inclusões em pauta"
+
+    tab = d.groupby([eixo_x, grupo], observed=True).size().reset_index(name="n")
+
+    if barmode == "100%":
+        totais = tab.groupby(eixo_x)["n"].transform("sum")
+        tab["n"] = (tab["n"] / totais * 100).round(1)
+        label_y = "% do total"
+        bm = "stack"
+    else:
+        bm = barmode
+
+    grupos = tab[grupo].unique().tolist()
+    cores = _cores_para(grupo, grupos)
+
+    fig = go.Figure()
+    for g, cor in zip(grupos, cores):
+        d_g = tab[tab[grupo] == g]
+        fig.add_trace(go.Bar(
+            x=d_g[eixo_x].astype(str),
+            y=d_g["n"],
+            name=str(g),
+            marker_color=cor,
+            text=d_g["n"].apply(lambda v: f"{v:.1f}%" if barmode == "100%" else str(int(v))),
+            textposition="outside" if bm != "stack" else "inside",
+            cliponaxis=False,
+        ))
+
+    # rótulos legíveis para título
+    inv = {v: k for k, v in DIMENSOES.items()}
+    titulo = (
+        f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)} "
+        f"({'processos' if metrica == 'processos' else 'inclusões'}) — 2020–2025"
+    )
+
+    fig.update_layout(
+        title_text=titulo,
+        barmode=bm,
+        xaxis=dict(title=inv.get(eixo_x, eixo_x)),
+        yaxis=dict(title=label_y),
+        **_LAYOUT,
+    )
+    return fig

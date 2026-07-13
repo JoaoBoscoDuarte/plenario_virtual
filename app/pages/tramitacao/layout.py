@@ -13,6 +13,8 @@ from .plots import (
     gt7_classe_por_tram,
     gt8_tipo_por_tram,
     gt9_taxa_conclusao,
+    gt10_tabulador,
+    DIMENSOES,
 )
 
 _CATALOGO = [
@@ -79,6 +81,13 @@ _CATALOGO = [
         "tramitação e classe processual. Unidade: inclusão em pauta.",
         gt9_taxa_conclusao,
     ),
+    (
+        "T10 — Tabulador Interativo",
+        "Tabulador Interativo — Tramitação por Ambiente (2020–2025)",
+        "Configure livremente os eixos, agrupamento, métrica e modo de barras. "
+        "Pré-definidos disponíveis como ponto de partida.",
+        None,  # renderizado diretamente em render_graficos
+    ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
@@ -98,6 +107,9 @@ _SUMARIO = {
         "T7 — distribuição por classe dentro de cada ambiente",
         "T8 — distribuição por tipo de questão dentro de cada ambiente",
         "T9 — taxa de conclusão (%) por ambiente e classe",
+    ],
+    "Tabulador interativo (T10)": [
+        "T10 — escolha livre de eixo X, grupo/cor, métrica e modo de barras",
     ],
 }
 
@@ -148,10 +160,72 @@ def _render(fn, df: pd.DataFrame) -> None:
         st.plotly_chart(result, width="stretch")
 
 
+# Pré-definidos do tabulador: (label, eixo_x, grupo, metrica, barmode)
+_PREDEFINIDOS = [
+    ("Ambiente × Classe (inclusões, agrupado)",        "tramitacao",   "classe",        "inclusoes",  "group"),
+    ("Ambiente × Macro-Desfecho (inclusões, agrupado)","tramitacao",   "macro_desfecho","inclusoes",  "group"),
+    ("Ambiente × Tipo de Questão (processos, agrupado)","tramitacao",  "tipo_questao",  "processos",  "group"),
+    ("Classe × Ambiente (inclusões, empilhado 100%)",  "classe",       "tramitacao",    "inclusoes",  "100%"),
+    ("Classe × Macro-Desfecho (inclusões, empilhado)", "classe",       "macro_desfecho","inclusoes",  "stack"),
+    ("Ano × Ambiente (inclusões, empilhado)",          "ano",          "tramitacao",    "inclusoes",  "stack"),
+    ("Ano × Macro-Desfecho (inclusões, empilhado 100%)","ano",         "macro_desfecho","inclusoes",  "100%"),
+    ("Tipo de Questão × Desfecho (inclusões, agrupado)","tipo_questao","macro_desfecho","inclusoes",  "group"),
+]
+_LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
+_DIMS_LABEL = list(DIMENSOES.keys())
+
+
+def _render_tabulador(df: pd.DataFrame) -> None:
+    """Bloco T10: pré-definidos + configuração livre."""
+    st.markdown("**Pré-definidos**")
+    pre_escolha = st.selectbox(
+        "Ponto de partida",
+        options=[""] + _LABELS_PRE,
+        index=0,
+        key="tab_predefinido",
+        help="Selecione um pré-definido para preencher os controles abaixo automaticamente.",
+    )
+
+    # valores padrão ou vindos do pré-definido
+    if pre_escolha:
+        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS if p[0] == pre_escolha)
+        def_x   = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+        def_g   = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+        def_m   = ["inclusoes", "processos"].index(pm)
+        def_bm  = ["group", "stack", "100%"].index(pbm)
+    else:
+        def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+
+    st.markdown("**Configuração livre**")
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        eixo_x_lbl = st.selectbox("Eixo X",   _DIMS_LABEL, index=def_x, key="tab_x")
+    with c2:
+        grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="tab_g")
+    with c3:
+        metrica    = st.selectbox("Métrica",   ["inclusoes", "processos"],
+                                  index=def_m, key="tab_m",
+                                  format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos")
+    with c4:
+        barmode    = st.selectbox("Modo",      ["group", "stack", "100%"],
+                                  index=def_bm, key="tab_bm",
+                                  format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v])
+
+    eixo_x = DIMENSOES[eixo_x_lbl]
+    grupo  = DIMENSOES[grupo_lbl]
+
+    if eixo_x == grupo:
+        st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
+        return
+
+    fig = gt10_tabulador(df, eixo_x, grupo, metrica, barmode)
+    st.plotly_chart(fig, width="stretch")
+
+
 def render_graficos(df: pd.DataFrame) -> None:
     # ── Sumário ───────────────────────────────────────────────────────────────
     with st.expander("Sumário — visualizações disponíveis", expanded=True):
-        cols = st.columns(3)
+        cols = st.columns(4)
         for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
             with cols[i]:
                 st.markdown(f"**{bloco}**")
@@ -181,7 +255,10 @@ def render_graficos(df: pd.DataFrame) -> None:
             "- **Período:** 2020–2025"
         )
 
-    _render(fn, df)
+    if idx == len(_CATALOGO) - 1:  # T10
+        _render_tabulador(df)
+    else:
+        _render(fn, df)
 
     # ── Tabela consolidada ────────────────────────────────────────────────────
     st.markdown("---")

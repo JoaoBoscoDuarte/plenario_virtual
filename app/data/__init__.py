@@ -1,4 +1,4 @@
-from .loader import load_parquet, load_evolucao_acervo
+from .loader import load_parquet, load_evolucao_acervo, load_inclusoes_em_pauta, load_inclusoes_com_pauta
 from .filters import (
     filter_by_date_range,
     filter_by_values,
@@ -9,6 +9,8 @@ from .filters import (
 __all__ = [
     "load_parquet",
     "load_evolucao_acervo",
+    "load_inclusoes_em_pauta",
+    "load_inclusoes_com_pauta",
     "filter_by_date_range",
     "filter_by_values",
     "filter_by_text_search",

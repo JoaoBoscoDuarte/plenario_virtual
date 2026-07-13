@@ -82,8 +82,8 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
 
 def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
                   cores: dict, titulo: str, x_title: str = "Ano") -> go.Figure:
-    tab   = df_sub.groupby(["ano", col_grupo]).size().reset_index(name="n")
-    total = df_sub.groupby("ano").size().reset_index(name="n")
+    tab   = df_sub.groupby(["ano", col_grupo], observed=True).size().reset_index(name="n")
+    total = df_sub.groupby("ano", observed=True).size().reset_index(name="n")
     fig   = make_subplots(specs=[[{"secondary_y": True}]])
     fig.update_layout(
         **_LAYOUT, barmode="group",
@@ -180,7 +180,7 @@ def gs7_tipo_pv(df: pd.DataFrame) -> go.Figure:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def gs8_taxa_ambiente(df: pd.DataFrame) -> go.Figure:
-    tab = (df.groupby(["ano", "ambiente"])["teve_sustentacao"]
+    tab = (df.groupby(["ano", "ambiente"], observed=True)["teve_sustentacao"]
            .mean().mul(100).reset_index(name="n"))
     fig = go.Figure()
     for amb, cor in CORES_AMB.items():

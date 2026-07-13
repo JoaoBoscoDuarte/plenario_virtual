@@ -120,8 +120,8 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
                   cores: dict, titulo: str, label_y: str,
                   label_total: str, x_title: str = "Ano") -> go.Figure:
     """Barras agrupadas por col_grupo + linha do total no eixo secundário."""
-    tab   = df_amb.groupby([col_x, col_grupo]).size().reset_index(name="n")
-    total = df_amb.groupby(col_x).size().reset_index(name="n")
+    tab   = df_amb.groupby([col_x, col_grupo], observed=True).size().reset_index(name="n")
+    total = df_amb.groupby(col_x, observed=True).size().reset_index(name="n")
     grupos = list(cores.keys())
 
     fig = _bar_com_linha(label_y, label_total, x_title=x_title)
@@ -148,7 +148,7 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def g5_anual_ambiente(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
-    tab = df.groupby(["ano", "ambiente"]).size().reset_index(name="n")
+    tab = df.groupby(["ano", "ambiente"], observed=True).size().reset_index(name="n")
     fig = _bar_fig()
     for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Físico", COR_PP)]:
         d = tab[tab["ambiente"] == amb]
@@ -215,7 +215,7 @@ def g11_macro_anual_pp(df: pd.DataFrame) -> go.Figure:
 
 
 def _macro_anual(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
-    tab = df_amb.groupby(["ano", "macro_desfecho"]).size().reset_index(name="n")
+    tab = df_amb.groupby(["ano", "macro_desfecho"], observed=True).size().reset_index(name="n")
     fig = _bar_fig()
     for macro in ["Concluído", "Não concluído"]:
         d = tab[tab["macro_desfecho"] == macro]

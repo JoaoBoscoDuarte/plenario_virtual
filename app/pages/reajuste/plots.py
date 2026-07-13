@@ -131,7 +131,7 @@ def gr6_classe_pp(df: pd.DataFrame) -> go.Figure:
 
 def _barras_classe(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
     sub = df_amb[df_amb["teve_reajuste"]]
-    tab = sub.groupby(["ano", "classe"]).size().reset_index(name="n")
+    tab = sub.groupby(["ano", "classe"], observed=True).size().reset_index(name="n")
     fig = go.Figure()
     for cls in _CLASSES:
         d = tab[tab["classe"] == cls]

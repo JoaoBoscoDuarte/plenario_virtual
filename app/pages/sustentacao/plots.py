@@ -61,14 +61,15 @@ def _serie_sust(df_amb: pd.DataFrame) -> pd.Series:
     ).value_counts()
 
 
-def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
+def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     tab = (df_amb[df_amb["teve_sustentacao"]]
            .groupby("ano").size().reset_index(name="n"))
     tab = tab.set_index("ano").reindex(_ANOS, fill_value=0).reset_index()
     fig = go.Figure(go.Bar(
         x=tab["ano"], y=tab["n"],
         marker_color="#0891b2",
-        text=tab["n"], textposition="outside", cliponaxis=False,
+        text=tab["n"] if show_values else None,
+        textposition="outside", cliponaxis=False,
         name="Com sustentação",
     ))
     fig.update_layout(
@@ -81,7 +82,8 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
 
 
 def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
-                  cores: dict, titulo: str, x_title: str = "Ano") -> go.Figure:
+                  cores: dict, titulo: str, x_title: str = "Ano",
+                  show_values: bool = True) -> go.Figure:
     tab   = df_sub.groupby(["ano", col_grupo], observed=True).size().reset_index(name="n")
     total = df_sub.groupby("ano", observed=True).size().reset_index(name="n")
     fig   = make_subplots(specs=[[{"secondary_y": True}]])
@@ -97,7 +99,8 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
         fig.add_trace(go.Bar(
             x=d["ano"], y=d["n"], name=g,
             marker_color=cores[g],
-            text=d["n"], textposition="outside", cliponaxis=False,
+            text=d["n"] if show_values else None,
+            textposition="outside", cliponaxis=False,
         ), secondary_y=False)
     fig.add_trace(go.Scatter(
         x=total["ano"], y=total["n"], mode="lines+markers",
@@ -134,17 +137,19 @@ def gs2_pizza_pp(df: pd.DataFrame) -> go.Figure:
 # S3–S4 — Barras anuais (PV e PP)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs3_anual_pv(df: pd.DataFrame) -> go.Figure:
+def gs3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == "Plenário Virtual"],
         "Sustentação Oral por Ano — Plenário Virtual (2020–2025)",
+        show_values=show_values,
     )
 
 
-def gs4_anual_pp(df: pd.DataFrame) -> go.Figure:
+def gs4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == "Plenário Físico"],
         "Sustentação Oral por Ano — Plenário Físico (2020–2025)",
+        show_values=show_values,
     )
 
 
@@ -152,43 +157,47 @@ def gs4_anual_pp(df: pd.DataFrame) -> go.Figure:
 # S5–S6 — Por ano e classe (PV e PP)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs5_classe_pv(df: pd.DataFrame) -> go.Figure:
+def gs5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]]
     return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         "Sustentação Oral por Ano e Classe — Plenário Virtual (2020–2025)")
+                         "Sustentação Oral por Ano e Classe — Plenário Virtual (2020–2025)",
+                         show_values=show_values)
 
 
-def gs6_classe_pp(df: pd.DataFrame) -> go.Figure:
+def gs6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Físico") & df["teve_sustentacao"]]
     return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         "Sustentação Oral por Ano e Classe — Plenário Físico (2020–2025)")
+                         "Sustentação Oral por Ano e Classe — Plenário Físico (2020–2025)",
+                         show_values=show_values)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # S7 — Por ano e tipo de questão (PV)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs7_tipo_pv(df: pd.DataFrame) -> go.Figure:
+def gs7_tipo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]].copy()
     sub["tipo_questao"] = sub["tipo_questao"].replace({"IJ": "QI"})
     return _barras_grupo(sub, "tipo_questao", CORES_TIPO,
-                         "Sustentação Oral por Ano e Tipo de Questão — Plenário Virtual (2020–2025)")
+                         "Sustentação Oral por Ano e Tipo de Questão — Plenário Virtual (2020–2025)",
+                         show_values=show_values)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # S8 — Taxa de sustentação por ano e ambiente (%)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs8_taxa_ambiente(df: pd.DataFrame) -> go.Figure:
+def gs8_taxa_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = (df.groupby(["ano", "ambiente"], observed=True)["teve_sustentacao"]
            .mean().mul(100).reset_index(name="n"))
     fig = go.Figure()
     for amb, cor in CORES_AMB.items():
         d = tab[tab["ambiente"] == amb]
+        vals = d["n"].round(1)
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"].round(1), name=amb,
+            x=d["ano"], y=vals, name=amb,
             marker_color=cor,
-            text=d["n"].round(1).astype(str) + "%",
+            text=(vals.astype(str) + "%") if show_values else None,
             textposition="outside", cliponaxis=False,
         ))
     fig.update_layout(

@@ -4,6 +4,17 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import plotar_grafico_stf
+from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
+
+_DIMS_LABEL = list(DIMENSOES.keys())
+
+_PREDEFINIDOS_ACERVO = [
+    ("Ano × Classe (total geral, empilhado)",         "ano", "classe",        "inclusoes", "stack"),
+    ("Ano × Classe (total geral, empilhado 100%)",    "ano", "classe",        "inclusoes", "100%"),
+    ("Classe × Macro-Desfecho (inclusões, agrupado)", "classe", "macro_desfecho", "inclusoes", "group"),
+    ("Ano × Ambiente (inclusões, empilhado)",         "ano", "ambiente",      "inclusoes", "stack"),
+]
+_LABELS_PRE_ACERVO = [p[0] for p in _PREDEFINIDOS_ACERVO]
 
 # Métricas disponíveis no dataset
 _METRICAS = [
@@ -154,12 +165,12 @@ def _render_tabela(df: pd.DataFrame) -> None:
 
 
 def render_graficos(df: pd.DataFrame) -> None:
-    """Ponto de entrada: abas por métrica → sub-abas Total/classe."""
+    """Ponto de entrada: abas por métrica → sub-abas Total/classe + Tabulador."""
 
-    tab_labels = [titulo for _, _, titulo, _ in _METRICAS]
+    tab_labels = [titulo for _, _, titulo, _ in _METRICAS] + ["Tabulador Gráfico"]
     tabs = st.tabs(tab_labels)
 
-    for tab, (col, label, titulo, descricao) in zip(tabs, _METRICAS):
+    for tab, (col, label, titulo, descricao) in zip(tabs[:-1], _METRICAS):
         with tab:
             st.subheader(f"Evolução — {titulo}")
             st.markdown(descricao)
@@ -171,6 +182,63 @@ def render_graficos(df: pd.DataFrame) -> None:
                     "- **Marcos:** ER 51/2016, ER 52/2019, ER 53/2020 e ESPIN (2020–2022)"
                 )
             _render_aba_metrica(df, col, label, key_prefix=col)
+
+    with tabs[-1]:
+        st.subheader("Tabulador Gráfico Interativo")
+        st.caption(
+            "Configure livremente os eixos, agrupamento e modo de barras usando o dataset "
+            "de inclusões em pauta (2020–2025). Diferente dos gráficos de evolução acima, "
+            "que usam o acervo histórico (1988–2025)."
+        )
+
+        col_pre, _ = st.columns([2, 1])
+        with col_pre:
+            pre_escolha = st.selectbox(
+                "🔖 Pré-definidos",
+                options=["— ou configure manualmente abaixo —"] + _LABELS_PRE_ACERVO,
+                index=0,
+                key="acervo_predefinido",
+            )
+
+        if pre_escolha.startswith("—"):
+            def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+        else:
+            _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_ACERVO if p[0] == pre_escolha)
+            def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+            def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+            def_m  = ["inclusoes", "processos"].index(pm)
+            def_bm = ["group", "stack", "100%"].index(pbm)
+
+        c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
+        with c1:
+            eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="acervo_tab_x")
+        with c2:
+            grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="acervo_tab_g")
+        with c3:
+            metrica = st.selectbox(
+                "Métrica", ["inclusoes", "processos"], index=def_m, key="acervo_tab_m",
+                format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos",
+            )
+        with c4:
+            barmode = st.selectbox(
+                "Modo", ["group", "stack", "100%"], index=def_bm, key="acervo_tab_bm",
+                format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v],
+            )
+        with c5:
+            show_values = st.checkbox("Exibir valores", value=False, key="acervo_tab_sv")
+
+        eixo_x = DIMENSOES[eixo_x_lbl]
+        grupo  = DIMENSOES[grupo_lbl]
+
+        if eixo_x == grupo:
+            st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
+        else:
+            from data.loader import load_inclusoes_em_pauta
+            df_inc = load_inclusoes_em_pauta()
+            st.plotly_chart(
+                gt10_tabulador(df_inc, eixo_x, grupo, metrica, barmode, show_values),
+                width="stretch",
+            )
 
     st.markdown("---")
     _render_tabela(df)

@@ -8,6 +8,18 @@ from .plots import (
     gr3_anual_pv, gr4_anual_pp,
     gr5_classe_pv, gr6_classe_pp,
 )
+from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
+
+_DIMS_LABEL = list(DIMENSOES.keys())
+
+_PREDEFINIDOS_REAJ = [
+    ("Ano × Reajuste (inclusões, empilhado 100%)",    "ano",          "teve_reajuste",  "inclusoes", "100%"),
+    ("Ambiente × Reajuste (inclusões, agrupado)",     "ambiente",     "teve_reajuste",  "inclusoes", "group"),
+    ("Classe × Reajuste (inclusões, empilhado 100%)", "classe",       "teve_reajuste",  "inclusoes", "100%"),
+    ("Tipo de Questão × Reajuste (inclusões)",        "tipo_questao", "teve_reajuste",  "inclusoes", "group"),
+    ("Macro-Desfecho × Reajuste (inclusões)",         "macro_desfecho", "teve_reajuste", "inclusoes", "group"),
+]
+_LABELS_PRE_REAJ = [p[0] for p in _PREDEFINIDOS_REAJ]
 
 _CATALOGO = [
     (
@@ -267,3 +279,55 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.markdown("---")
     _render_dados_brutos(df)
+
+    # ── Tabulador gráfico ──────────────────────────────────────────────────────────────────────────────
+    st.markdown("---")
+    st.subheader("Tabulador Gráfico Interativo")
+    st.caption("Configure livremente os eixos, agrupamento e modo de barras.")
+
+    col_pre, _ = st.columns([2, 1])
+    with col_pre:
+        pre_escolha = st.selectbox(
+            "🔖 Pré-definidos",
+            options=["— ou configure manualmente abaixo —"] + _LABELS_PRE_REAJ,
+            index=0,
+            key="reaj_predefinido",
+        )
+
+    if pre_escolha.startswith("—"):
+        def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+    else:
+        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_REAJ if p[0] == pre_escolha)
+        def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+        def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+        def_m  = ["inclusoes", "processos"].index(pm)
+        def_bm = ["group", "stack", "100%"].index(pbm)
+
+    c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
+    with c1:
+        eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="reaj_tab_x")
+    with c2:
+        grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="reaj_tab_g")
+    with c3:
+        metrica = st.selectbox(
+            "Métrica", ["inclusoes", "processos"], index=def_m, key="reaj_tab_m",
+            format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos",
+        )
+    with c4:
+        barmode = st.selectbox(
+            "Modo", ["group", "stack", "100%"], index=def_bm, key="reaj_tab_bm",
+            format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v],
+        )
+    with c5:
+        show_values_tab = st.checkbox("Exibir valores", value=False, key="reaj_tab_sv")
+
+    eixo_x = DIMENSOES[eixo_x_lbl]
+    grupo  = DIMENSOES[grupo_lbl]
+
+    if eixo_x == grupo:
+        st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
+    else:
+        st.plotly_chart(
+            gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values_tab),
+            width="stretch",
+        )

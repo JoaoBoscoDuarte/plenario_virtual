@@ -151,10 +151,10 @@ def _build_tabela(df: pd.DataFrame) -> pd.DataFrame:
 
 def _render_fig(fn, df: pd.DataFrame, show_values: bool) -> None:
     """Chama a função de plot e renderiza — suporta retorno dict (sub-abas) ou Figure."""
-    import inspect
-    sig = inspect.signature(fn)
-    kwargs = {"show_values": show_values} if "show_values" in sig.parameters else {}
-    result = fn(df, **kwargs)
+    try:
+        result = fn(df, show_values=show_values)
+    except TypeError:
+        result = fn(df)
     if isinstance(result, dict):
         if not result:
             st.info("Sem dados para exibir.")

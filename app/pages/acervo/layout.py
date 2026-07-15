@@ -72,50 +72,85 @@ def _render_aba_metrica(df: pd.DataFrame, col: str, label: str, key_prefix: str)
 
 
 def _render_tabela(df: pd.DataFrame) -> None:
-    st.subheader("Dados Brutos por Ano e Classe")
-    st.caption("Valores absolutos e participação percentual de cada classe no total anual.")
+    st.subheader("Tabela Consolidada do Acervo")
+    st.caption("Valores absolutos por ano e classe. Use os filtros para explorar o período e as métricas de interesse.")
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
             "- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n"
+            "- **Referência:** 31/12 de cada ano  \n"
             "- **Percentual:** participação de cada classe no `total_geral` do ano"
         )
 
-    opcoes = sorted(df["classe"].dropna().unique().tolist())
-    c1, c2 = st.columns([3, 3])
-    with c1:
-        y_min, y_max = _year_range(df)
-        periodo = st.slider("Período", y_min, y_max, (y_min, y_max), step=1, key="tab_periodo")
-    with c2:
-        classes_sel = st.multiselect("Classes", opcoes, default=opcoes, key="tab_classes")
+    opcoes_classe = sorted(df["classe"].dropna().unique().tolist())
+    y_min, y_max = _year_range(df)
+
+    # ── Filtros ──────────────────────────────────────────────────────────────────────────────
+    col_a, col_b, col_c = st.columns([3, 2, 2])
+    with col_a:
+        periodo = st.slider(
+            "Período", y_min, y_max, (y_min, y_max), step=1, key="tab_periodo"
+        )
+    with col_b:
+        classes_sel = st.multiselect(
+            "Classes", opcoes_classe, default=opcoes_classe, key="tab_classes"
+        )
+    with col_c:
+        metricas_disp = {
+            "Total Geral":    "total_geral",
+            "Ativos":         "quantidade_ativos",
+            "Inativos":       "quantidade_inativos",
+            "Baixas":         "quantidade_baixas",
+            "Distribuídos":  "quantidade_distribuidos",
+        }
+        metricas_sel = st.multiselect(
+            "Métricas", list(metricas_disp.keys()),
+            default=list(metricas_disp.keys()), key="tab_metricas"
+        )
 
     ai, af = periodo
-    sel = classes_sel if classes_sel else opcoes
-    df_f = df[df["ano"].between(ai, af) & df["classe"].isin(sel)].copy()
+    sel_classes  = classes_sel  if classes_sel  else opcoes_classe
+    sel_metricas = metricas_sel if metricas_sel else list(metricas_disp.keys())
 
+    df_f = df[df["ano"].between(ai, af) & df["classe"].isin(sel_classes)].copy()
+
+    # ── Pivot: linhas = ano, colunas = (classe, métrica) ────────────────────────────────
+    cols_met = [metricas_disp[m] for m in sel_metricas]
     total_ano = df_f.groupby("ano")["total_geral"].sum().rename("total_ano")
     df_f = df_f.join(total_ano, on="ano")
 
     rows = []
     for ano, grp in df_f.groupby("ano"):
-        row: dict = {"Ano": ano}
+        row: dict = {"Ano": int(ano)}
         for _, r in grp.iterrows():
             c = r["classe"]
-            row[f"{c} Total"]        = int(r["total_geral"])
-            row[f"{c} Ativos"]       = int(r["quantidade_ativos"])
-            row[f"{c} Inativos"]     = int(r["quantidade_inativos"])
-            row[f"{c} Baixas"]       = int(r["quantidade_baixas"])
-            row[f"{c} Distribuídos"] = int(r["quantidade_distribuidos"])
-            row[f"{c} (%)"]          = round(r["total_geral"] / r["total_ano"] * 100, 1) if r["total_ano"] else 0.0
-        row["Total Geral"]        = int(grp["total_geral"].sum())
-        row["Total Ativos"]       = int(grp["quantidade_ativos"].sum())
-        row["Total Inativos"]     = int(grp["quantidade_inativos"].sum())
-        row["Total Baixas"]       = int(grp["quantidade_baixas"].sum())
-        row["Total Distribuídos"] = int(grp["quantidade_distribuidos"].sum())
+            for m in sel_metricas:
+                col_key = metricas_disp[m]
+                row[f"{c} — {m}"] = int(r[col_key])
+            if "Total Geral" in sel_metricas:
+                row[f"{c} — %"] = (
+                    round(r["total_geral"] / r["total_ano"] * 100, 1)
+                    if r["total_ano"] else 0.0
+                )
+        # Totais consolidados
+        for m in sel_metricas:
+            col_key = metricas_disp[m]
+            row[f"Total — {m}"] = int(grp[col_key].sum())
         rows.append(row)
 
-    tabela = pd.DataFrame(rows).sort_values("Ano", ascending=False).set_index("Ano")
-    fmt = {c: ("{:.1f}%" if "%" in c else "{:,.0f}") for c in tabela.columns}
-    st.dataframe(tabela.style.format(fmt, na_rep="—"), width="stretch", height=460)
+    tabela = (
+        pd.DataFrame(rows)
+        .sort_values("Ano", ascending=False)
+        .set_index("Ano")
+    )
+
+    fmt = {c: ("{:.1f}%" if c.endswith("— %") else "{:,.0f}") for c in tabela.columns}
+
+    st.caption(f"{len(tabela):,} anos exibidos — {len(sel_classes)} classe(s) — {len(sel_metricas)} métrica(s)")
+    st.dataframe(
+        tabela.style.format(fmt, na_rep="—"),
+        width="stretch",
+        height=460,
+    )
 
 
 def render_graficos(df: pd.DataFrame) -> None:

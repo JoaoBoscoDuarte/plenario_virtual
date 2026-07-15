@@ -82,21 +82,23 @@ def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
 
 # ── G-R3 e G-R4 — Barras anuais (PV e PP) ────────────────────────────────────
 
-def gr3_anual_pv(df: pd.DataFrame) -> go.Figure:
+def gr3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == "Plenário Virtual"],
         "Reajuste de Voto por Ano — Plenário Virtual (2020–2025)",
+        show_values=show_values,
     )
 
 
-def gr4_anual_pp(df: pd.DataFrame) -> go.Figure:
+def gr4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == "Plenário Físico"],
         "Reajuste de Voto por Ano — Plenário Físico (2020–2025)",
+        show_values=show_values,
     )
 
 
-def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
+def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     tab = (df_amb[df_amb["teve_reajuste"]]
            .groupby("ano").size().reset_index(name="n"))
     tab = (tab.set_index("ano")
@@ -105,7 +107,8 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
     fig = go.Figure(go.Bar(
         x=tab["ano"], y=tab["n"],
         marker_color="#dc2626",
-        text=tab["n"], textposition="outside",
+        text=tab["n"] if show_values else None,
+        textposition="outside",
         cliponaxis=False,
         name="Com reajuste",
     ))
@@ -115,21 +118,23 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
 
 # ── G-R5 e G-R6 — Barras anuais por classe (PV e PP) ─────────────────────────
 
-def gr5_classe_pv(df: pd.DataFrame) -> go.Figure:
+def gr5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_classe(
         df[df["ambiente"] == "Plenário Virtual"],
         "Reajuste de Voto por Ano e Classe — Plenário Virtual (2020–2025)",
+        show_values=show_values,
     )
 
 
-def gr6_classe_pp(df: pd.DataFrame) -> go.Figure:
+def gr6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_classe(
         df[df["ambiente"] == "Plenário Físico"],
         "Reajuste de Voto por Ano e Classe — Plenário Físico (2020–2025)",
+        show_values=show_values,
     )
 
 
-def _barras_classe(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
+def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     sub = df_amb[df_amb["teve_reajuste"]]
     tab = sub.groupby(["ano", "classe"], observed=True).size().reset_index(name="n")
     fig = go.Figure()
@@ -140,7 +145,8 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
         fig.add_trace(go.Bar(
             x=d["ano"], y=d["n"], name=cls,
             marker_color=CORES_CLASSE[cls],
-            text=d["n"], textposition="outside",
+            text=d["n"] if show_values else None,
+            textposition="outside",
             cliponaxis=False,
         ))
     fig.update_layout(

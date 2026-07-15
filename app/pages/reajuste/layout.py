@@ -69,8 +69,161 @@ _SUMARIO = {
 }
 
 
+# ── Tabulador consolidado ─────────────────────────────────────────────────────
+
+def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for ano in sorted(df["ano"].unique()):
+        df_ano = df[df["ano"] == ano]
+        row: dict = {"Ano": int(ano)}
+        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Físico")]:
+            df_amb = df_ano[df_ano["ambiente"] == amb_key]
+            total = len(df_amb)
+            com   = int(df_amb["teve_reajuste"].sum())
+            taxa  = round(com / total * 100, 1) if total else 0.0
+            row[f"{amb_label} — Total"] = total
+            row[f"{amb_label} — Com reajuste"] = com
+            row[f"{amb_label} — Taxa (%)"]     = taxa
+            for cls in ["ADI", "ADPF", "ADC", "ADO"]:
+                row[f"{amb_label} — {cls}"] = int(
+                    df_amb[df_amb["classe"] == cls]["teve_reajuste"].sum()
+                )
+        row["Total — Com reajuste"] = int(df_ano["teve_reajuste"].sum())
+        row["Total — Taxa (%)"]     = round(
+            df_ano["teve_reajuste"].sum() / len(df_ano) * 100, 1
+        ) if len(df_ano) else 0.0
+        rows.append(row)
+    return pd.DataFrame(rows).set_index("Ano")
+
+
+def _render_tabulador(df: pd.DataFrame) -> None:
+    st.subheader("Tabulador Consolidado por Ano")
+    st.caption(
+        "Contagem de inclusões com reajuste de voto por ano, ambiente e classe. "
+        "Use os filtros para recortar o período e as colunas de interesse."
+    )
+
+    col_a, col_b, col_c = st.columns([3, 2, 2])
+    with col_a:
+        anos = sorted(df["ano"].unique())
+        periodo = st.slider(
+            "Período", int(min(anos)), int(max(anos)),
+            (int(min(anos)), int(max(anos))), step=1, key="rtab_periodo",
+        )
+    with col_b:
+        classes_sel = st.multiselect(
+            "Classes", ["ADI", "ADPF", "ADC", "ADO"],
+            default=["ADI", "ADPF", "ADC", "ADO"], key="rtab_classes",
+        )
+    with col_c:
+        ambientes_sel = st.multiselect(
+            "Ambientes", ["PV", "PP"], default=["PV", "PP"], key="rtab_amb",
+        )
+
+    ai, af   = periodo
+    sel_cls  = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
+    sel_amb  = ambientes_sel if ambientes_sel else ["PV", "PP"]
+    amb_map  = {"PV": "Plenário Virtual", "PP": "Plenário Físico"}
+
+    df_f = df[
+        df["ano"].between(ai, af) &
+        df["classe"].isin(sel_cls) &
+        df["ambiente"].isin([amb_map[a] for a in sel_amb])
+    ]
+
+    tabela = _build_tabulador(df_f)
+
+    keep = []
+    for col in tabela.columns:
+        partes = col.split(" — ")
+        if partes[0] == "Total":
+            keep.append(col)
+        elif partes[0] in sel_amb:
+            if len(partes) < 2 or partes[1] in sel_cls or partes[1] in ("Total", "Com reajuste", "Taxa (%)"):
+                keep.append(col)
+    tabela = tabela[[c for c in keep if c in tabela.columns]]
+
+    fmt = {c: "{:.1f}%" if "Taxa" in c else "{:,.0f}" for c in tabela.columns}
+    st.caption(f"{len(tabela):,} anos exibidos")
+    st.dataframe(tabela.style.format(fmt, na_rep="—"), width="stretch", height=320)
+
+
+# ── Dados brutos ──────────────────────────────────────────────────────────────
+
+def _build_dados_brutos(df: pd.DataFrame) -> pd.DataFrame:
+    cols = [
+        "nome_processo", "classe", "relator", "ano", "ambiente",
+        "tipo_questao", "desfecho", "macro_desfecho", "teve_reajuste",
+    ]
+    tab = df[cols].copy()
+    tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
+    return tab.rename(columns={
+        "nome_processo":  "Processo",
+        "classe":         "Classe",
+        "relator":        "Relator",
+        "ano":            "Ano",
+        "ambiente":       "Ambiente",
+        "tipo_questao":   "Tipo",
+        "desfecho":       "Desfecho",
+        "macro_desfecho": "Macro-Desfecho",
+        "teve_reajuste":  "Reajuste",
+    }).sort_values(["Ano", "Processo"]).reset_index(drop=True)
+
+
+def _render_dados_brutos(df: pd.DataFrame) -> None:
+    st.subheader("Dados Brutos")
+    st.caption("Uma linha por inclusão em pauta. Use os filtros para explorar.")
+
+    col_a, col_b, col_c, col_d = st.columns(4)
+    with col_a:
+        anos = sorted(df["ano"].unique())
+        periodo = st.slider(
+            "Período", int(min(anos)), int(max(anos)),
+            (int(min(anos)), int(max(anos))), step=1, key="rbruto_periodo",
+        )
+    with col_b:
+        classes_sel = st.multiselect(
+            "Classe", sorted(df["classe"].unique()), key="rbruto_classe",
+        )
+    with col_c:
+        amb_sel = st.multiselect(
+            "Ambiente", sorted(df["ambiente"].unique()), key="rbruto_amb",
+        )
+    with col_d:
+        reajuste_sel = st.selectbox(
+            "Reajuste", ["Todos", "Com reajuste", "Sem reajuste"], key="rbruto_reajuste",
+        )
+
+    ai, af = periodo
+    tab = _build_dados_brutos(df)
+    tab = tab[tab["Ano"].between(ai, af)]
+    if classes_sel:
+        tab = tab[tab["Classe"].isin(classes_sel)]
+    if amb_sel:
+        tab = tab[tab["Ambiente"].isin(amb_sel)]
+    if reajuste_sel == "Com reajuste":
+        tab = tab[tab["Reajuste"]]
+    elif reajuste_sel == "Sem reajuste":
+        tab = tab[~tab["Reajuste"]]
+
+    st.caption(f"{len(tab):,} inclusões exibidas")
+    st.dataframe(
+        tab,
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Processo":      st.column_config.TextColumn(width="medium"),
+            "Relator":       st.column_config.TextColumn(width="medium"),
+            "Desfecho":      st.column_config.TextColumn(width="large"),
+            "Reajuste":      st.column_config.CheckboxColumn(width="small"),
+            "Ano":           st.column_config.NumberColumn(width="small"),
+        },
+    )
+
+
+# ── Ponto de entrada ──────────────────────────────────────────────────────────
+
 def render_graficos(df: pd.DataFrame) -> None:
-    # ── Sumário ───────────────────────────────────────────────────────────────
     with st.expander("Sumário — visualizações disponíveis", expanded=True):
         cols = st.columns(2)
         for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
@@ -81,7 +234,6 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.markdown("---")
 
-    # ── Seletor único ─────────────────────────────────────────────────────────
     escolha = st.selectbox(
         "Selecione a visualização",
         options=_LABELS,
@@ -101,4 +253,17 @@ def render_graficos(df: pd.DataFrame) -> None:
             "- **Período:** 2020–2025"
         )
 
-    st.plotly_chart(fn(df), width="stretch")
+    # Pizzas (R1/R2) não têm show_values
+    is_bar = idx >= 2
+    show_values = (
+        st.checkbox("Exibir valores", value=True, key=f"reajuste_show_{idx}")
+        if is_bar else True
+    )
+    fig = fn(df, show_values=show_values) if is_bar else fn(df)
+    st.plotly_chart(fig, width="stretch")
+
+    st.markdown("---")
+    _render_tabulador(df)
+
+    st.markdown("---")
+    _render_dados_brutos(df)

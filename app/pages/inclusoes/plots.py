@@ -325,12 +325,14 @@ def _refinar_motivos_diversos(df: pd.DataFrame, df_dec: pd.DataFrame) -> pd.Data
     if not mask_div.any():
         return d
 
-    dec_pleno = df_dec[
-        (df_dec['dec_julgador'].str.strip().str.upper() == 'TRIBUNAL PLENO') &
-        (~df_dec['dec_complemento'].str.contains(RE_EXCLUSAO, case=False, na=False, regex=True))
-    ].copy()
-    if not dec_pleno.empty:
-        dec_pleno['dec_data_dt'] = pd.to_datetime(dec_pleno['dec_data'], dayfirst=True, errors='coerce')
+    dec_pleno = pd.DataFrame()
+    if not df_dec.empty and 'dec_julgador' in df_dec.columns:
+        dec_pleno = df_dec[
+            (df_dec['dec_julgador'].str.strip().str.upper() == 'TRIBUNAL PLENO') &
+            (~df_dec['dec_complemento'].str.contains(RE_EXCLUSAO, case=False, na=False, regex=True))
+        ].copy()
+        if not dec_pleno.empty:
+            dec_pleno['dec_data_dt'] = pd.to_datetime(dec_pleno['dec_data'], dayfirst=True, errors='coerce')
 
     indices_div = d.index[mask_div]
     novos = []

@@ -39,7 +39,7 @@ except Exception as e:
 st.title("Inclusões em Pauta")
 st.markdown("""
 Esta seção analisa as **inclusões em pauta de Controle Concentrado** (ADI, ADC, ADO e ADPF)
-no STF entre **2020 e 2025**, comparando o **Plenário Virtual** e o **Plenário Físico**.
+no STF entre **2020 e 2025**, comparando o **Plenário Virtual** e o **Plenário Presencial**.
 
 A unidade de análise é a **inclusão em pauta** — cada vez que um processo é colocado em pauta
 para julgamento, independentemente de ter sido julgado antes. Um mesmo processo pode aparecer

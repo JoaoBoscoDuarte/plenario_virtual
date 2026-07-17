@@ -16,7 +16,7 @@ CORES_CLASSE = {
     "ADO":  "#ef4444",
 }
 CORES_TIPO  = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
-CORES_AMB   = {"Plenário Virtual": "#2563eb", "Plenário Físico": "#94a3b8"}
+CORES_AMB   = {"Plenário Virtual": "#2563eb", "Plenário Presencial": "#94a3b8"}
 COR_LINHA   = "#7f7f7f"
 _CLASSES    = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS      = ["PR", "RC", "QI"]
@@ -126,10 +126,10 @@ def gs1_pizza_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 
 def gs2_pizza_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[df["ambiente"] == "Plenário Físico"]
+    sub = df[df["ambiente"] == "Plenário Presencial"]
     return _pizza(
         _serie_sust(sub),
-        "Inclusões com Sustentação Oral — Plenário Físico (2020–2025)",
+        "Inclusões com Sustentação Oral — Plenário Presencial (2020–2025)",
         [CORES_SUST.get(l, "#999") for l in _serie_sust(sub).index],
         show_values=show_values,
     )
@@ -149,8 +149,8 @@ def gs3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 def gs4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
-        df[df["ambiente"] == "Plenário Físico"],
-        "Sustentação Oral por Ano — Plenário Físico (2020–2025)",
+        df[df["ambiente"] == "Plenário Presencial"],
+        "Sustentação Oral por Ano — Plenário Presencial (2020–2025)",
         show_values=show_values,
     )
 
@@ -167,9 +167,9 @@ def gs5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 
 def gs6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Físico") & df["teve_sustentacao"]]
+    sub = df[(df["ambiente"] == "Plenário Presencial") & df["teve_sustentacao"]]
     return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         "Sustentação Oral por Ano e Classe — Plenário Físico (2020–2025)",
+                         "Sustentação Oral por Ano e Classe — Plenário Presencial (2020–2025)",
                          show_values=show_values)
 
 

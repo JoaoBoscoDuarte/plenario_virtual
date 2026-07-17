@@ -30,7 +30,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     (
         "G5 — Inclusões por Ano e Ambiente (PV vs PP)",
         "Inclusões em Pauta por Ano e Ambiente",
-        "Comparação anual do volume de inclusões em pauta entre o Plenário Virtual e o Plenário Físico. "
+        "Comparação anual do volume de inclusões em pauta entre o Plenário Virtual e o Plenário Presencial. "
         "Inclui pizza com a proporção acumulada no período.",
         g5_anual_ambiente,
     ),
@@ -43,8 +43,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G7 — Inclusões por Classe e Ano — PP",
-        "Inclusões por Classe — Plenário Físico",
-        "Mesmo recorte do G6, aplicado ao Plenário Físico.",
+        "Inclusões por Classe — Plenário Presencial",
+        "Mesmo recorte do G6, aplicado ao Plenário Presencial.",
         g7_pp_por_classe,
     ),
     (
@@ -56,7 +56,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G9 — Desfecho Geral — PP (período total)",
-        "Desfecho — Plenário Físico (período total)",
+        "Desfecho — Plenário Presencial (período total)",
         "Pizza com a proporção de concluídos e não concluídos no PP ao longo de todo o período.",
         g9_desfecho_pp,
     ),
@@ -68,7 +68,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G11 — Concluídos e Não Concluídos por Ano — PP",
-        "Macro-Desfecho Anual — Plenário Físico",
+        "Macro-Desfecho Anual — Plenário Presencial",
         "Evolução anual do volume de inclusões concluídas e não concluídas no PP.",
         g11_macro_anual_pp,
     ),
@@ -80,7 +80,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G13 — Concluídos por Ano — PP",
-        "Inclusões Concluídas por Ano — Plenário Físico",
+        "Inclusões Concluídas por Ano — Plenário Presencial",
         "Fluxo anual de inclusões com desfecho concluído no PP.",
         g13_concluidos_pp,
     ),
@@ -92,7 +92,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G15 — Não Concluídos por Classe e Ano — PP",
-        "Não Concluídos por Classe — Plenário Físico",
+        "Não Concluídos por Classe — Plenário Presencial",
         "Barras por classe com linha do total de não concluídos no PP.",
         g15_nao_concluidos_classe_pp,
     ),
@@ -104,7 +104,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G17 — Concluídos por Classe e Ano — PP",
-        "Concluídos por Classe — Plenário Físico",
+        "Concluídos por Classe — Plenário Presencial",
         "Barras por classe com linha do total de concluídos no PP.",
         g17_concluidos_classe_pp,
     ),
@@ -118,8 +118,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G19 — Não Concluídos por Tipo de Questão — PP",
-        "Não Concluídos por Tipo de Questão — Plenário Físico",
-        "Mesmo recorte do G18 para o Plenário Físico.",
+        "Não Concluídos por Tipo de Questão — Plenário Presencial",
+        "Mesmo recorte do G18 para o Plenário Presencial.",
         g19_nc_tipo_pp,
     ),
     (
@@ -130,8 +130,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G21 — Concluídos por Tipo de Questão — PP",
-        "Concluídos por Tipo de Questão — Plenário Físico",
-        "Mesmo recorte do G20 para o Plenário Físico.",
+        "Concluídos por Tipo de Questão — Plenário Presencial",
+        "Mesmo recorte do G20 para o Plenário Presencial.",
         g21_c_tipo_pp,
     ),
     # ── Desfecho Concluído por Categoria ─────────────────────────────────────
@@ -144,8 +144,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G23 — Categoria de Desfecho — PP (período total)",
-        "Categoria de Desfecho — Plenário Físico (período total)",
-        "Mesmo recorte do G22 para o Plenário Físico.",
+        "Categoria de Desfecho — Plenário Presencial (período total)",
+        "Mesmo recorte do G22 para o Plenário Presencial.",
         g23_cat_periodo_pp,
     ),
     (
@@ -156,7 +156,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G25 — Categoria de Desfecho por Ano — PP",
-        "Categoria de Desfecho por Ano — Plenário Físico",
+        "Categoria de Desfecho por Ano — Plenário Presencial",
         "Evolução anual das 4 categorias de desfecho no PP.",
         g25_cat_anual_pp,
     ),
@@ -170,8 +170,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G27 — Categoria × Tipo de Questão — PP (período total)",
-        "Categoria de Desfecho por Tipo de Questão — Plenário Físico",
-        "Mesmo recorte do G26 para o Plenário Físico.",
+        "Categoria de Desfecho por Tipo de Questão — Plenário Presencial",
+        "Mesmo recorte do G26 para o Plenário Presencial.",
         g27_cat_tipo_periodo_pp,
     ),
     (
@@ -183,8 +183,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G29 — Categoria × Tipo de Questão por Ano — PP",
-        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Físico",
-        "Mesmo recorte do G28 para o Plenário Físico.",
+        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Presencial",
+        "Mesmo recorte do G28 para o Plenário Presencial.",
         g29_cat_tipo_anual_pp,
     ),
     # ── Desfecho Não Concluído por Categoria ──────────────────────────────────
@@ -197,8 +197,8 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G31 — Não Concluídos por Categoria e Ano — PP",
-        "Não Concluídos por Categoria — Plenário Físico",
-        "Mesmo recorte do G30 para o PP. Destaque = 0 no Plenário Físico.",
+        "Não Concluídos por Categoria — Plenário Presencial",
+        "Mesmo recorte do G30 para o PP. Destaque = 0 no Plenário Presencial.",
         g31_nc_cat_anual_pp,
     ),
     (
@@ -210,7 +210,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G33 — Não Concluídos por Categoria e Classe — PP",
-        "Não Concluídos por Categoria e Classe — Plenário Físico",
+        "Não Concluídos por Categoria e Classe — Plenário Presencial",
         "Mesmo recorte do G32 para o PP.",
         g33_nc_cat_classe_pp,
     ),
@@ -223,7 +223,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G35 — Não Concluídos por Categoria e Tipo — PP",
-        "Não Concluídos por Categoria e Tipo de Questão — Plenário Físico",
+        "Não Concluídos por Categoria e Tipo de Questão — Plenário Presencial",
         "Mesmo recorte do G34 para o PP.",
         g35_nc_cat_tipo_pp,
     ),
@@ -236,7 +236,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G37 — Sustentação Oral — Período — PP",
-        "Sustentação Oral — Plenário Físico (período total)",
+        "Sustentação Oral — Plenário Presencial (período total)",
         "Pizza com a proporção de inclusões com e sem sustentação oral no PP ao longo de todo o período.",
         g37_sust_periodo_pp,
     ),
@@ -248,7 +248,7 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     (
         "G39 — Sustentação Oral — Anual — PP",
-        "Sustentação Oral por Ano — Plenário Físico",
+        "Sustentação Oral por Ano — Plenário Presencial",
         "Contagem anual de inclusões com sustentação oral realizada no PP (2020–2025).",
         g39_sust_anual_pp,
     ),

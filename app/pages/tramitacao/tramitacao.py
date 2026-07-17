@@ -29,7 +29,7 @@ Esta seção analisa em quais **ambientes de julgamento** os processos de Contro
 (ADI, ADC, ADO e ADPF) tramitaram entre **2020 e 2025**.
 
 Os processos podem ter sido julgados exclusivamente no **Plenário Virtual** (PV), exclusivamente
-no **Plenário Físico** (PP), ou em **ambos os ambientes** em inclusões distintas. A análise
+no **Plenário Presencial** (PP), ou em **ambos os ambientes** em inclusões distintas. A análise
 cruza essa dimensão com classe processual, tipo de questão, desfecho e taxa de conclusão.
 
 O objetivo é revelar como o ambiente de julgamento se relaciona com o perfil dos processos

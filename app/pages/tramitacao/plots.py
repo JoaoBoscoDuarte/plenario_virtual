@@ -282,7 +282,7 @@ _CORES_POR_COLUNA: dict[str, dict] = {
     "tipo_questao":  CORES_TIPO,
     "macro_desfecho": CORES_MACRO,
     "desfecho":      CORES_DESFECHO,
-    "ambiente":      {"Plenário Virtual": "#2563eb", "Plenário Físico": "#f59e0b"},
+    "ambiente":      {"Plenário Virtual": "#2563eb", "Plenário Presencial": "#f59e0b"},
     "teve_reajuste": {"Com reajuste": "#ef4444", "Sem reajuste": "#9ca3af"},
     "teve_sustentacao": {True: "#2563eb", False: "#9ca3af"},
 }

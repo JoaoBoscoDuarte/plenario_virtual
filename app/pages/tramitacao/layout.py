@@ -127,7 +127,7 @@ def _build_tabela(df: pd.DataFrame) -> pd.DataFrame:
     inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
     inc_pv    = (df[df["ambiente"] == "Plenário Virtual"]
                  .groupby("incidente").size().rename("Inclusões PV"))
-    inc_pp    = (df[df["ambiente"] == "Plenário Físico"]
+    inc_pp    = (df[df["ambiente"] == "Plenário Presencial"]
                  .groupby("incidente").size().rename("Inclusões PP"))
     tab = (
         proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao", "tramitacao"]]

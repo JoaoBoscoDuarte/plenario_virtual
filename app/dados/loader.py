@@ -96,17 +96,23 @@ def load_evolucao_acervo() -> pd.DataFrame:
 
 def load_inclusoes_em_pauta() -> pd.DataFrame:
     """Carrega o dataset de inclusões em pauta (2020–2025)."""
-    return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])
+    df = load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])
+    df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
+    return df
 
 
 def load_sustentacao_oral() -> pd.DataFrame:
     """Carrega o dataset de inclusões com marcação de sustentação oral."""
-    return load_parquet(HF_REPO_ID, HF_FILES["sustentacao_oral"])
+    df = load_parquet(HF_REPO_ID, HF_FILES["sustentacao_oral"])
+    df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
+    return df
 
 
 def load_tramitacoes() -> pd.DataFrame:
     """Carrega o dataset de inclusões com tramitação por ambiente (PV/PP/ambos)."""
-    return load_parquet(HF_REPO_ID, HF_FILES["tramitacoes"])
+    df = load_parquet(HF_REPO_ID, HF_FILES["tramitacoes"])
+    df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
+    return df
 
 
 def load_reajustes_de_voto() -> pd.DataFrame:

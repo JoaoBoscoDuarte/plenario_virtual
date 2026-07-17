@@ -21,8 +21,8 @@ _CATALOGO = [
     ),
     (
         "S2 — Proporção com/sem sustentação — PP (período total)",
-        "Sustentação Oral — Plenário Físico (período total)",
-        "Mesmo recorte do S1 para o Plenário Físico.",
+        "Sustentação Oral — Plenário Presencial (período total)",
+        "Mesmo recorte do S1 para o Plenário Presencial.",
         gs2_pizza_pp,
     ),
     (
@@ -34,8 +34,8 @@ _CATALOGO = [
     ),
     (
         "S4 — Sustentações por Ano — PP",
-        "Sustentação Oral por Ano — Plenário Físico",
-        "Mesmo recorte do S3 para o Plenário Físico.",
+        "Sustentação Oral por Ano — Plenário Presencial",
+        "Mesmo recorte do S3 para o Plenário Presencial.",
         gs4_anual_pp,
     ),
     (
@@ -46,8 +46,8 @@ _CATALOGO = [
     ),
     (
         "S6 — Sustentações por Ano e Classe — PP",
-        "Sustentação Oral por Ano e Classe — Plenário Físico",
-        "Mesmo recorte do S5 para o Plenário Físico.",
+        "Sustentação Oral por Ano e Classe — Plenário Presencial",
+        "Mesmo recorte do S5 para o Plenário Presencial.",
         gs6_classe_pp,
     ),
     (
@@ -61,7 +61,7 @@ _CATALOGO = [
         "S8 — Taxa de Sustentação por Ano e Ambiente (%)",
         "Taxa de Sustentação Oral por Ano e Ambiente (%)",
         "Percentual de inclusões com sustentação oral em cada ano, comparando "
-        "Plenário Virtual e Plenário Físico lado a lado.",
+        "Plenário Virtual e Plenário Presencial lado a lado.",
         gs8_taxa_ambiente,
     ),
     (
@@ -134,7 +134,7 @@ def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
     for ano in sorted(df["ano"].unique()):
         df_ano = df[df["ano"] == ano]
         row: dict = {"Ano": int(ano)}
-        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Físico")]:
+        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Presencial")]:
             df_amb = df_ano[df_ano["ambiente"] == amb_key]
             total = len(df_amb)
             com   = int(df_amb["teve_sustentacao"].sum())
@@ -225,7 +225,7 @@ def _render_tabela_consolidada(df: pd.DataFrame) -> None:
     ai, af  = periodo
     sel_cls = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
     sel_amb = ambientes_sel if ambientes_sel else ["PV", "PP"]
-    amb_map = {"PV": "Plenário Virtual", "PP": "Plenário Físico"}
+    amb_map = {"PV": "Plenário Virtual", "PP": "Plenário Presencial"}
 
     df_f = df[
         df["ano"].between(ai, af) &

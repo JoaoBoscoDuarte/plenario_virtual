@@ -59,8 +59,8 @@ def gr1_pizza_pv(df: pd.DataFrame) -> go.Figure:
 
 def gr2_pizza_pp(df: pd.DataFrame) -> go.Figure:
     return _pizza_reajuste(
-        df[df["ambiente"] == "Plenário Físico"],
-        "Inclusões com Reajuste de Voto — Plenário Físico (2020–2025)",
+        df[df["ambiente"] == "Plenário Presencial"],
+        "Inclusões com Reajuste de Voto — Plenário Presencial (2020–2025)",
     )
 
 
@@ -92,8 +92,8 @@ def gr3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 def gr4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_anuais(
-        df[df["ambiente"] == "Plenário Físico"],
-        "Reajuste de Voto por Ano — Plenário Físico (2020–2025)",
+        df[df["ambiente"] == "Plenário Presencial"],
+        "Reajuste de Voto por Ano — Plenário Presencial (2020–2025)",
         show_values=show_values,
     )
 
@@ -128,8 +128,8 @@ def gr5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 def gr6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _barras_classe(
-        df[df["ambiente"] == "Plenário Físico"],
-        "Reajuste de Voto por Ano e Classe — Plenário Físico (2020–2025)",
+        df[df["ambiente"] == "Plenário Presencial"],
+        "Reajuste de Voto por Ano e Classe — Plenário Presencial (2020–2025)",
         show_values=show_values,
     )
 

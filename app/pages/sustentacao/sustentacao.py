@@ -32,7 +32,7 @@ A unidade de análise é a **inclusão em pauta** — cada vez que um processo f
 em pauta, verificou-se se houve sustentação oral realizada naquela ocasião.
 
 A detecção considera andamentos com nome `Sustentação Oral` ou com menção ao padrão
-no complemento do andamento (necessário para capturar o Plenário Físico, onde o registro
+no complemento do andamento (necessário para capturar o Plenário Presencial, onde o registro
 é menos padronizado). Sustentações indeferidas ou não realizadas são excluídas.
 """)
 

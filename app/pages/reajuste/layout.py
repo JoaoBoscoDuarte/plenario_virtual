@@ -42,8 +42,8 @@ _CATAlOGO_TEMP = [
     ),
     (
         "R2 — Proporção com/sem reajuste — PP (período total)",
-        "Reajuste de Voto — Plenário Físico (período total)",
-        "Mesmo recorte do R1 para o Plenário Físico.",
+        "Reajuste de Voto — Plenário Presencial (período total)",
+        "Mesmo recorte do R1 para o Plenário Presencial.",
         gr2_pizza_pp,
     ),
     (
@@ -55,8 +55,8 @@ _CATAlOGO_TEMP = [
     ),
     (
         "R4 — Reajustes por Ano — PP",
-        "Reajuste de Voto por Ano — Plenário Físico",
-        "Mesmo recorte do R3 para o Plenário Físico.",
+        "Reajuste de Voto por Ano — Plenário Presencial",
+        "Mesmo recorte do R3 para o Plenário Presencial.",
         gr4_anual_pp,
     ),
     (
@@ -68,8 +68,8 @@ _CATAlOGO_TEMP = [
     ),
     (
         "R6 — Reajustes por Ano e Classe — PP",
-        "Reajuste de Voto por Ano e Classe — Plenário Físico",
-        "Mesmo recorte do R5 para o Plenário Físico.",
+        "Reajuste de Voto por Ano e Classe — Plenário Presencial",
+        "Mesmo recorte do R5 para o Plenário Presencial.",
         gr6_classe_pp,
     ),
     (
@@ -127,7 +127,7 @@ def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
     for ano in sorted(df["ano"].unique()):
         df_ano = df[df["ano"] == ano]
         row: dict = {"Ano": int(ano)}
-        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Físico")]:
+        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Presencial")]:
             df_amb = df_ano[df_ano["ambiente"] == amb_key]
             total = len(df_amb)
             com   = int(df_amb["teve_reajuste"].sum())
@@ -174,7 +174,7 @@ def _render_tabulador(df: pd.DataFrame) -> None:
     ai, af   = periodo
     sel_cls  = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
     sel_amb  = ambientes_sel if ambientes_sel else ["PV", "PP"]
-    amb_map  = {"PV": "Plenário Virtual", "PP": "Plenário Físico"}
+    amb_map  = {"PV": "Plenário Virtual", "PP": "Plenário Presencial"}
 
     df_f = df[
         df["ano"].between(ai, af) &

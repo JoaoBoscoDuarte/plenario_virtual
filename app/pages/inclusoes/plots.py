@@ -150,7 +150,7 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
 def g5_anual_ambiente(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
     tab = df.groupby(["ano", "ambiente"], observed=True).size().reset_index(name="n")
     fig = _bar_fig()
-    for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Físico", COR_PP)]:
+    for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
         d = tab[tab["ambiente"] == amb]
         fig.add_trace(go.Bar(
             x=d["ano"], y=d["n"], name=amb, marker_color=cor,
@@ -177,9 +177,9 @@ def g6_pv_por_classe(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
 
 
 def g7_pp_por_classe(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
-    df_pp = df[df["ambiente"] == "Plenário Físico"]
+    df_pp = df[df["ambiente"] == "Plenário Presencial"]
     fig = _barras_grupo(df_pp, "ano", "classe", CORES_CLASSE,
-                        "Inclusões por Classe e Ano — Plenário Físico",
+                        "Inclusões por Classe e Ano — Plenário Presencial",
                         "Inclusões por classe", "Total PP (Linha)")
     fig_p = _pizza(df_pp["classe"].value_counts(),
                    "Proporção por Classe — PP (período total)",
@@ -198,7 +198,7 @@ def g8_desfecho_pv(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
 
 
 def g9_desfecho_pp(df: pd.DataFrame) -> go.Figure:
-    df_pp = df[df["ambiente"] == "Plenário Físico"]
+    df_pp = df[df["ambiente"] == "Plenário Presencial"]
     vc = df_pp["macro_desfecho"].value_counts()
     return _pizza(vc, "Concluídos e Não Concluídos — PP (período total)",
                   cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index])
@@ -210,7 +210,7 @@ def g10_macro_anual_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g11_macro_anual_pp(df: pd.DataFrame) -> go.Figure:
-    return _macro_anual(df[df["ambiente"] == "Plenário Físico"],
+    return _macro_anual(df[df["ambiente"] == "Plenário Presencial"],
                         "Concluídos e Não Concluídos por Ano — PP")
 
 
@@ -236,7 +236,7 @@ def g12_concluidos_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g13_concluidos_pp(df: pd.DataFrame) -> go.Figure:
-    return _concluidos_anual(df[df["ambiente"] == "Plenário Físico"],
+    return _concluidos_anual(df[df["ambiente"] == "Plenário Presencial"],
                              "Concluídos por Ano — PP")
 
 
@@ -261,7 +261,7 @@ def g14_nao_concluidos_classe_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g15_nao_concluidos_classe_pp(df: pd.DataFrame) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Físico"],
+    return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Não concluído",
                                  "Não Concluídos por Classe e Ano — PP",
                                  "Total Não Concluídos PP")
@@ -275,7 +275,7 @@ def g16_concluidos_classe_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g17_concluidos_classe_pp(df: pd.DataFrame) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Físico"],
+    return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Concluído",
                                  "Concluídos por Classe e Ano — PP",
                                  "Total Concluídos PP")
@@ -321,7 +321,7 @@ def _classificar_desfecho_texto(texto: str) -> str | None:
 
 def _refinar_motivos_diversos(df: pd.DataFrame, df_dec: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
-    mask_div = (d["ambiente"] == "Plenário Físico") & (d["desfecho"] == "Não concluído - motivos diversos")
+    mask_div = (d["ambiente"] == "Plenário Presencial") & (d["desfecho"] == "Não concluído - motivos diversos")
     if not mask_div.any():
         return d
 
@@ -379,7 +379,7 @@ def g18_nc_tipo_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g19_nc_tipo_pp(df: pd.DataFrame) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Físico") &
+    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Não Concluídos por Tipo de Questão — PP",
@@ -395,7 +395,7 @@ def g20_c_tipo_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g21_c_tipo_pp(df: pd.DataFrame) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Físico") &
+    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Concluídos por Tipo de Questão — PP",
@@ -420,7 +420,7 @@ def g22_cat_periodo_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g23_cat_periodo_pp(df: pd.DataFrame) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Físico"])
+    sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     vc = sub["categoria"].value_counts().sort_index()
     return _pizza(vc, "Desfecho por Categoria — PP (período total)",
                   cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index])
@@ -434,7 +434,7 @@ def g24_cat_anual_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g25_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Físico"])
+    sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
                          "Desfecho por Categoria e Ano — PP",
                          "Inclusões em pauta", "Total PP (Linha)")
@@ -484,8 +484,8 @@ def g26_cat_tipo_periodo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Fi
 
 
 def g27_cat_tipo_periodo_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Físico"]))
-    return _pizzas_categoria_por_tipo(sub, "Plenário Físico", show_values=show_values)
+    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
+    return _pizzas_categoria_por_tipo(sub, "Plenário Presencial", show_values=show_values)
 
 
 def g28_cat_tipo_anual_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
@@ -500,7 +500,7 @@ def g28_cat_tipo_anual_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
 
 def g29_cat_tipo_anual_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
     """Retorna dict {tipo: figura} para PP."""
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Físico"]))
+    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
                               f"Desfecho por Categoria — {t} — PP",
@@ -526,7 +526,7 @@ def g30_nc_cat_anual_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g31_nc_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Físico"])
+    sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
                          "Não Concluídos por Categoria e Ano — PP",
                          "Inclusões em pauta", "Total Não Concluídos PP")
@@ -544,7 +544,7 @@ def g32_nc_cat_classe_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
 
 def g33_nc_cat_classe_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
     """Retorna dict {classe: figura} para PP."""
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Físico"])
+    sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {c} — PP",
@@ -564,7 +564,7 @@ def g34_nc_cat_tipo_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
 
 def g35_nc_cat_tipo_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
     """Retorna dict {tipo: figura} para PP."""
-    sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Físico"]))
+    sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {t} — PP",
@@ -593,11 +593,11 @@ def g36_sust_periodo_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g37_sust_periodo_pp(df: pd.DataFrame) -> go.Figure:
-    sub = df[df["ambiente"] == "Plenário Físico"]
+    sub = df[df["ambiente"] == "Plenário Presencial"]
     return _pizza_bool(sub, "teve_sustentacao",
                        "Com sustentação oral", "Sem sustentação oral",
                        CORES_SUST,
-                       "Inclusões com sustentação oral — Plenário Físico (2020–2025)")
+                       "Inclusões com sustentação oral — Plenário Presencial (2020–2025)")
 
 
 def g38_sust_anual_pv(df: pd.DataFrame) -> go.Figure:
@@ -616,7 +616,7 @@ def g38_sust_anual_pv(df: pd.DataFrame) -> go.Figure:
 
 
 def g39_sust_anual_pp(df: pd.DataFrame) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Físico") & df["teve_sustentacao"]]
+    sub = df[(df["ambiente"] == "Plenário Presencial") & df["teve_sustentacao"]]
     tab = (sub.groupby("ano").size().reset_index(name="n")
            .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
     fig = _bar_fig()
@@ -625,6 +625,6 @@ def g39_sust_anual_pp(df: pd.DataFrame) -> go.Figure:
         marker_color=CORES_SUST["Com sustentação oral"],
         text=tab["n"], textposition="outside", cliponaxis=False,
     ))
-    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Físico",
+    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Presencial",
                       yaxis_title="Inclusões com sustentação")
     return fig

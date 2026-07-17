@@ -22,7 +22,17 @@ _PREDEFINIDOS_REAJ = [
 ]
 _LABELS_PRE_REAJ = [p[0] for p in _PREDEFINIDOS_REAJ]
 
-_CATALOGO = [
+def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True):
+    """Tipo de Questão × Reajuste (inclusões)."""
+    return gt10_tabulador(df, "tipo_questao", "teve_reajuste", "inclusoes", "group", show_values)
+
+
+def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True):
+    """Desfecho Detalhado × Reajuste (inclusões)."""
+    return gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
+
+
+_CATAlOGO_TEMP = [
     (
         "R1 — Proporção com/sem reajuste — PV (período total)",
         "Reajuste de Voto — Plenário Virtual (período total)",
@@ -62,8 +72,22 @@ _CATALOGO = [
         "Mesmo recorte do R5 para o Plenário Físico.",
         gr6_classe_pp,
     ),
+    (
+        "R7 — Tipo de Questão × Reajuste",
+        "Tipo de Questão × Reajuste (inclusões)",
+        "Distribuição das inclusões com/sem reajuste por tipo de questão (PR/RC/QI).",
+        _gr_tipo_vs_reajuste,
+    ),
+    (
+        "R8 — Desfecho Detalhado × Reajuste",
+        "Desfecho Detalhado × Reajuste (inclusões)",
+        "Distribuição das inclusões com/sem reajuste por desfecho detalhado.",
+        _gr_desfecho_vs_reajuste,
+    ),
 ]
 
+# recuperar nome correto da variável (evitar conflito de nomes no patch)
+_CATALOGO = _CATAlOGO_TEMP
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {

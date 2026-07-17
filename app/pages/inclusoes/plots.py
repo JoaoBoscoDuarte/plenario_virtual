@@ -440,42 +440,6 @@ def _prep_cat(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def g22_cat_periodo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
-    vc = sub["categoria"].value_counts().sort_index()
-    return _pizza(vc, "Desfecho por Categoria — Plenário Virtual (período total)",
-                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
-                  show_values=show_values)
-
-
-def g23_cat_periodo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
-    vc = sub["categoria"].value_counts().sort_index()
-    return _pizza(vc, "Desfecho por Categoria — Plenário Presencial (período total)",
-                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
-                  show_values=show_values)
-
-
-def g24_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
-    return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Ano — Plenário Virtual",
-                         "Inclusões em pauta", "Total PV (Linha)",
-                         show_values=show_values, proporcao=proporcao)
-
-
-def g25_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
-    return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Ano — Plenário Presencial",
-                         "Inclusões em pauta", "Total PP (Linha)",
-                         show_values=show_values, proporcao=proporcao)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# GRUPO 3 — Categoria × tipo de questão  (gráficos 26–29)
-# ═══════════════════════════════════════════════════════════════════════════════
-
 def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> go.Figure:
     cores = [CORES_CATEGORIA.get(l, "#999") for l in vc.index]
     fig = go.Figure(go.Pie(
@@ -510,32 +474,37 @@ def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str, show_valu
     ]
 
 
-def g26_cat_tipo_periodo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
-    return _pizzas_categoria_por_tipo(sub, "Plenário Virtual", show_values=show_values)
+def g22_cat_periodo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                              ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = _prep_cat(df[df["ambiente"] == ambiente])
+    vc = sub["categoria"].value_counts().sort_index()
+    return _pizza(vc, f"Desfecho por Categoria — {ambiente} (período total)",
+                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
+                  show_values=show_values)
 
 
-def g27_cat_tipo_periodo_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
-    return _pizzas_categoria_por_tipo(sub, "Plenário Presencial", show_values=show_values)
+def g24_cat_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                            ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = _prep_cat(df[df["ambiente"] == ambiente])
+    return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
+                         f"Desfecho por Categoria e Ano — {ambiente}",
+                         "Inclusões em pauta", "Total (Linha)",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g28_cat_tipo_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
+def g26_cat_tipo_periodo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                                   ambiente: str = "Plenário Virtual") -> list[go.Figure]:
+    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == ambiente]))
+    return _pizzas_categoria_por_tipo(sub, ambiente, show_values=show_values)
+
+
+def g28_cat_tipo_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                                 ambiente: str = "Plenário Virtual") -> dict[str, go.Figure]:
+    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == ambiente]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
-                              f"Desfecho por Categoria — {t} — Plenário Virtual",
-                              "Inclusões em pauta", f"Total {t} PV (Linha)",
-                              show_values=show_values, proporcao=proporcao)
-            for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
-
-
-def g29_cat_tipo_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
-    return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
-                              "ano", "categoria", CORES_CATEGORIA,
-                              f"Desfecho por Categoria — {t} — Plenário Presencial",
-                              "Inclusões em pauta", f"Total {t} PP (Linha)",
+                              f"Desfecho por Categoria — {t} — {ambiente}",
+                              "Inclusões em pauta", f"Total {t} (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 

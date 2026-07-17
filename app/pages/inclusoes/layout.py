@@ -8,10 +8,8 @@ from .plots import (
     g10_macro_anual_filtravel, g12_concluidos_filtravel,
     g14_nao_concluidos_classe_filtravel, g16_concluidos_classe_filtravel,
     g18_nc_tipo_pv, g19_nc_tipo_pp, g20_c_tipo_pv, g21_c_tipo_pp,
-    g22_cat_periodo_pv, g23_cat_periodo_pp,
-    g24_cat_anual_pv, g25_cat_anual_pp,
-    g26_cat_tipo_periodo_pv, g27_cat_tipo_periodo_pp,
-    g28_cat_tipo_anual_pv, g29_cat_tipo_anual_pp,
+    g22_cat_periodo_filtravel, g24_cat_anual_filtravel,
+    g26_cat_tipo_periodo_filtravel, g28_cat_tipo_anual_filtravel,
     g30_nc_cat_anual_pv, g31_nc_cat_anual_pp,
     g32_nc_cat_classe_pv, g33_nc_cat_classe_pp,
     g34_nc_cat_tipo_pv, g35_nc_cat_tipo_pp,
@@ -96,56 +94,31 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     # ── Desfecho Concluído por Categoria ─────────────────────────────────────
     (
-        "G22 — Categoria de Desfecho — Plenário Virtual (período total)",
-        "Categoria de Desfecho — Plenário Virtual (período total)",
+        "G22 — Categoria de Desfecho (Plenário Virtual e Plenário Presencial)",
+        "Categoria de Desfecho",
         "Pizza com as 4 categorias: Unânime, Maioria (relator vencedor), Maioria (relator vencido) "
-        "e Não concluído (bloco agregado).",
-        g22_cat_periodo_pv,
+        "e Não concluído (bloco agregado). Selecione o âmbito.",
+        g22_cat_periodo_filtravel,
     ),
     (
-        "G23 — Categoria de Desfecho — Plenário Presencial (período total)",
-        "Categoria de Desfecho — Plenário Presencial (período total)",
-        "Mesmo recorte do G22 para o Plenário Presencial.",
-        g23_cat_periodo_pp,
+        "G24 — Categoria de Desfecho por Ano (Plenário Virtual e Plenário Presencial)",
+        "Categoria de Desfecho por Ano",
+        "Evolução anual das 4 categorias de desfecho. Selecione o âmbito.",
+        g24_cat_anual_filtravel,
     ),
     (
-        "G24 — Categoria de Desfecho por Ano — Plenário Virtual",
-        "Categoria de Desfecho por Ano — Plenário Virtual",
-        "Evolução anual das 4 categorias de desfecho no Plenário Virtual.",
-        g24_cat_anual_pv,
+        "G26 — Categoria × Tipo de Questão (Plenário Virtual e Plenário Presencial)",
+        "Categoria de Desfecho por Tipo de Questão",
+        "Uma pizza por tipo de questão (PR/RC/QI) com as 4 categorias de desfecho. Período total. "
+        "Processos sem tipo de questão classificados como PR. Selecione o âmbito.",
+        g26_cat_tipo_periodo_filtravel,
     ),
     (
-        "G25 — Categoria de Desfecho por Ano — Plenário Presencial",
-        "Categoria de Desfecho por Ano — Plenário Presencial",
-        "Evolução anual das 4 categorias de desfecho no Plenário Presencial.",
-        g25_cat_anual_pp,
-    ),
-    (
-        "G26 — Categoria × Tipo de Questão — Plenário Virtual (período total)",
-        "Categoria de Desfecho por Tipo de Questão — Plenário Virtual",
-        "Uma pizza por tipo de questão (PR/RC/QI) com as 4 categorias de desfecho. Período total, PV. "
-        "Processos sem tipo de questão classificados como PR. "
-        "Plenário Presencial: 'motivos diversos' refinado em subcategorias.",
-        g26_cat_tipo_periodo_pv,
-    ),
-    (
-        "G27 — Categoria × Tipo de Questão — Plenário Presencial (período total)",
-        "Categoria de Desfecho por Tipo de Questão — Plenário Presencial",
-        "Mesmo recorte do G26 para o Plenário Presencial.",
-        g27_cat_tipo_periodo_pp,
-    ),
-    (
-        "G28 — Categoria × Tipo de Questão por Ano — Plenário Virtual",
-        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Virtual",
-        "Um gráfico por tipo de questão (PR, RC, QI) mostrando a evolução anual das categorias no Plenário Virtual. "
-        "Selecione o tipo na sub-aba.",
-        g28_cat_tipo_anual_pv,
-    ),
-    (
-        "G29 — Categoria × Tipo de Questão por Ano — Plenário Presencial",
-        "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Presencial",
-        "Mesmo recorte do G28 para o Plenário Presencial.",
-        g29_cat_tipo_anual_pp,
+        "G28 — Categoria × Tipo de Questão por Ano (Plenário Virtual e Plenário Presencial)",
+        "Categoria de Desfecho por Tipo de Questão e Ano",
+        "Um gráfico por tipo de questão (PR, RC, QI) mostrando a evolução anual das categorias. "
+        "Selecione o âmbito e o tipo na sub-aba.",
+        g28_cat_tipo_anual_filtravel,
     ),
     # ── Desfecho Não Concluído por Categoria ──────────────────────────────────
     (
@@ -206,10 +179,10 @@ _SUMARIO = {
         "G20/G21 — concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
     ],
     "Desfecho Concluído por Categoria (G22–G29)": [
-        "G22/G23 — distribuição por categoria no período (Plenário Virtual e Plenário Presencial)",
-        "G24/G25 — evolução anual por categoria (Plenário Virtual e Plenário Presencial)",
-        "G26/G27 — categoria × tipo de questão no período (Plenário Virtual e Plenário Presencial)",
-        "G28/G29 — categoria × tipo de questão por ano (Plenário Virtual e Plenário Presencial)",
+        "G22 — distribuição por categoria no período (PV/PP selecionável)",
+        "G24 — evolução anual por categoria (PV/PP selecionável)",
+        "G26 — categoria × tipo de questão no período (PV/PP selecionável)",
+        "G28 — categoria × tipo de questão por ano (PV/PP selecionável)",
     ],
     "Desfecho Não Concluído por Categoria (G30–G35)": [
         "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
@@ -232,19 +205,15 @@ _TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
     9: ("ano", "tipo_questao", "C_PV"),
     10: ("ano", "tipo_questao", "C_PP"),
     11: ("categoria", None, "PV"),
-    12: ("categoria", None, "PP"),
-    13: ("ano", "categoria", "PV"),
-    14: ("ano", "categoria", "PP"),
-    15: ("tipo_questao", "categoria", "PV"),
-    16: ("tipo_questao", "categoria", "PP"),
-    17: ("ano", "categoria", "PV"),
-    18: ("ano", "categoria", "PP"),
+    12: ("ano", "categoria", "PV"),
+    13: ("tipo_questao", "categoria", "PV"),
+    14: ("ano", "categoria", "PV"),
+    15: ("ano", "categoria_nc", "PV"),
+    16: ("ano", "categoria_nc", "PP"),
+    17: ("ano", "categoria_nc", "PV"),
+    18: ("ano", "categoria_nc", "PP"),
     19: ("ano", "categoria_nc", "PV"),
     20: ("ano", "categoria_nc", "PP"),
-    21: ("ano", "categoria_nc", "PV"),
-    22: ("ano", "categoria_nc", "PP"),
-    23: ("ano", "categoria_nc", "PV"),
-    24: ("ano", "categoria_nc", "PP"),
 }
 
 
@@ -364,7 +333,7 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
         mapa = {"Ambos": "percent+value", "Valores": "value", "Percentual": "percent"}
         _render(fn, df, show_values=show_values, ambiente=amb,
                 pizza_textinfo=mapa[modo])
-    elif idx in (3, 4, 5, 6):
+    elif idx in (3, 4, 5, 6, 11, 12, 13, 14):
         amb = st.selectbox("Âmbito", ["Plenário Virtual", "Plenário Presencial"],
                            key=f"inc_amb_{idx}")
         _render(fn, df, show_values=show_values, ambiente=amb)

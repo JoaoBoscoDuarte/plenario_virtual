@@ -213,10 +213,10 @@ def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None, str | None]) ->
         tab.columns = [col_linha, "Total"]
         tab.loc["Total"] = {col_linha: "Total", "Total": tab["Total"].sum()}
     tab = tab.reset_index()
-    tab[tab.columns[0]] = tab[tab.columns[0]].astype(str)
+    tab[col_linha] = tab[col_linha].astype(str)
     if col_grupo:
         for c in tab.columns:
-            if c not in (tab.columns[0], "Total"):
+            if c not in (col_linha, "Total"):
                 tab[f"{c} (%)"] = (tab[c] / tab["Total"] * 100).round(1)
     return tab
 

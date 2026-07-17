@@ -359,12 +359,6 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.subheader(subtitulo)
     st.caption(descricao)
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
-            "- **Unidade:** inclusão em pauta  \n"
-            "- **Período:** 2020–2025"
-        )
 
     is_bar = idx >= 2
     show_values = (

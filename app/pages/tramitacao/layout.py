@@ -231,12 +231,6 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.subheader(subtitulo)
     st.markdown(descricao)
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/tramitacoes.parquet`  \n"
-            f"- **Unidade:** {unidade}  \n"
-            "- **Período:** 2020–2025"
-        )
 
     if idx == len(_CATALOGO) - 1:  # T10
         _render_tabulador(df, key_suffix="main")
@@ -248,12 +242,6 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.markdown("---")
     st.subheader("Tabela Consolidada por Processo")
     st.caption("Um registro por processo com o total de inclusões em cada ambiente.")
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/tramitacoes.parquet`  \n"
-            "- **Unidade:** processo (incidente único)  \n"
-            "- **Período:** 2020–2025"
-        )
 
     tab = _build_tabela(df)
 

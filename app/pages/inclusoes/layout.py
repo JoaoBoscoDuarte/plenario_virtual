@@ -419,19 +419,7 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
 
     st.subheader(subtitulo)
     st.caption(descricao)
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
-            "- **Período:** 2020–2025  \n"
-            "- **Unidade:** inclusão em pauta (uma linha por inclusão)  \n"
-            "- **Renomeação:** `IJ` → `QI` (Questão Incidental) apenas na exibição"
-        )
 
-    c1, c2 = st.columns([1, 1])
-    with c1:
-        show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
-    with c2:
-        proporcao = st.checkbox("Exibir em proporção (%)", value=False, key=f"inc_pct_{idx}")
-
-    _render(fn, df, show_values=show_values, proporcao=proporcao)
+    show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
+    _render(fn, df, show_values=show_values)
     _render_tabela(df, idx)

@@ -85,12 +85,6 @@ def _render_aba_metrica(df: pd.DataFrame, col: str, label: str, key_prefix: str)
 def _render_tabela(df: pd.DataFrame) -> None:
     st.subheader("Tabela Consolidada do Acervo")
     st.caption("Valores absolutos por ano e classe. Use os filtros para explorar o período e as métricas de interesse.")
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n"
-            "- **Referência:** 31/12 de cada ano  \n"
-            "- **Percentual:** participação de cada classe no `total_geral` do ano"
-        )
 
     opcoes_classe = sorted(df["classe"].dropna().unique().tolist())
     y_min, y_max = _year_range(df)
@@ -174,13 +168,6 @@ def render_graficos(df: pd.DataFrame) -> None:
         with tab:
             st.subheader(f"Evolução — {titulo}")
             st.markdown(descricao)
-            with st.expander("Critério / Caminho dos dados"):
-                st.markdown(
-                    "- **Fonte:** `data/processed/acervo/evolucao_acervo.parquet`  \n"
-                    f"- **Métrica:** `{col}`  \n"
-                    "- **Referência:** 31/12 de cada ano  \n"
-                    "- **Marcos:** ER 51/2016, ER 52/2019, ER 53/2020 e ESPIN (2020–2022)"
-                )
             _render_aba_metrica(df, col, label, key_prefix=col)
 
     with tabs[-1]:

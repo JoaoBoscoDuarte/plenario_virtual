@@ -320,13 +320,6 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.subheader(subtitulo)
     st.caption(descricao)
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/sustentacao_oral.parquet`  \n"
-            "- **Coluna-chave:** `teve_sustentacao` (bool)  \n"
-            "- **Período:** 2020–2025  \n"
-            "- **Unidade:** inclusão em pauta"
-        )
 
     if idx == len(_CATALOGO) - 1:  # S9 — tabulador
         _render_tabulador_grafico(df)

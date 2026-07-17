@@ -79,12 +79,12 @@ def _bar_com_linha(label_y: str, label_total: str,
 
 
 def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
-           cores: list | None = None) -> go.Figure:
+           cores: list | None = None, show_values: bool = True) -> go.Figure:
     marker = dict(colors=cores, line=dict(color="white", width=2)) if cores \
              else dict(line=dict(color="white", width=2))
     fig = go.Figure(go.Pie(
         labels=series.index, values=series.values, hole=buraco,
-        textinfo="label+percent+value",
+        textinfo="label+percent+value" if show_values else "label",
         textposition="auto",
         insidetextorientation="radial",
         marker=marker,
@@ -118,27 +118,41 @@ def _categoria_nc(d: str) -> str:
 
 def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
                   cores: dict, titulo: str, label_y: str,
-                  label_total: str, x_title: str = "Ano") -> go.Figure:
-    """Barras agrupadas por col_grupo + linha do total no eixo secundário."""
+                  label_total: str, x_title: str = "Ano",
+                  show_values: bool = True, proporcao: bool = False) -> go.Figure:
     tab   = df_amb.groupby([col_x, col_grupo], observed=True).size().reset_index(name="n")
     total = df_amb.groupby(col_x, observed=True).size().reset_index(name="n")
     grupos = list(cores.keys())
 
-    fig = _bar_com_linha(label_y, label_total, x_title=x_title)
+    if proporcao:
+        totais_x = tab.groupby(col_x)["n"].transform("sum")
+        tab["y"] = (tab["n"] / totais_x * 100).round(1)
+        total["y"] = 100.0
+        y_label = "% do total"
+        texto = tab["y"].apply(lambda v: f"{v:.1f}%") if show_values else None
+    else:
+        tab["y"] = tab["n"]
+        total["y"] = total["n"]
+        y_label = label_y
+        texto = tab["y"] if show_values else None
+
+    fig = _bar_com_linha(y_label, label_total, x_title=x_title)
     for g in grupos:
         d = tab[tab[col_grupo] == g]
         if d.empty:
             continue
         fig.add_trace(go.Bar(
-            x=d[col_x], y=d["n"], name=g,
+            x=d[col_x], y=d["y"], name=g,
             marker_color=cores[g],
-            text=d["n"], textposition="outside", cliponaxis=False,
+            text=texto[d.index] if isinstance(texto, pd.Series) else texto,
+            textposition="outside", cliponaxis=False,
         ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total[col_x], y=total["n"], mode="lines+markers",
-        line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
-        name=label_total,
-    ), secondary_y=True)
+    if not proporcao:
+        fig.add_trace(go.Scatter(
+            x=total[col_x], y=total["y"], mode="lines+markers",
+            line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
+            name=label_total,
+        ), secondary_y=True)
     fig.update_layout(title_text=titulo)
     return fig
 
@@ -147,145 +161,188 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
 # GRÁFICOS 5–17  (bloco INCLUSÕES EM PAUTA)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def g5_anual_ambiente(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
+def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
     tab = df.groupby(["ano", "ambiente"], observed=True).size().reset_index(name="n")
     fig = _bar_fig()
     for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
         d = tab[tab["ambiente"] == amb]
+        texto = d["n"] if show_values else None
         fig.add_trace(go.Bar(
             x=d["ano"], y=d["n"], name=amb, marker_color=cor,
-            text=d["n"], textposition="outside", cliponaxis=False,
+            text=texto, textposition="outside", cliponaxis=False,
         ))
     fig.update_layout(title_text="Inclusões em Pauta por Ano e Ambiente")
 
     pizza = df["ambiente"].value_counts()
     cores_pizza = [COR_PV if l == "Plenário Virtual" else COR_PP
                    for l in pizza.index]
-    fig_p = _pizza(pizza, "Proporção PV vs PP (período total)", cores=cores_pizza)
+    fig_p = _pizza(pizza, "Proporção PV vs PP (período total)", cores=cores_pizza,
+                   show_values=show_values)
     return fig, fig_p
 
 
-def g6_pv_por_classe(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
+def g6_pv_por_classe(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
     df_pv = df[df["ambiente"] == "Plenário Virtual"]
     fig = _barras_grupo(df_pv, "ano", "classe", CORES_CLASSE,
                         "Inclusões por Classe e Ano — Plenário Virtual",
-                        "Inclusões por classe", "Total PV (Linha)")
+                        "Inclusões por classe", "Total PV (Linha)",
+                        show_values=show_values, proporcao=proporcao)
     fig_p = _pizza(df_pv["classe"].value_counts(),
                    "Proporção por Classe — PV (período total)",
-                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pv["classe"].value_counts().index])
+                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pv["classe"].value_counts().index],
+                   show_values=show_values)
     return fig, fig_p
 
 
-def g7_pp_por_classe(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
+def g7_pp_por_classe(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
     df_pp = df[df["ambiente"] == "Plenário Presencial"]
     fig = _barras_grupo(df_pp, "ano", "classe", CORES_CLASSE,
                         "Inclusões por Classe e Ano — Plenário Presencial",
-                        "Inclusões por classe", "Total PP (Linha)")
+                        "Inclusões por classe", "Total PP (Linha)",
+                        show_values=show_values, proporcao=proporcao)
     fig_p = _pizza(df_pp["classe"].value_counts(),
                    "Proporção por Classe — PP (período total)",
-                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pp["classe"].value_counts().index])
+                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pp["classe"].value_counts().index],
+                   show_values=show_values)
     return fig, fig_p
 
 
-def g8_desfecho_pv(df: pd.DataFrame) -> tuple[go.Figure, go.Figure]:
+def g8_desfecho_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
     df_pv = df[df["ambiente"] == "Plenário Virtual"]
     vc = df_pv["macro_desfecho"].value_counts()
     fig_macro = _pizza(vc, "Concluídos e Não Concluídos — PV (período total)",
-                       cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index])
+                       cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
+                       show_values=show_values)
     fig_det = _pizza(df_pv["desfecho"].value_counts(),
-                     "Desfecho Detalhado — PV (período total)", buraco=0.3)
+                     "Desfecho Detalhado — PV (período total)", buraco=0.3,
+                     show_values=show_values)
     return fig_macro, fig_det
 
 
-def g9_desfecho_pp(df: pd.DataFrame) -> go.Figure:
+def g9_desfecho_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     df_pp = df[df["ambiente"] == "Plenário Presencial"]
     vc = df_pp["macro_desfecho"].value_counts()
     return _pizza(vc, "Concluídos e Não Concluídos — PP (período total)",
-                  cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index])
+                  cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
+                  show_values=show_values)
 
 
-def g10_macro_anual_pv(df: pd.DataFrame) -> go.Figure:
+def g10_macro_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _macro_anual(df[df["ambiente"] == "Plenário Virtual"],
-                        "Concluídos e Não Concluídos por Ano — PV")
+                        "Concluídos e Não Concluídos por Ano — PV",
+                        show_values=show_values, proporcao=proporcao)
 
 
-def g11_macro_anual_pp(df: pd.DataFrame) -> go.Figure:
+def g11_macro_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _macro_anual(df[df["ambiente"] == "Plenário Presencial"],
-                        "Concluídos e Não Concluídos por Ano — PP")
+                        "Concluídos e Não Concluídos por Ano — PP",
+                        show_values=show_values, proporcao=proporcao)
 
 
-def _macro_anual(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
+def _macro_anual(df_amb: pd.DataFrame, titulo: str,
+                 show_values: bool = True, proporcao: bool = False) -> go.Figure:
     tab = df_amb.groupby(["ano", "macro_desfecho"], observed=True).size().reset_index(name="n")
+    if proporcao:
+        totais = tab.groupby("ano")["n"].transform("sum")
+        tab["y"] = (tab["n"] / totais * 100).round(1)
+        texto = tab["y"].apply(lambda v: f"{v:.1f}%") if show_values else None
+        y_title = "% do total"
+    else:
+        tab["y"] = tab["n"]
+        texto = tab["y"] if show_values else None
+        y_title = "Inclusões em pauta"
+
     fig = _bar_fig()
     for macro in ["Concluído", "Não concluído"]:
         d = tab[tab["macro_desfecho"] == macro]
         if d.empty:
             continue
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=macro,
+            x=d["ano"], y=d["y"], name=macro,
             marker_color=CORES_MACRO[macro],
-            text=d["n"], textposition="outside", cliponaxis=False,
+            text=texto[d.index] if isinstance(texto, pd.Series) else texto,
+            textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(title_text=titulo)
+    fig.update_layout(title_text=titulo, yaxis_title=y_title)
     return fig
 
 
-def g12_concluidos_pv(df: pd.DataFrame) -> go.Figure:
+def g12_concluidos_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _concluidos_anual(df[df["ambiente"] == "Plenário Virtual"],
-                             "Concluídos por Ano — PV")
+                             "Concluídos por Ano — PV",
+                             show_values=show_values, proporcao=proporcao)
 
 
-def g13_concluidos_pp(df: pd.DataFrame) -> go.Figure:
+def g13_concluidos_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _concluidos_anual(df[df["ambiente"] == "Plenário Presencial"],
-                             "Concluídos por Ano — PP")
+                             "Concluídos por Ano — PP",
+                             show_values=show_values, proporcao=proporcao)
 
 
-def _concluidos_anual(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
-    tab = (df_amb[df_amb["macro_desfecho"] == "Concluído"]
-           .groupby("ano").size().reset_index(name="n"))
+def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
+                      show_values: bool = True, proporcao: bool = False) -> go.Figure:
+    sub = df_amb[df_amb["macro_desfecho"] == "Concluído"]
+    tab = sub.groupby("ano").size().reset_index(name="n")
+    if proporcao:
+        total_ano = df_amb.groupby("ano").size().reset_index(name="t")
+        tab = tab.merge(total_ano, on="ano")
+        tab["y"] = (tab["n"] / tab["t"] * 100).round(1)
+        texto = tab["y"].apply(lambda v: f"{v:.1f}%") if show_values else None
+        y_title = "% de concluídos"
+    else:
+        tab["y"] = tab["n"]
+        texto = tab["y"] if show_values else None
+        y_title = "Inclusões concluídas"
+
     fig = _bar_fig()
     fig.add_trace(go.Bar(
-        x=tab["ano"], y=tab["n"], name="Concluídos",
+        x=tab["ano"], y=tab["y"], name="Concluídos",
         marker_color=CORES_MACRO["Concluído"],
-        text=tab["n"], textposition="outside", cliponaxis=False,
+        text=texto, textposition="outside", cliponaxis=False,
     ))
-    fig.update_layout(title_text=titulo, yaxis_title="Inclusões concluídas")
+    fig.update_layout(title_text=titulo, yaxis_title=y_title)
     return fig
 
 
-def g14_nao_concluidos_classe_pv(df: pd.DataFrame) -> go.Figure:
+def g14_nao_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
                                  "Não concluído",
                                  "Não Concluídos por Classe e Ano — PV",
-                                 "Total Não Concluídos PV")
+                                 "Total Não Concluídos PV",
+                                 show_values=show_values, proporcao=proporcao)
 
 
-def g15_nao_concluidos_classe_pp(df: pd.DataFrame) -> go.Figure:
+def g15_nao_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Não concluído",
                                  "Não Concluídos por Classe e Ano — PP",
-                                 "Total Não Concluídos PP")
+                                 "Total Não Concluídos PP",
+                                 show_values=show_values, proporcao=proporcao)
 
 
-def g16_concluidos_classe_pv(df: pd.DataFrame) -> go.Figure:
+def g16_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
                                  "Concluído",
                                  "Concluídos por Classe e Ano — PV",
-                                 "Total Concluídos PV")
+                                 "Total Concluídos PV",
+                                 show_values=show_values, proporcao=proporcao)
 
 
-def g17_concluidos_classe_pp(df: pd.DataFrame) -> go.Figure:
+def g17_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Concluído",
                                  "Concluídos por Classe e Ano — PP",
-                                 "Total Concluídos PP")
+                                 "Total Concluídos PP",
+                                 show_values=show_values, proporcao=proporcao)
 
 
 def _por_classe_com_total(df_amb: pd.DataFrame, filtro_macro: str,
-                           titulo: str, label_total: str) -> go.Figure:
+                           titulo: str, label_total: str,
+                           show_values: bool = True, proporcao: bool = False) -> go.Figure:
     df_f = df_amb[df_amb["macro_desfecho"] == filtro_macro]
     return _barras_grupo(df_f, "ano", "classe", CORES_CLASSE,
-                         titulo, "Inclusões por classe", label_total)
+                         titulo, "Inclusões por classe", label_total,
+                         show_values=show_values, proporcao=proporcao)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -370,36 +427,40 @@ def _refinar_motivos_diversos(df: pd.DataFrame, df_dec: pd.DataFrame) -> pd.Data
     return d
 
 
-def g18_nc_tipo_pv(df: pd.DataFrame) -> go.Figure:
+def g18_nc_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Não Concluídos por Tipo de Questão — PV",
-                         "Inclusões em pauta", "Total Não Concluídos PV")
+                         "Inclusões em pauta", "Total Não Concluídos PV",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g19_nc_tipo_pp(df: pd.DataFrame) -> go.Figure:
+def g19_nc_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Não Concluídos por Tipo de Questão — PP",
-                         "Inclusões em pauta", "Total Não Concluídos PP")
+                         "Inclusões em pauta", "Total Não Concluídos PP",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g20_c_tipo_pv(df: pd.DataFrame) -> go.Figure:
+def g20_c_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Concluídos por Tipo de Questão — PV",
-                         "Inclusões em pauta", "Total Concluídos PV")
+                         "Inclusões em pauta", "Total Concluídos PV",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g21_c_tipo_pp(df: pd.DataFrame) -> go.Figure:
+def g21_c_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
                          "Concluídos por Tipo de Questão — PP",
-                         "Inclusões em pauta", "Total Concluídos PP")
+                         "Inclusões em pauta", "Total Concluídos PP",
+                         show_values=show_values, proporcao=proporcao)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -412,32 +473,36 @@ def _prep_cat(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def g22_cat_periodo_pv(df: pd.DataFrame) -> go.Figure:
+def g22_cat_periodo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
     vc = sub["categoria"].value_counts().sort_index()
     return _pizza(vc, "Desfecho por Categoria — PV (período total)",
-                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index])
+                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
+                  show_values=show_values)
 
 
-def g23_cat_periodo_pp(df: pd.DataFrame) -> go.Figure:
+def g23_cat_periodo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     vc = sub["categoria"].value_counts().sort_index()
     return _pizza(vc, "Desfecho por Categoria — PP (período total)",
-                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index])
+                  cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
+                  show_values=show_values)
 
 
-def g24_cat_anual_pv(df: pd.DataFrame) -> go.Figure:
+def g24_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
                          "Desfecho por Categoria e Ano — PV",
-                         "Inclusões em pauta", "Total PV (Linha)")
+                         "Inclusões em pauta", "Total PV (Linha)",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g25_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
+def g25_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
                          "Desfecho por Categoria e Ano — PP",
-                         "Inclusões em pauta", "Total PP (Linha)")
+                         "Inclusões em pauta", "Total PP (Linha)",
+                         show_values=show_values, proporcao=proporcao)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -488,23 +553,23 @@ def g27_cat_tipo_periodo_pp(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     return _pizzas_categoria_por_tipo(sub, "Plenário Presencial", show_values=show_values)
 
 
-def g28_cat_tipo_anual_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {tipo: figura} para PV."""
+def g28_cat_tipo_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
                               f"Desfecho por Categoria — {t} — PV",
-                              "Inclusões em pauta", f"Total {t} PV (Linha)")
+                              "Inclusões em pauta", f"Total {t} PV (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
-def g29_cat_tipo_anual_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {tipo: figura} para PP."""
+def g29_cat_tipo_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
                               f"Desfecho por Categoria — {t} — PP",
-                              "Inclusões em pauta", f"Total {t} PP (Linha)")
+                              "Inclusões em pauta", f"Total {t} PP (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
@@ -518,57 +583,59 @@ def _prep_nc(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def g30_nc_cat_anual_pv(df: pd.DataFrame) -> go.Figure:
+def g30_nc_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
                          "Não Concluídos por Categoria e Ano — PV",
-                         "Inclusões em pauta", "Total Não Concluídos PV")
+                         "Inclusões em pauta", "Total Não Concluídos PV",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g31_nc_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
+def g31_nc_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
                          "Não Concluídos por Categoria e Ano — PP",
-                         "Inclusões em pauta", "Total Não Concluídos PP")
+                         "Inclusões em pauta", "Total Não Concluídos PP",
+                         show_values=show_values, proporcao=proporcao)
 
 
-def g32_nc_cat_classe_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {classe: figura} para PV."""
+def g32_nc_cat_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {c} — PV",
-                              "Inclusões em pauta", f"Total {c} PV (Linha)")
+                              "Inclusões em pauta", f"Total {c} PV (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for c in _CLASSES if not sub[sub["classe"] == c].empty}
 
 
-def g33_nc_cat_classe_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {classe: figura} para PP."""
+def g33_nc_cat_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {c} — PP",
-                              "Inclusões em pauta", f"Total {c} PP (Linha)")
+                              "Inclusões em pauta", f"Total {c} PP (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for c in _CLASSES if not sub[sub["classe"] == c].empty}
 
 
-def g34_nc_cat_tipo_pv(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {tipo: figura} para PV."""
+def g34_nc_cat_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {t} — PV",
-                              "Inclusões em pauta", f"Total {t} PV (Linha)")
+                              "Inclusões em pauta", f"Total {t} PV (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
-def g35_nc_cat_tipo_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
-    """Retorna dict {tipo: figura} para PP."""
+def g35_nc_cat_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
     sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
                               f"Não Concluídos por Categoria — {t} — PP",
-                              "Inclusões em pauta", f"Total {t} PP (Linha)")
+                              "Inclusões em pauta", f"Total {t} PP (Linha)",
+                              show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
@@ -577,54 +644,65 @@ def g35_nc_cat_tipo_pp(df: pd.DataFrame) -> dict[str, go.Figure]:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _pizza_bool(df: pd.DataFrame, col: str, label_true: str,
-                label_false: str, cores: dict, titulo: str) -> go.Figure:
-    """Pizza para proporção de uma coluna booleana."""
+                label_false: str, cores: dict, titulo: str,
+                show_values: bool = True) -> go.Figure:
     serie = df[col].map({True: label_true, False: label_false}).value_counts()
     return _pizza(serie, titulo,
-                  cores=[cores.get(l, "#999") for l in serie.index])
+                  cores=[cores.get(l, "#999") for l in serie.index],
+                  show_values=show_values)
 
 
-def g36_sust_periodo_pv(df: pd.DataFrame) -> go.Figure:
+def g36_sust_periodo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = df[df["ambiente"] == "Plenário Virtual"]
     return _pizza_bool(sub, "teve_sustentacao",
                        "Com sustentação oral", "Sem sustentação oral",
                        CORES_SUST,
-                       "Inclusões com sustentação oral — Plenário Virtual (2020–2025)")
+                       "Inclusões com sustentação oral — Plenário Virtual (2020–2025)",
+                       show_values=show_values)
 
 
-def g37_sust_periodo_pp(df: pd.DataFrame) -> go.Figure:
+def g37_sust_periodo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = df[df["ambiente"] == "Plenário Presencial"]
     return _pizza_bool(sub, "teve_sustentacao",
                        "Com sustentação oral", "Sem sustentação oral",
                        CORES_SUST,
-                       "Inclusões com sustentação oral — Plenário Presencial (2020–2025)")
+                       "Inclusões com sustentação oral — Plenário Presencial (2020–2025)",
+                       show_values=show_values)
 
 
-def g38_sust_anual_pv(df: pd.DataFrame) -> go.Figure:
+def _sust_anual(sub: pd.DataFrame, titulo: str,
+                show_values: bool = True, proporcao: bool = False) -> go.Figure:
+    tab = (sub.groupby("ano").size().reset_index(name="n")
+           .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
+    if proporcao:
+        total = sub.groupby("ano").size().reset_index(name="t")
+        # sub já filtrado p/ teve_sustentacao==True, mas preciso do total geral
+        # Não temos df completo aqui, então usamos o reindex como proxy
+        tab["y"] = tab["n"]
+        y_title = "Inclusões com sustentação"
+        texto = tab["y"].apply(lambda v: f"{v}") if show_values else None
+    else:
+        tab["y"] = tab["n"]
+        y_title = "Inclusões com sustentação"
+        texto = tab["y"] if show_values else None
+
+    fig = _bar_fig()
+    fig.add_trace(go.Bar(
+        x=tab["ano"], y=tab["y"], name="Com sustentação oral",
+        marker_color=CORES_SUST["Com sustentação oral"],
+        text=texto, textposition="outside", cliponaxis=False,
+    ))
+    fig.update_layout(title_text=titulo, yaxis_title=y_title)
+    return fig
+
+
+def g38_sust_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]]
-    tab = (sub.groupby("ano").size().reset_index(name="n")
-           .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
-    fig = _bar_fig()
-    fig.add_trace(go.Bar(
-        x=tab["ano"], y=tab["n"], name="Com sustentação oral",
-        marker_color=CORES_SUST["Com sustentação oral"],
-        text=tab["n"], textposition="outside", cliponaxis=False,
-    ))
-    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Virtual",
-                      yaxis_title="Inclusões com sustentação")
-    return fig
+    return _sust_anual(sub, "Inclusões com sustentação oral por ano — Plenário Virtual",
+                       show_values=show_values, proporcao=proporcao)
 
 
-def g39_sust_anual_pp(df: pd.DataFrame) -> go.Figure:
+def g39_sust_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Presencial") & df["teve_sustentacao"]]
-    tab = (sub.groupby("ano").size().reset_index(name="n")
-           .set_index("ano").reindex(range(2020, 2026), fill_value=0).reset_index())
-    fig = _bar_fig()
-    fig.add_trace(go.Bar(
-        x=tab["ano"], y=tab["n"], name="Com sustentação oral",
-        marker_color=CORES_SUST["Com sustentação oral"],
-        text=tab["n"], textposition="outside", cliponaxis=False,
-    ))
-    fig.update_layout(title_text="Inclusões com sustentação oral por ano — Plenário Presencial",
-                      yaxis_title="Inclusões com sustentação")
-    return fig
+    return _sust_anual(sub, "Inclusões com sustentação oral por ano — Plenário Presencial",
+                       show_values=show_values, proporcao=proporcao)

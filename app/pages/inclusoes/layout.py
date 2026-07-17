@@ -288,8 +288,91 @@ _SUMARIO = {
 }
 
 
-def _render(fn, df: pd.DataFrame, show_values: bool | None = None) -> None:
-    result = fn(df) if show_values is None else fn(df, show_values=show_values)
+_TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
+    0: ("ano", "ambiente", None),
+    1: ("ano", "classe", "PV"),
+    2: ("ano", "classe", "PP"),
+    3: ("macro_desfecho", None, "PV"),
+    4: ("macro_desfecho", None, "PP"),
+    5: ("ano", "macro_desfecho", "PV"),
+    6: ("ano", "macro_desfecho", "PP"),
+    7: ("ano", None, "PV"),
+    8: ("ano", None, "PP"),
+    9: ("ano", "classe", "NC_PV"),
+    10: ("ano", "classe", "NC_PP"),
+    11: ("ano", "classe", "C_PV"),
+    12: ("ano", "classe", "C_PP"),
+    13: ("ano", "tipo_questao", "NC_PV"),
+    14: ("ano", "tipo_questao", "NC_PP"),
+    15: ("ano", "tipo_questao", "C_PV"),
+    16: ("ano", "tipo_questao", "C_PP"),
+    17: ("categoria", None, "PV"),
+    18: ("categoria", None, "PP"),
+    19: ("ano", "categoria", "PV"),
+    20: ("ano", "categoria", "PP"),
+    21: ("tipo_questao", "categoria", "PV"),
+    22: ("tipo_questao", "categoria", "PP"),
+    23: ("ano", "categoria", "PV"),
+    24: ("ano", "categoria", "PP"),
+    25: ("ano", "categoria_nc", "PV"),
+    26: ("ano", "categoria_nc", "PP"),
+    27: ("ano", "categoria_nc", "PV"),
+    28: ("ano", "categoria_nc", "PP"),
+    29: ("ano", "categoria_nc", "PV"),
+    30: ("ano", "categoria_nc", "PP"),
+    31: ("teve_sustentacao", None, "PV"),
+    32: ("teve_sustentacao", None, "PP"),
+    33: ("ano", None, "PV"),
+    34: ("ano", None, "PP"),
+}
+
+
+def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None, str | None]) -> pd.DataFrame:
+    col_linha, col_grupo, filtro = spec
+    d = df.copy()
+
+    if filtro == "PV":
+        d = d[d["ambiente"] == "Plenário Virtual"]
+    elif filtro == "PP":
+        d = d[d["ambiente"] == "Plenário Presencial"]
+    elif filtro == "NC_PV":
+        d = d[(d["ambiente"] == "Plenário Virtual") & (d["macro_desfecho"] == "Não concluído")]
+    elif filtro == "NC_PP":
+        d = d[(d["ambiente"] == "Plenário Presencial") & (d["macro_desfecho"] == "Não concluído")]
+    elif filtro == "C_PV":
+        d = d[(d["ambiente"] == "Plenário Virtual") & (d["macro_desfecho"] == "Concluído")]
+    elif filtro == "C_PP":
+        d = d[(d["ambiente"] == "Plenário Presencial") & (d["macro_desfecho"] == "Concluído")]
+
+    if col_grupo:
+        tab = d.groupby([col_linha, col_grupo], observed=True).size().reset_index(name="n")
+        tab = tab.pivot_table(index=col_linha, columns=col_grupo, values="n", fill_value=0)
+        tab["Total"] = tab.sum(axis=1)
+        tab.loc["Total"] = tab.sum()
+        for c in tab.columns:
+            if c != "Total":
+                tab[f"{c} (%)"] = (tab[c] / tab["Total"] * 100).round(1)
+    else:
+        tab = d.groupby(col_linha, observed=True).size().reset_index(name="n")
+        tab.columns = [col_linha, "Total"]
+        tab.loc["Total"] = tab["Total"].sum() if "Total" in tab.columns else tab.iloc[:, 1].sum()
+    return tab
+
+
+def _render_tabela(df: pd.DataFrame, idx: int) -> None:
+    spec = _TABELA_SPECS.get(idx)
+    if spec is None:
+        return
+    with st.expander("📊 Dados da visualização"):
+        tab = _build_tabela(df, spec)
+        st.dataframe(tab.style.format("{:,.0f}", na_rep="—"), width="stretch", height=280)
+
+
+def _render(fn, df: pd.DataFrame, show_values: bool | None = None, proporcao: bool = False) -> None:
+    if show_values is not None:
+        result = fn(df, show_values=show_values, proporcao=proporcao)
+    else:
+        result = fn(df)
     if isinstance(result, dict):
         if not result:
             st.info("Sem dados para exibir.")
@@ -344,8 +427,11 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
             "- **Renomeação:** `IJ` → `QI` (Questão Incidental) apenas na exibição"
         )
 
-    if idx in (21, 22):
+    c1, c2 = st.columns([1, 1])
+    with c1:
         show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
-        _render(fn, df, show_values=show_values)
-    else:
-        _render(fn, df)
+    with c2:
+        proporcao = st.checkbox("Exibir em proporção (%)", value=False, key=f"inc_pct_{idx}")
+
+    _render(fn, df, show_values=show_values, proporcao=proporcao)
+    _render_tabela(df, idx)

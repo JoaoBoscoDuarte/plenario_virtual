@@ -150,7 +150,7 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict[str, Any]:
 
     Uso na página:
         from components.filters import render_sidebar_filters
-        from data.filters import filter_by_values, prepare_class_or_geral
+        from dados.filters import filter_by_values, prepare_class_or_geral
 
         filtros = render_sidebar_filters(df)
 

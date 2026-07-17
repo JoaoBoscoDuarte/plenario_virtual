@@ -14,7 +14,7 @@ _root = _here.parent.parent.parent  # /app
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from data.loader import load_evolucao_acervo
+from dados.loader import load_evolucao_acervo
 from pages.acervo.layout import render_graficos
 
 # ── Dados ────────────────────────────────────────────────────────────────────

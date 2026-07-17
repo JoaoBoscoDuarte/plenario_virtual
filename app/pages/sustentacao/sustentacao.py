@@ -10,7 +10,7 @@ _root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from data.loader import load_sustentacao_oral
+from dados.loader import load_sustentacao_oral
 from pages.sustentacao.layout import render_graficos
 
 try:

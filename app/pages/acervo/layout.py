@@ -233,7 +233,7 @@ def render_graficos(df: pd.DataFrame) -> None:
         if eixo_x == grupo:
             st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
         else:
-            from data.loader import load_inclusoes_em_pauta
+            from dados.loader import load_inclusoes_em_pauta
             df_inc = load_inclusoes_em_pauta()
             st.plotly_chart(
                 gt10_tabulador(df_inc, eixo_x, grupo, metrica, barmode, show_values),

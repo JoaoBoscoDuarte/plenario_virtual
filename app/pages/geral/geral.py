@@ -10,9 +10,9 @@ _root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from data.loader import load_parquet
+from dados.loader import load_parquet
 from components.filters import render_sidebar_filters
-from data.filters import filter_by_values, filter_by_year_range
+from dados.filters import filter_by_values, filter_by_year_range
 from pages.geral.layout import render_metricas, render_timeline
 
 from config import HF_REPO_ID

@@ -422,7 +422,11 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
                            key="inc_amb_classe")
         todas = sorted(df["classe"].dropna().unique())
         sel = st.multiselect("Classes", todas, default=todas, key="inc_cls_filtro")
-        _render(fn, df, show_values=show_values, ambiente=amb, classes=sel)
+        modo = st.selectbox("Conteúdo da pizza", ["Ambos", "Valores", "Percentual"],
+                            index=0, key="inc_pizza_modo")
+        mapa = {"Ambos": "percent+value", "Valores": "value", "Percentual": "percent"}
+        _render(fn, df, show_values=show_values, ambiente=amb, classes=sel,
+                pizza_textinfo=mapa[modo])
         _render_tabela(df, idx)
     else:
         _render(fn, df, show_values=show_values)

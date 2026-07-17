@@ -79,12 +79,15 @@ def _bar_com_linha(label_y: str, label_total: str,
 
 
 def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
-           cores: list | None = None, show_values: bool = True) -> go.Figure:
+           cores: list | None = None, show_values: bool = True,
+           pizza_textinfo: str | None = None) -> go.Figure:
     marker = dict(colors=cores, line=dict(color="white", width=2)) if cores \
              else dict(line=dict(color="white", width=2))
+    ti = pizza_textinfo if pizza_textinfo else ("percent+value" if show_values else "none")
+    ti = "none" if not show_values else ti
     fig = go.Figure(go.Pie(
         labels=series.index, values=series.values, hole=buraco,
-        textinfo="percent+value" if show_values else "none",
+        textinfo=ti,
         textposition="auto",
         insidetextorientation="radial",
         marker=marker,
@@ -183,7 +186,8 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
 
 def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
                         ambiente: str = "Plenário Virtual",
-                        classes: list[str] | None = None) -> tuple[go.Figure, go.Figure]:
+                        classes: list[str] | None = None,
+                        pizza_textinfo: str | None = None) -> tuple[go.Figure, go.Figure]:
     d = df[df["ambiente"] == ambiente]
     if classes:
         d = d[d["classe"].isin(classes)]
@@ -195,7 +199,7 @@ def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
     fig_p = _pizza(d["classe"].value_counts(),
                    f"Proporção por Classe — {rotulo} (período total)",
                    cores=[CORES_CLASSE.get(l, "#999") for l in d["classe"].value_counts().index],
-                   show_values=show_values)
+                   show_values=show_values, pizza_textinfo=pizza_textinfo)
     return fig, fig_p
 
 

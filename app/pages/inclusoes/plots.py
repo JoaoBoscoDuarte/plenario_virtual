@@ -218,16 +218,36 @@ def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
     return fig_macro
 
 
-def g10_macro_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _macro_anual(df[df["ambiente"] == "Plenário Virtual"],
-                        "Concluídos e Não Concluídos por Ano — Plenário Virtual",
+def g10_macro_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                              ambiente: str = "Plenário Virtual") -> go.Figure:
+    return _macro_anual(df[df["ambiente"] == ambiente],
+                        f"Concluídos e Não Concluídos por Ano — {ambiente}",
                         show_values=show_values, proporcao=proporcao)
 
 
-def g11_macro_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _macro_anual(df[df["ambiente"] == "Plenário Presencial"],
-                        "Concluídos e Não Concluídos por Ano — Plenário Presencial",
-                        show_values=show_values, proporcao=proporcao)
+def g12_concluidos_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                             ambiente: str = "Plenário Virtual") -> go.Figure:
+    return _concluidos_anual(df[df["ambiente"] == ambiente],
+                             f"Concluídos por Ano — {ambiente}",
+                             show_values=show_values, proporcao=proporcao)
+
+
+def g14_nao_concluidos_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                                        ambiente: str = "Plenário Virtual") -> go.Figure:
+    return _por_classe_com_total(df[df["ambiente"] == ambiente],
+                                 "Não concluído",
+                                 f"Não Concluídos por Classe e Ano — {ambiente}",
+                                 f"Total Não Concluídos",
+                                 show_values=show_values, proporcao=proporcao)
+
+
+def g16_concluidos_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                                    ambiente: str = "Plenário Virtual") -> go.Figure:
+    return _por_classe_com_total(df[df["ambiente"] == ambiente],
+                                 "Concluído",
+                                 f"Concluídos por Classe e Ano — {ambiente}",
+                                 f"Total Concluídos",
+                                 show_values=show_values, proporcao=proporcao)
 
 
 def _macro_anual(df_amb: pd.DataFrame, titulo: str,
@@ -258,18 +278,6 @@ def _macro_anual(df_amb: pd.DataFrame, titulo: str,
     return fig
 
 
-def g12_concluidos_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _concluidos_anual(df[df["ambiente"] == "Plenário Virtual"],
-                             "Concluídos por Ano — Plenário Virtual",
-                             show_values=show_values, proporcao=proporcao)
-
-
-def g13_concluidos_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _concluidos_anual(df[df["ambiente"] == "Plenário Presencial"],
-                             "Concluídos por Ano — Plenário Presencial",
-                             show_values=show_values, proporcao=proporcao)
-
-
 def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
                       show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = df_amb[df_amb["macro_desfecho"] == "Concluído"]
@@ -293,38 +301,6 @@ def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
     ))
     fig.update_layout(title_text=titulo, yaxis_title=y_title)
     return fig
-
-
-def g14_nao_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
-                                 "Não concluído",
-                                 "Não Concluídos por Classe e Ano — Plenário Virtual",
-                                 "Total Não Concluídos PV",
-                                 show_values=show_values, proporcao=proporcao)
-
-
-def g15_nao_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
-                                 "Não concluído",
-                                 "Não Concluídos por Classe e Ano — Plenário Presencial",
-                                 "Total Não Concluídos PP",
-                                 show_values=show_values, proporcao=proporcao)
-
-
-def g16_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
-                                 "Concluído",
-                                 "Concluídos por Classe e Ano — Plenário Virtual",
-                                 "Total Concluídos PV",
-                                 show_values=show_values, proporcao=proporcao)
-
-
-def g17_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
-                                 "Concluído",
-                                 "Concluídos por Classe e Ano — Plenário Presencial",
-                                 "Total Concluídos PP",
-                                 show_values=show_values, proporcao=proporcao)
 
 
 def _por_classe_com_total(df_amb: pd.DataFrame, filtro_macro: str,

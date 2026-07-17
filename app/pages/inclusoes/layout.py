@@ -5,10 +5,8 @@ import streamlit as st
 import pandas as pd
 from .plots import (
     g5_anual_ambiente, g6_classe_filtravel, g8_desfecho_filtravel,
-    g10_macro_anual_pv, g11_macro_anual_pp,
-    g12_concluidos_pv, g13_concluidos_pp,
-    g14_nao_concluidos_classe_pv, g15_nao_concluidos_classe_pp,
-    g16_concluidos_classe_pv, g17_concluidos_classe_pp,
+    g10_macro_anual_filtravel, g12_concluidos_filtravel,
+    g14_nao_concluidos_classe_filtravel, g16_concluidos_classe_filtravel,
     g18_nc_tipo_pv, g19_nc_tipo_pp, g20_c_tipo_pv, g21_c_tipo_pp,
     g22_cat_periodo_pv, g23_cat_periodo_pp,
     g24_cat_anual_pv, g25_cat_anual_pp,
@@ -49,52 +47,28 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
         g8_desfecho_filtravel,
     ),
     (
-        "G10 — Concluídos e Não Concluídos por Ano — Plenário Virtual",
-        "Macro-Desfecho Anual — Plenário Virtual",
-        "Evolução anual do volume de inclusões concluídas e não concluídas no Plenário Virtual.",
-        g10_macro_anual_pv,
+        "G10 — Macro-Desfecho Anual (Plenário Virtual e Plenário Presencial)",
+        "Macro-Desfecho Anual",
+        "Evolução anual do volume de inclusões concluídas e não concluídas. Selecione o âmbito.",
+        g10_macro_anual_filtravel,
     ),
     (
-        "G11 — Concluídos e Não Concluídos por Ano — Plenário Presencial",
-        "Macro-Desfecho Anual — Plenário Presencial",
-        "Evolução anual do volume de inclusões concluídas e não concluídas no Plenário Presencial.",
-        g11_macro_anual_pp,
+        "G12 — Concluídos por Ano (Plenário Virtual e Plenário Presencial)",
+        "Inclusões Concluídas por Ano",
+        "Fluxo anual de inclusões com desfecho concluído. Selecione o âmbito.",
+        g12_concluidos_filtravel,
     ),
     (
-        "G12 — Concluídos por Ano — Plenário Virtual",
-        "Inclusões Concluídas por Ano — Plenário Virtual",
-        "Fluxo anual de inclusões com desfecho concluído no Plenário Virtual, excluindo não concluídos.",
-        g12_concluidos_pv,
+        "G14 — Não Concluídos por Classe (Plenário Virtual e Plenário Presencial)",
+        "Não Concluídos por Classe",
+        "Barras por classe com linha do total de não concluídos. Selecione o âmbito.",
+        g14_nao_concluidos_classe_filtravel,
     ),
     (
-        "G13 — Concluídos por Ano — Plenário Presencial",
-        "Inclusões Concluídas por Ano — Plenário Presencial",
-        "Fluxo anual de inclusões com desfecho concluído no Plenário Presencial.",
-        g13_concluidos_pp,
-    ),
-    (
-        "G14 — Não Concluídos por Classe e Ano — Plenário Virtual",
-        "Não Concluídos por Classe — Plenário Virtual",
-        "Barras por classe com linha do total de não concluídos no Plenário Virtual.",
-        g14_nao_concluidos_classe_pv,
-    ),
-    (
-        "G15 — Não Concluídos por Classe e Ano — Plenário Presencial",
-        "Não Concluídos por Classe — Plenário Presencial",
-        "Barras por classe com linha do total de não concluídos no Plenário Presencial.",
-        g15_nao_concluidos_classe_pp,
-    ),
-    (
-        "G16 — Concluídos por Classe e Ano — Plenário Virtual",
-        "Concluídos por Classe — Plenário Virtual",
-        "Barras por classe com linha do total de concluídos no Plenário Virtual.",
-        g16_concluidos_classe_pv,
-    ),
-    (
-        "G17 — Concluídos por Classe e Ano — Plenário Presencial",
-        "Concluídos por Classe — Plenário Presencial",
-        "Barras por classe com linha do total de concluídos no Plenário Presencial.",
-        g17_concluidos_classe_pp,
+        "G16 — Concluídos por Classe (Plenário Virtual e Plenário Presencial)",
+        "Concluídos por Classe",
+        "Barras por classe com linha do total de concluídos. Selecione o âmbito.",
+        g16_concluidos_classe_filtravel,
     ),
     # ── Tipo de Questão ───────────────────────────────────────────────────────
     (
@@ -281,35 +255,31 @@ _TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
     1: ("ano", "classe", "PV"),
     2: ("macro_desfecho", None, "PV"),
     3: ("ano", "macro_desfecho", "PV"),
-    4: ("ano", "macro_desfecho", "PP"),
-    5: ("ano", None, "PV"),
-    6: ("ano", None, "PP"),
-    7: ("ano", "classe", "NC_PV"),
-    8: ("ano", "classe", "NC_PP"),
-    9: ("ano", "classe", "C_PV"),
-    10: ("ano", "classe", "C_PP"),
-    11: ("ano", "tipo_questao", "NC_PV"),
-    12: ("ano", "tipo_questao", "NC_PP"),
-    13: ("ano", "tipo_questao", "C_PV"),
-    14: ("ano", "tipo_questao", "C_PP"),
-    15: ("categoria", None, "PV"),
-    16: ("categoria", None, "PP"),
+    4: ("ano", None, "PV"),
+    5: ("ano", "classe", "NC_PV"),
+    6: ("ano", "classe", "C_PV"),
+    7: ("ano", "tipo_questao", "NC_PV"),
+    8: ("ano", "tipo_questao", "NC_PP"),
+    9: ("ano", "tipo_questao", "C_PV"),
+    10: ("ano", "tipo_questao", "C_PP"),
+    11: ("categoria", None, "PV"),
+    12: ("categoria", None, "PP"),
+    13: ("ano", "categoria", "PV"),
+    14: ("ano", "categoria", "PP"),
+    15: ("tipo_questao", "categoria", "PV"),
+    16: ("tipo_questao", "categoria", "PP"),
     17: ("ano", "categoria", "PV"),
     18: ("ano", "categoria", "PP"),
-    19: ("tipo_questao", "categoria", "PV"),
-    20: ("tipo_questao", "categoria", "PP"),
-    21: ("ano", "categoria", "PV"),
-    22: ("ano", "categoria", "PP"),
+    19: ("ano", "categoria_nc", "PV"),
+    20: ("ano", "categoria_nc", "PP"),
+    21: ("ano", "categoria_nc", "PV"),
+    22: ("ano", "categoria_nc", "PP"),
     23: ("ano", "categoria_nc", "PV"),
     24: ("ano", "categoria_nc", "PP"),
-    25: ("ano", "categoria_nc", "PV"),
-    26: ("ano", "categoria_nc", "PP"),
-    27: ("ano", "categoria_nc", "PV"),
-    28: ("ano", "categoria_nc", "PP"),
-    29: ("teve_sustentacao", None, "PV"),
-    30: ("teve_sustentacao", None, "PP"),
-    31: ("ano", None, "PV"),
-    32: ("ano", None, "PP"),
+    25: ("teve_sustentacao", None, "PV"),
+    26: ("teve_sustentacao", None, "PP"),
+    27: ("ano", None, "PV"),
+    28: ("ano", None, "PP"),
 }
 
 
@@ -421,7 +391,6 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
         mapa = {"Ambos": "percent+value", "Valores": "value", "Percentual": "percent"}
         _render(fn, df, show_values=show_values, ambiente=amb, classes=sel,
                 pizza_textinfo=mapa[modo])
-        _render_tabela(df, idx)
     elif idx == 2:
         amb = st.selectbox("Âmbito", ["Plenário Virtual", "Plenário Presencial"],
                            key="inc_amb_desfecho")
@@ -430,7 +399,10 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
         mapa = {"Ambos": "percent+value", "Valores": "value", "Percentual": "percent"}
         _render(fn, df, show_values=show_values, ambiente=amb,
                 pizza_textinfo=mapa[modo])
-        _render_tabela(df, idx)
+    elif idx in (3, 4, 5, 6):
+        amb = st.selectbox("Âmbito", ["Plenário Virtual", "Plenário Presencial"],
+                           key=f"inc_amb_{idx}")
+        _render(fn, df, show_values=show_values, ambiente=amb)
     else:
         _render(fn, df, show_values=show_values)
-        _render_tabela(df, idx)
+    _render_tabela(df, idx)

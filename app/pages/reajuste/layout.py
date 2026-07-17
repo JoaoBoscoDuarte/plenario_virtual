@@ -18,6 +18,7 @@ _PREDEFINIDOS_REAJ = [
     ("Classe × Reajuste (inclusões, empilhado 100%)", "classe",       "teve_reajuste",  "inclusoes", "100%"),
     ("Tipo de Questão × Reajuste (inclusões)",        "tipo_questao", "teve_reajuste",  "inclusoes", "group"),
     ("Macro-Desfecho × Reajuste (inclusões)",         "macro_desfecho", "teve_reajuste", "inclusoes", "group"),
+    ("Desfecho Detalhado × Reajuste (inclusões)",     "desfecho",       "teve_reajuste",  "inclusoes", "group"),
 ]
 _LABELS_PRE_REAJ = [p[0] for p in _PREDEFINIDOS_REAJ]
 
@@ -307,7 +308,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     with c1:
         eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="reaj_tab_x")
     with c2:
-        grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="reaj_tab_g")
+        eixo_y_lbl  = st.selectbox("Eixo Y", _DIMS_LABEL, index=def_g, key="reaj_tab_y")
     with c3:
         metrica = st.selectbox(
             "Métrica", ["inclusoes", "processos"], index=def_m, key="reaj_tab_m",
@@ -322,12 +323,12 @@ def render_graficos(df: pd.DataFrame) -> None:
         show_values_tab = st.checkbox("Exibir valores", value=False, key="reaj_tab_sv")
 
     eixo_x = DIMENSOES[eixo_x_lbl]
-    grupo  = DIMENSOES[grupo_lbl]
+    eixo_y  = DIMENSOES[eixo_y_lbl]
 
-    if eixo_x == grupo:
-        st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
+    if eixo_x == eixo_y:
+        st.warning("Eixo X e Eixo Y não podem ser a mesma dimensão.")
     else:
         st.plotly_chart(
-            gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values_tab),
+            gt10_tabulador(df, eixo_x, eixo_y, metrica, barmode, show_values_tab),
             width="stretch",
         )

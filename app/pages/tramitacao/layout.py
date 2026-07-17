@@ -233,7 +233,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.markdown(descricao)
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_com_pauta.parquet`  \n"
+            "- **Fonte:** `data/processed/tramitacoes.parquet`  \n"
             f"- **Unidade:** {unidade}  \n"
             "- **Período:** 2020–2025"
         )
@@ -250,7 +250,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.caption("Um registro por processo com o total de inclusões em cada ambiente.")
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_com_pauta.parquet`  \n"
+            "- **Fonte:** `data/processed/tramitacoes.parquet`  \n"
             "- **Unidade:** processo (incidente único)  \n"
             "- **Período:** 2020–2025"
         )

@@ -36,7 +36,11 @@ FILES = [
     ("acervo/evolucao_acervo.parquet", "processed/acervo/evolucao_acervo.parquet"),
     # Inclusões em pauta
     ("inclusoes_em_pauta.parquet",  "processed/inclusoes_em_pauta.parquet"),
-    ("inclusoes_com_pauta.parquet", "processed/inclusoes_com_pauta.parquet"),
+    # inclusoes_com_pauta.parquet NÃO deve ser publicado no HF (uso local apenas)
+    ("reajustes_de_voto.parquet",   "processed/reajustes_de_voto.parquet"),
+    ("sessoes_virtuais.parquet",    "processed/sessoes_virtuais.parquet"),
+    ("sustentacao_oral.parquet",    "processed/sustentacao_oral.parquet"),
+    ("tramitacoes.parquet",         "processed/tramitacoes.parquet"),
 ]
 
 # Diretório padrão dos parquets — relativo à raiz do projeto (pai de scripts/)

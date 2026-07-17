@@ -10,11 +10,11 @@ _root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from data.loader import load_inclusoes_com_pauta
+from data.loader import load_tramitacoes
 from pages.tramitacao.layout import render_graficos
 
 try:
-    df = load_inclusoes_com_pauta()
+    df = load_tramitacoes()
 except Exception as e:
     st.error(f"Erro ao carregar dataset: {e}")
     st.stop()

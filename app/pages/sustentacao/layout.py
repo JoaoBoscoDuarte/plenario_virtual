@@ -322,7 +322,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.caption(descricao)
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
+            "- **Fonte:** `data/processed/sustentacao_oral.parquet`  \n"
             "- **Coluna-chave:** `teve_sustentacao` (bool)  \n"
             "- **Período:** 2020–2025  \n"
             "- **Unidade:** inclusão em pauta"

@@ -260,7 +260,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     st.caption(descricao)
     with st.expander("Critério / Caminho dos dados"):
         st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_com_pauta.parquet`  \n"
+            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
             "- **Unidade:** inclusão em pauta  \n"
             "- **Período:** 2020–2025"
         )

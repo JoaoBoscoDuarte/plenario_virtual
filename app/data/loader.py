@@ -99,6 +99,21 @@ def load_inclusoes_em_pauta() -> pd.DataFrame:
     return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])
 
 
-def load_inclusoes_com_pauta() -> pd.DataFrame:
-    """Carrega o dataset de inclusões em pauta com coluna teve_reajuste."""
-    return load_parquet(HF_REPO_ID, HF_FILES["inclusoes_com_pauta"])
+def load_sustentacao_oral() -> pd.DataFrame:
+    """Carrega o dataset de inclusões com marcação de sustentação oral."""
+    return load_parquet(HF_REPO_ID, HF_FILES["sustentacao_oral"])
+
+
+def load_tramitacoes() -> pd.DataFrame:
+    """Carrega o dataset de inclusões com tramitação por ambiente (PV/PP/ambos)."""
+    return load_parquet(HF_REPO_ID, HF_FILES["tramitacoes"])
+
+
+def load_reajustes_de_voto() -> pd.DataFrame:
+    """Carrega os andamentos de reajuste de voto (nível evento)."""
+    return load_parquet(HF_REPO_ID, HF_FILES["reajustes_de_voto"])
+
+
+def load_sessoes_virtuais() -> pd.DataFrame:
+    """Carrega o dataset de sessões virtuais."""
+    return load_parquet(HF_REPO_ID, HF_FILES["sessoes_virtuais"])

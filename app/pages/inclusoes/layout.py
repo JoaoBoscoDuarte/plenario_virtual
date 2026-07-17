@@ -351,7 +351,9 @@ def _render_tabela(df: pd.DataFrame, idx: int) -> None:
         return
     with st.expander("📊 Dados da visualização"):
         tab = _build_tabela(df, spec)
-        st.dataframe(tab.style.format("{:,.0f}", na_rep="—"), width="stretch", height=280)
+        _sub = {c: "{:,.0f}" for c in tab.columns
+                if not c.endswith("(%)") and tab[c].dtype.kind in "iuf"}
+        st.dataframe(tab.style.format(_sub, na_rep="—"), width="stretch", height=280)
 
 
 def _render(fn, df: pd.DataFrame, show_values: bool | None = None, proporcao: bool = False,

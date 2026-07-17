@@ -34,40 +34,40 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True):
 
 _CATAlOGO_TEMP = [
     (
-        "R1 — Proporção com/sem reajuste — PV (período total)",
+        "R1 — Proporção com/sem reajuste — Plenário Virtual (período total)",
         "Reajuste de Voto — Plenário Virtual (período total)",
         "Pizza com a proporção de inclusões que tiveram ao menos um reajuste de voto "
         "no Plenário Virtual ao longo de todo o período (2020–2025).",
         gr1_pizza_pv,
     ),
     (
-        "R2 — Proporção com/sem reajuste — PP (período total)",
+        "R2 — Proporção com/sem reajuste — Plenário Presencial (período total)",
         "Reajuste de Voto — Plenário Presencial (período total)",
         "Mesmo recorte do R1 para o Plenário Presencial.",
         gr2_pizza_pp,
     ),
     (
-        "R3 — Reajustes por Ano — PV",
+        "R3 — Reajustes por Ano — Plenário Virtual",
         "Reajuste de Voto por Ano — Plenário Virtual",
-        "Volume anual de inclusões em pauta que registraram reajuste de voto no PV. "
+        "Volume anual de inclusões em pauta que registraram reajuste de voto no Plenário Virtual. "
         "Anos sem ocorrência aparecem com valor zero.",
         gr3_anual_pv,
     ),
     (
-        "R4 — Reajustes por Ano — PP",
+        "R4 — Reajustes por Ano — Plenário Presencial",
         "Reajuste de Voto por Ano — Plenário Presencial",
         "Mesmo recorte do R3 para o Plenário Presencial.",
         gr4_anual_pp,
     ),
     (
-        "R5 — Reajustes por Ano e Classe — PV",
+        "R5 — Reajustes por Ano e Classe — Plenário Virtual",
         "Reajuste de Voto por Ano e Classe — Plenário Virtual",
         "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) mostrando o volume anual "
         "de reajustes de voto no PV.",
         gr5_classe_pv,
     ),
     (
-        "R6 — Reajustes por Ano e Classe — PP",
+        "R6 — Reajustes por Ano e Classe — Plenário Presencial",
         "Reajuste de Voto por Ano e Classe — Plenário Presencial",
         "Mesmo recorte do R5 para o Plenário Presencial.",
         gr6_classe_pp,
@@ -99,16 +99,16 @@ _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
     "Período total (R1–R2)": [
-        "R1 — proporção com/sem reajuste — PV",
-        "R2 — proporção com/sem reajuste — PP",
+        "R1 — proporção com/sem reajuste — Plenário Virtual",
+        "R2 — proporção com/sem reajuste — Plenário Presencial",
     ],
     "Evolução anual (R3–R4)": [
-        "R3 — volume de reajustes por ano — PV",
-        "R4 — volume de reajustes por ano — PP",
+        "R3 — volume de reajustes por ano — Plenário Virtual",
+        "R4 — volume de reajustes por ano — Plenário Presencial",
     ],
     "Por classe (R5–R6)": [
-        "R5 — reajustes por ano e classe — PV",
-        "R6 — reajustes por ano e classe — PP",
+        "R5 — reajustes por ano e classe — Plenário Virtual",
+        "R6 — reajustes por ano e classe — Plenário Presencial",
     ],
     "Distribuição (R7–R8)": [
         "R7 — reajuste por tipo de questão",
@@ -127,7 +127,7 @@ def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
     for ano in sorted(df["ano"].unique()):
         df_ano = df[df["ano"] == ano]
         row: dict = {"Ano": int(ano)}
-        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Presencial")]:
+        for amb_label, amb_key in [("Plenário Virtual", "Plenário Virtual"), ("Plenário Presencial", "Plenário Presencial")]:
             df_amb = df_ano[df_ano["ambiente"] == amb_key]
             total = len(df_amb)
             com   = int(df_amb["teve_reajuste"].sum())
@@ -168,18 +168,18 @@ def _render_tabulador(df: pd.DataFrame) -> None:
         )
     with col_c:
         ambientes_sel = st.multiselect(
-            "Ambientes", ["PV", "PP"], default=["PV", "PP"], key="rtab_amb",
+            "Ambientes", ["Plenário Virtual", "Plenário Presencial"],
+            default=["Plenário Virtual", "Plenário Presencial"], key="rtab_amb",
         )
 
     ai, af   = periodo
     sel_cls  = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
-    sel_amb  = ambientes_sel if ambientes_sel else ["PV", "PP"]
-    amb_map  = {"PV": "Plenário Virtual", "PP": "Plenário Presencial"}
+    sel_amb  = ambientes_sel if ambientes_sel else ["Plenário Virtual", "Plenário Presencial"]
 
     df_f = df[
         df["ano"].between(ai, af) &
         df["classe"].isin(sel_cls) &
-        df["ambiente"].isin([amb_map[a] for a in sel_amb])
+        df["ambiente"].isin(sel_amb)
     ]
 
     tabela = _build_tabulador(df_f)

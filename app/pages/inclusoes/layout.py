@@ -27,217 +27,217 @@ from .plots import (
 _CATALOGO: list[tuple[str, str, str, object]] = [
     # ── Inclusões em Pauta ────────────────────────────────────────────────────
     (
-        "G5 — Inclusões por Ano e Ambiente (PV vs PP)",
+        "G5 — Inclusões por Ano e Ambiente (Plenário Virtual vs Plenário Presencial)",
         "Inclusões em Pauta por Ano e Ambiente",
         "Comparação anual do volume de inclusões em pauta entre o Plenário Virtual e o Plenário Presencial. "
         "Inclui pizza com a proporção acumulada no período.",
         g5_anual_ambiente,
     ),
     (
-        "G6 — Inclusões por Classe (PV e PP)",
+        "G6 — Inclusões por Classe (Plenário Virtual e Plenário Presencial)",
         "Inclusões por Classe",
         "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total geral no eixo secundário. "
-        "Selecione o âmbito (PV/PP) e filtre as classes desejadas. "
+        "Selecione o âmbito (Plenário Virtual / Plenário Presencial) e filtre as classes desejadas. "
         "Inclui pizza com a distribuição por classe no período.",
         g6_classe_filtravel,
     ),
     (
-        "G8 — Desfecho Geral (PV e PP)",
+        "G8 — Desfecho Geral (Plenário Virtual e Plenário Presencial)",
         "Desfecho Geral",
         "Pizza com a proporção de concluídos e não concluídos, mais desfecho detalhado (PV) "
-        "ou apenas macro (PP). Selecione o âmbito.",
+        "ou apenas macro (Plenário Presencial). Selecione o âmbito.",
         g8_desfecho_filtravel,
     ),
     (
-        "G10 — Concluídos e Não Concluídos por Ano — PV",
+        "G10 — Concluídos e Não Concluídos por Ano — Plenário Virtual",
         "Macro-Desfecho Anual — Plenário Virtual",
-        "Evolução anual do volume de inclusões concluídas e não concluídas no PV.",
+        "Evolução anual do volume de inclusões concluídas e não concluídas no Plenário Virtual.",
         g10_macro_anual_pv,
     ),
     (
-        "G11 — Concluídos e Não Concluídos por Ano — PP",
+        "G11 — Concluídos e Não Concluídos por Ano — Plenário Presencial",
         "Macro-Desfecho Anual — Plenário Presencial",
-        "Evolução anual do volume de inclusões concluídas e não concluídas no PP.",
+        "Evolução anual do volume de inclusões concluídas e não concluídas no Plenário Presencial.",
         g11_macro_anual_pp,
     ),
     (
-        "G12 — Concluídos por Ano — PV",
+        "G12 — Concluídos por Ano — Plenário Virtual",
         "Inclusões Concluídas por Ano — Plenário Virtual",
-        "Fluxo anual de inclusões com desfecho concluído no PV, excluindo não concluídos.",
+        "Fluxo anual de inclusões com desfecho concluído no Plenário Virtual, excluindo não concluídos.",
         g12_concluidos_pv,
     ),
     (
-        "G13 — Concluídos por Ano — PP",
+        "G13 — Concluídos por Ano — Plenário Presencial",
         "Inclusões Concluídas por Ano — Plenário Presencial",
-        "Fluxo anual de inclusões com desfecho concluído no PP.",
+        "Fluxo anual de inclusões com desfecho concluído no Plenário Presencial.",
         g13_concluidos_pp,
     ),
     (
-        "G14 — Não Concluídos por Classe e Ano — PV",
+        "G14 — Não Concluídos por Classe e Ano — Plenário Virtual",
         "Não Concluídos por Classe — Plenário Virtual",
-        "Barras por classe com linha do total de não concluídos no PV.",
+        "Barras por classe com linha do total de não concluídos no Plenário Virtual.",
         g14_nao_concluidos_classe_pv,
     ),
     (
-        "G15 — Não Concluídos por Classe e Ano — PP",
+        "G15 — Não Concluídos por Classe e Ano — Plenário Presencial",
         "Não Concluídos por Classe — Plenário Presencial",
-        "Barras por classe com linha do total de não concluídos no PP.",
+        "Barras por classe com linha do total de não concluídos no Plenário Presencial.",
         g15_nao_concluidos_classe_pp,
     ),
     (
-        "G16 — Concluídos por Classe e Ano — PV",
+        "G16 — Concluídos por Classe e Ano — Plenário Virtual",
         "Concluídos por Classe — Plenário Virtual",
-        "Barras por classe com linha do total de concluídos no PV.",
+        "Barras por classe com linha do total de concluídos no Plenário Virtual.",
         g16_concluidos_classe_pv,
     ),
     (
-        "G17 — Concluídos por Classe e Ano — PP",
+        "G17 — Concluídos por Classe e Ano — Plenário Presencial",
         "Concluídos por Classe — Plenário Presencial",
-        "Barras por classe com linha do total de concluídos no PP.",
+        "Barras por classe com linha do total de concluídos no Plenário Presencial.",
         g17_concluidos_classe_pp,
     ),
     # ── Tipo de Questão ───────────────────────────────────────────────────────
     (
-        "G18 — Não Concluídos por Tipo de Questão — PV",
+        "G18 — Não Concluídos por Tipo de Questão — Plenário Virtual",
         "Não Concluídos por Tipo de Questão — Plenário Virtual",
-        "Barras por tipo de questão (PR / RC / QI) com linha do total de não concluídos no PV. "
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de não concluídos no Plenário Virtual. "
         "IJ renomeado para QI na exibição.",
         g18_nc_tipo_pv,
     ),
     (
-        "G19 — Não Concluídos por Tipo de Questão — PP",
+        "G19 — Não Concluídos por Tipo de Questão — Plenário Presencial",
         "Não Concluídos por Tipo de Questão — Plenário Presencial",
         "Mesmo recorte do G18 para o Plenário Presencial.",
         g19_nc_tipo_pp,
     ),
     (
-        "G20 — Concluídos por Tipo de Questão — PV",
+        "G20 — Concluídos por Tipo de Questão — Plenário Virtual",
         "Concluídos por Tipo de Questão — Plenário Virtual",
-        "Barras por tipo de questão (PR / RC / QI) com linha do total de concluídos no PV.",
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de concluídos no Plenário Virtual.",
         g20_c_tipo_pv,
     ),
     (
-        "G21 — Concluídos por Tipo de Questão — PP",
+        "G21 — Concluídos por Tipo de Questão — Plenário Presencial",
         "Concluídos por Tipo de Questão — Plenário Presencial",
         "Mesmo recorte do G20 para o Plenário Presencial.",
         g21_c_tipo_pp,
     ),
     # ── Desfecho Concluído por Categoria ─────────────────────────────────────
     (
-        "G22 — Categoria de Desfecho — PV (período total)",
+        "G22 — Categoria de Desfecho — Plenário Virtual (período total)",
         "Categoria de Desfecho — Plenário Virtual (período total)",
         "Pizza com as 4 categorias: Unânime, Maioria (relator vencedor), Maioria (relator vencido) "
         "e Não concluído (bloco agregado).",
         g22_cat_periodo_pv,
     ),
     (
-        "G23 — Categoria de Desfecho — PP (período total)",
+        "G23 — Categoria de Desfecho — Plenário Presencial (período total)",
         "Categoria de Desfecho — Plenário Presencial (período total)",
         "Mesmo recorte do G22 para o Plenário Presencial.",
         g23_cat_periodo_pp,
     ),
     (
-        "G24 — Categoria de Desfecho por Ano — PV",
+        "G24 — Categoria de Desfecho por Ano — Plenário Virtual",
         "Categoria de Desfecho por Ano — Plenário Virtual",
-        "Evolução anual das 4 categorias de desfecho no PV.",
+        "Evolução anual das 4 categorias de desfecho no Plenário Virtual.",
         g24_cat_anual_pv,
     ),
     (
-        "G25 — Categoria de Desfecho por Ano — PP",
+        "G25 — Categoria de Desfecho por Ano — Plenário Presencial",
         "Categoria de Desfecho por Ano — Plenário Presencial",
-        "Evolução anual das 4 categorias de desfecho no PP.",
+        "Evolução anual das 4 categorias de desfecho no Plenário Presencial.",
         g25_cat_anual_pp,
     ),
     (
-        "G26 — Categoria × Tipo de Questão — PV (período total)",
+        "G26 — Categoria × Tipo de Questão — Plenário Virtual (período total)",
         "Categoria de Desfecho por Tipo de Questão — Plenário Virtual",
         "Uma pizza por tipo de questão (PR/RC/QI) com as 4 categorias de desfecho. Período total, PV. "
         "Processos sem tipo de questão classificados como PR. "
-        "PP: 'motivos diversos' refinado em subcategorias.",
+        "Plenário Presencial: 'motivos diversos' refinado em subcategorias.",
         g26_cat_tipo_periodo_pv,
     ),
     (
-        "G27 — Categoria × Tipo de Questão — PP (período total)",
+        "G27 — Categoria × Tipo de Questão — Plenário Presencial (período total)",
         "Categoria de Desfecho por Tipo de Questão — Plenário Presencial",
         "Mesmo recorte do G26 para o Plenário Presencial.",
         g27_cat_tipo_periodo_pp,
     ),
     (
-        "G28 — Categoria × Tipo de Questão por Ano — PV",
+        "G28 — Categoria × Tipo de Questão por Ano — Plenário Virtual",
         "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Virtual",
-        "Um gráfico por tipo de questão (PR, RC, QI) mostrando a evolução anual das categorias no PV. "
+        "Um gráfico por tipo de questão (PR, RC, QI) mostrando a evolução anual das categorias no Plenário Virtual. "
         "Selecione o tipo na sub-aba.",
         g28_cat_tipo_anual_pv,
     ),
     (
-        "G29 — Categoria × Tipo de Questão por Ano — PP",
+        "G29 — Categoria × Tipo de Questão por Ano — Plenário Presencial",
         "Categoria de Desfecho por Tipo de Questão e Ano — Plenário Presencial",
         "Mesmo recorte do G28 para o Plenário Presencial.",
         g29_cat_tipo_anual_pp,
     ),
     # ── Desfecho Não Concluído por Categoria ──────────────────────────────────
     (
-        "G30 — Não Concluídos por Categoria e Ano — PV",
+        "G30 — Não Concluídos por Categoria e Ano — Plenário Virtual",
         "Não Concluídos por Categoria — Plenário Virtual",
         "Evolução anual das 4 categorias de não conclusão: Pedido de vista, Destaque, "
         "Retirado de pauta e Motivos diversos. PV.",
         g30_nc_cat_anual_pv,
     ),
     (
-        "G31 — Não Concluídos por Categoria e Ano — PP",
+        "G31 — Não Concluídos por Categoria e Ano — Plenário Presencial",
         "Não Concluídos por Categoria — Plenário Presencial",
         "Mesmo recorte do G30 para o PP. Destaque = 0 no Plenário Presencial.",
         g31_nc_cat_anual_pp,
     ),
     (
-        "G32 — Não Concluídos por Categoria e Classe — PV",
+        "G32 — Não Concluídos por Categoria e Classe — Plenário Virtual",
         "Não Concluídos por Categoria e Classe — Plenário Virtual",
-        "Um gráfico por classe (ADI, ADPF, ADC, ADO) com as categorias de não conclusão no PV. "
+        "Um gráfico por classe (ADI, ADPF, ADC, ADO) com as categorias de não conclusão no Plenário Virtual. "
         "Selecione a classe na sub-aba.",
         g32_nc_cat_classe_pv,
     ),
     (
-        "G33 — Não Concluídos por Categoria e Classe — PP",
+        "G33 — Não Concluídos por Categoria e Classe — Plenário Presencial",
         "Não Concluídos por Categoria e Classe — Plenário Presencial",
         "Mesmo recorte do G32 para o PP.",
         g33_nc_cat_classe_pp,
     ),
     (
-        "G34 — Não Concluídos por Categoria e Tipo — PV",
+        "G34 — Não Concluídos por Categoria e Tipo — Plenário Virtual",
         "Não Concluídos por Categoria e Tipo de Questão — Plenário Virtual",
-        "Um gráfico por tipo de questão (PR, RC, QI) com as categorias de não conclusão no PV. "
+        "Um gráfico por tipo de questão (PR, RC, QI) com as categorias de não conclusão no Plenário Virtual. "
         "Selecione o tipo na sub-aba.",
         g34_nc_cat_tipo_pv,
     ),
     (
-        "G35 — Não Concluídos por Categoria e Tipo — PP",
+        "G35 — Não Concluídos por Categoria e Tipo — Plenário Presencial",
         "Não Concluídos por Categoria e Tipo de Questão — Plenário Presencial",
         "Mesmo recorte do G34 para o PP.",
         g35_nc_cat_tipo_pp,
     ),
     # ── Sustentação Oral ──────────────────────────────────────────────────────
     (
-        "G36 — Sustentação Oral — Período — PV",
+        "G36 — Sustentação Oral — Período — Plenário Virtual",
         "Sustentação Oral — Plenário Virtual (período total)",
-        "Pizza com a proporção de inclusões com e sem sustentação oral no PV ao longo de todo o período.",
+        "Pizza com a proporção de inclusões com e sem sustentação oral no Plenário Virtual ao longo de todo o período.",
         g36_sust_periodo_pv,
     ),
     (
-        "G37 — Sustentação Oral — Período — PP",
+        "G37 — Sustentação Oral — Período — Plenário Presencial",
         "Sustentação Oral — Plenário Presencial (período total)",
-        "Pizza com a proporção de inclusões com e sem sustentação oral no PP ao longo de todo o período.",
+        "Pizza com a proporção de inclusões com e sem sustentação oral no Plenário Presencial ao longo de todo o período.",
         g37_sust_periodo_pp,
     ),
     (
-        "G38 — Sustentação Oral — Anual — PV",
+        "G38 — Sustentação Oral — Anual — Plenário Virtual",
         "Sustentação Oral por Ano — Plenário Virtual",
-        "Contagem anual de inclusões com sustentação oral realizada no PV (2020–2025).",
+        "Contagem anual de inclusões com sustentação oral realizada no Plenário Virtual (2020–2025).",
         g38_sust_anual_pv,
     ),
     (
-        "G39 — Sustentação Oral — Anual — PP",
+        "G39 — Sustentação Oral — Anual — Plenário Presencial",
         "Sustentação Oral por Ano — Plenário Presencial",
-        "Contagem anual de inclusões com sustentação oral realizada no PP (2020–2025).",
+        "Contagem anual de inclusões com sustentação oral realizada no Plenário Presencial (2020–2025).",
         g39_sust_anual_pp,
     ),
 ]
@@ -246,32 +246,32 @@ _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
     "Inclusões em Pauta (G5–G17)": [
-        "G5 — volume anual por ambiente (PV vs PP)",
-        "G6 — volume por classe e ano (PV/PP selecionável)",
-        "G8/G9 — desfecho geral no período (PV/PP selecionável)",
-        "G10/G11 — macro-desfecho anual (PV e PP)",
-        "G12/G13 — concluídos por ano (PV e PP)",
-        "G14/G15 — não concluídos por classe (PV e PP)",
-        "G16/G17 — concluídos por classe (PV e PP)",
+        "G5 — volume anual por ambiente (Plenário Virtual vs Plenário Presencial)",
+        "G6 — volume por classe e ano (Plenário Virtual / Plenário Presencial selecionável)",
+        "G8/G9 — desfecho geral no período (Plenário Virtual / Plenário Presencial selecionável)",
+        "G10/G11 — macro-desfecho anual (Plenário Virtual e Plenário Presencial)",
+        "G12/G13 — concluídos por ano (Plenário Virtual e Plenário Presencial)",
+        "G14/G15 — não concluídos por classe (Plenário Virtual e Plenário Presencial)",
+        "G16/G17 — concluídos por classe (Plenário Virtual e Plenário Presencial)",
     ],
     "Tipo de Questão (G18–G21)": [
-        "G18/G19 — não concluídos por tipo PR/RC/QI (PV e PP)",
-        "G20/G21 — concluídos por tipo PR/RC/QI (PV e PP)",
+        "G18/G19 — não concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
+        "G20/G21 — concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
     ],
     "Desfecho Concluído por Categoria (G22–G29)": [
-        "G22/G23 — distribuição por categoria no período (PV e PP)",
-        "G24/G25 — evolução anual por categoria (PV e PP)",
-        "G26/G27 — categoria × tipo de questão no período (PV e PP)",
-        "G28/G29 — categoria × tipo de questão por ano (PV e PP)",
+        "G22/G23 — distribuição por categoria no período (Plenário Virtual e Plenário Presencial)",
+        "G24/G25 — evolução anual por categoria (Plenário Virtual e Plenário Presencial)",
+        "G26/G27 — categoria × tipo de questão no período (Plenário Virtual e Plenário Presencial)",
+        "G28/G29 — categoria × tipo de questão por ano (Plenário Virtual e Plenário Presencial)",
     ],
     "Desfecho Não Concluído por Categoria (G30–G35)": [
-        "G30/G31 — categorias de não conclusão por ano (PV e PP)",
-        "G32/G33 — categorias de não conclusão por classe (PV e PP)",
-        "G34/G35 — categorias de não conclusão por tipo de questão (PV e PP)",
+        "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
+        "G32/G33 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
+        "G34/G35 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
     ],
     "Sustentação Oral (G36–G39)": [
-        "G36/G37 — proporção com/sem sustentação no período (PV e PP)",
-        "G38/G39 — contagem anual com sustentação oral (PV e PP)",
+        "G36/G37 — proporção com/sem sustentação no período (Plenário Virtual e Plenário Presencial)",
+        "G38/G39 — contagem anual com sustentação oral (Plenário Virtual e Plenário Presencial)",
     ],
 }
 

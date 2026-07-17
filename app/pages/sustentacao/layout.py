@@ -13,45 +13,45 @@ from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
 _CATALOGO = [
     (
-        "S1 — Proporção com/sem sustentação — PV (período total)",
+        "S1 — Proporção com/sem sustentação — Plenário Virtual (período total)",
         "Sustentação Oral — Plenário Virtual (período total)",
         "Pizza com a proporção de inclusões que tiveram sustentação oral realizada "
         "no Plenário Virtual ao longo de todo o período (2020–2025).",
         gs1_pizza_pv,
     ),
     (
-        "S2 — Proporção com/sem sustentação — PP (período total)",
+        "S2 — Proporção com/sem sustentação — Plenário Presencial (período total)",
         "Sustentação Oral — Plenário Presencial (período total)",
         "Mesmo recorte do S1 para o Plenário Presencial.",
         gs2_pizza_pp,
     ),
     (
-        "S3 — Sustentações por Ano — PV",
+        "S3 — Sustentações por Ano — Plenário Virtual",
         "Sustentação Oral por Ano — Plenário Virtual",
-        "Volume anual de inclusões com sustentação oral no PV. "
+        "Volume anual de inclusões com sustentação oral no Plenário Virtual. "
         "Anos sem ocorrência aparecem com valor zero.",
         gs3_anual_pv,
     ),
     (
-        "S4 — Sustentações por Ano — PP",
+        "S4 — Sustentações por Ano — Plenário Presencial",
         "Sustentação Oral por Ano — Plenário Presencial",
         "Mesmo recorte do S3 para o Plenário Presencial.",
         gs4_anual_pp,
     ),
     (
-        "S5 — Sustentações por Ano e Classe — PV",
+        "S5 — Sustentações por Ano e Classe — Plenário Virtual",
         "Sustentação Oral por Ano e Classe — Plenário Virtual",
         "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total no eixo secundário. PV.",
         gs5_classe_pv,
     ),
     (
-        "S6 — Sustentações por Ano e Classe — PP",
+        "S6 — Sustentações por Ano e Classe — Plenário Presencial",
         "Sustentação Oral por Ano e Classe — Plenário Presencial",
         "Mesmo recorte do S5 para o Plenário Presencial.",
         gs6_classe_pp,
     ),
     (
-        "S7 — Sustentações por Ano e Tipo de Questão — PV",
+        "S7 — Sustentações por Ano e Tipo de Questão — Plenário Virtual",
         "Sustentação Oral por Ano e Tipo de Questão — Plenário Virtual",
         "Barras agrupadas por tipo de questão (PR / RC / QI) com linha do total. "
         "IJ renomeado para QI na exibição. Apenas PV.",
@@ -76,17 +76,17 @@ _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
     "Período total (S1–S2)": [
-        "S1 — proporção com/sem sustentação — PV",
-        "S2 — proporção com/sem sustentação — PP",
+        "S1 — proporção com/sem sustentação — Plenário Virtual",
+        "S2 — proporção com/sem sustentação — Plenário Presencial",
     ],
     "Evolução anual (S3–S4)": [
-        "S3 — volume de sustentações por ano — PV",
-        "S4 — volume de sustentações por ano — PP",
+        "S3 — volume de sustentações por ano — Plenário Virtual",
+        "S4 — volume de sustentações por ano — Plenário Presencial",
     ],
     "Por classe e tipo (S5–S7)": [
-        "S5 — sustentações por ano e classe — PV",
-        "S6 — sustentações por ano e classe — PP",
-        "S7 — sustentações por ano e tipo de questão — PV",
+        "S5 — sustentações por ano e classe — Plenário Virtual",
+        "S6 — sustentações por ano e classe — Plenário Presencial",
+        "S7 — sustentações por ano e tipo de questão — Plenário Virtual",
     ],
     "Comparação e exploração (S8–S9)": [
         "S8 — taxa de sustentação (%) por ano e ambiente",
@@ -134,7 +134,7 @@ def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
     for ano in sorted(df["ano"].unique()):
         df_ano = df[df["ano"] == ano]
         row: dict = {"Ano": int(ano)}
-        for amb_label, amb_key in [("PV", "Plenário Virtual"), ("PP", "Plenário Presencial")]:
+        for amb_label, amb_key in [("Plenário Virtual", "Plenário Virtual"), ("Plenário Presencial", "Plenário Presencial")]:
             df_amb = df_ano[df_ano["ambiente"] == amb_key]
             total = len(df_amb)
             com   = int(df_amb["teve_sustentacao"].sum())
@@ -219,18 +219,18 @@ def _render_tabela_consolidada(df: pd.DataFrame) -> None:
         )
     with col_c:
         ambientes_sel = st.multiselect(
-            "Ambientes", ["PV", "PP"], default=["PV", "PP"], key="stab_amb",
+            "Ambientes", ["Plenário Virtual", "Plenário Presencial"],
+            default=["Plenário Virtual", "Plenário Presencial"], key="stab_amb",
         )
 
     ai, af  = periodo
     sel_cls = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
-    sel_amb = ambientes_sel if ambientes_sel else ["PV", "PP"]
-    amb_map = {"PV": "Plenário Virtual", "PP": "Plenário Presencial"}
+    sel_amb = ambientes_sel if ambientes_sel else ["Plenário Virtual", "Plenário Presencial"]
 
     df_f = df[
         df["ano"].between(ai, af) &
         df["classe"].isin(sel_cls) &
-        df["ambiente"].isin([amb_map[a] for a in sel_amb])
+        df["ambiente"].isin(sel_amb)
     ]
 
     tabela = _build_tabulador(df_f)

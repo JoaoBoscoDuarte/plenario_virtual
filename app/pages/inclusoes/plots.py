@@ -191,13 +191,12 @@ def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
     d = df[df["ambiente"] == ambiente]
     if classes:
         d = d[d["classe"].isin(classes)]
-    rotulo = "PV" if ambiente == "Plenário Virtual" else "PP"
     fig = _barras_grupo(d, "ano", "classe", CORES_CLASSE,
                         f"Inclusões por Classe e Ano — {ambiente}",
-                        "Inclusões por classe", f"Total {rotulo} (Linha)",
+                        "Inclusões por classe", f"Total (Linha)",
                         show_values=show_values, proporcao=proporcao)
     fig_p = _pizza(d["classe"].value_counts(),
-                   f"Proporção por Classe — {rotulo} (período total)",
+                   f"Proporção por Classe — {ambiente} (período total)",
                    cores=[CORES_CLASSE.get(l, "#999") for l in d["classe"].value_counts().index],
                    show_values=show_values, pizza_textinfo=pizza_textinfo)
     return fig, fig_p
@@ -207,14 +206,13 @@ def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
                           ambiente: str = "Plenário Virtual",
                           pizza_textinfo: str | None = None) -> go.Figure | tuple[go.Figure, go.Figure]:
     d = df[df["ambiente"] == ambiente]
-    rotulo = "PV" if ambiente == "Plenário Virtual" else "PP"
     vc = d["macro_desfecho"].value_counts()
-    fig_macro = _pizza(vc, f"Concluídos e Não Concluídos — {rotulo} (período total)",
+    fig_macro = _pizza(vc, f"Concluídos e Não Concluídos — {ambiente} (período total)",
                        cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
                        show_values=show_values, pizza_textinfo=pizza_textinfo)
     if ambiente == "Plenário Virtual":
         fig_det = _pizza(d["desfecho"].value_counts(),
-                         f"Desfecho Detalhado — {rotulo} (período total)", buraco=0.3,
+                         f"Desfecho Detalhado — {ambiente} (período total)", buraco=0.3,
                          show_values=show_values, pizza_textinfo=pizza_textinfo)
         return fig_macro, fig_det
     return fig_macro
@@ -222,13 +220,13 @@ def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
 
 def g10_macro_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _macro_anual(df[df["ambiente"] == "Plenário Virtual"],
-                        "Concluídos e Não Concluídos por Ano — PV",
+                        "Concluídos e Não Concluídos por Ano — Plenário Virtual",
                         show_values=show_values, proporcao=proporcao)
 
 
 def g11_macro_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _macro_anual(df[df["ambiente"] == "Plenário Presencial"],
-                        "Concluídos e Não Concluídos por Ano — PP",
+                        "Concluídos e Não Concluídos por Ano — Plenário Presencial",
                         show_values=show_values, proporcao=proporcao)
 
 
@@ -262,13 +260,13 @@ def _macro_anual(df_amb: pd.DataFrame, titulo: str,
 
 def g12_concluidos_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _concluidos_anual(df[df["ambiente"] == "Plenário Virtual"],
-                             "Concluídos por Ano — PV",
+                             "Concluídos por Ano — Plenário Virtual",
                              show_values=show_values, proporcao=proporcao)
 
 
 def g13_concluidos_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _concluidos_anual(df[df["ambiente"] == "Plenário Presencial"],
-                             "Concluídos por Ano — PP",
+                             "Concluídos por Ano — Plenário Presencial",
                              show_values=show_values, proporcao=proporcao)
 
 
@@ -300,7 +298,7 @@ def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
 def g14_nao_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
                                  "Não concluído",
-                                 "Não Concluídos por Classe e Ano — PV",
+                                 "Não Concluídos por Classe e Ano — Plenário Virtual",
                                  "Total Não Concluídos PV",
                                  show_values=show_values, proporcao=proporcao)
 
@@ -308,7 +306,7 @@ def g14_nao_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, pro
 def g15_nao_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Não concluído",
-                                 "Não Concluídos por Classe e Ano — PP",
+                                 "Não Concluídos por Classe e Ano — Plenário Presencial",
                                  "Total Não Concluídos PP",
                                  show_values=show_values, proporcao=proporcao)
 
@@ -316,7 +314,7 @@ def g15_nao_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, pro
 def g16_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Virtual"],
                                  "Concluído",
-                                 "Concluídos por Classe e Ano — PV",
+                                 "Concluídos por Classe e Ano — Plenário Virtual",
                                  "Total Concluídos PV",
                                  show_values=show_values, proporcao=proporcao)
 
@@ -324,7 +322,7 @@ def g16_concluidos_classe_pv(df: pd.DataFrame, show_values: bool = True, proporc
 def g17_concluidos_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == "Plenário Presencial"],
                                  "Concluído",
-                                 "Concluídos por Classe e Ano — PP",
+                                 "Concluídos por Classe e Ano — Plenário Presencial",
                                  "Total Concluídos PP",
                                  show_values=show_values, proporcao=proporcao)
 
@@ -424,7 +422,7 @@ def g18_nc_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool =
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Não Concluídos por Tipo de Questão — PV",
+                         "Não Concluídos por Tipo de Questão — Plenário Virtual",
                          "Inclusões em pauta", "Total Não Concluídos PV",
                          show_values=show_values, proporcao=proporcao)
 
@@ -433,7 +431,7 @@ def g19_nc_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool =
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Não Concluídos por Tipo de Questão — PP",
+                         "Não Concluídos por Tipo de Questão — Plenário Presencial",
                          "Inclusões em pauta", "Total Não Concluídos PP",
                          show_values=show_values, proporcao=proporcao)
 
@@ -442,7 +440,7 @@ def g20_c_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = 
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Concluídos por Tipo de Questão — PV",
+                         "Concluídos por Tipo de Questão — Plenário Virtual",
                          "Inclusões em pauta", "Total Concluídos PV",
                          show_values=show_values, proporcao=proporcao)
 
@@ -451,7 +449,7 @@ def g21_c_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = 
     sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Concluídos por Tipo de Questão — PP",
+                         "Concluídos por Tipo de Questão — Plenário Presencial",
                          "Inclusões em pauta", "Total Concluídos PP",
                          show_values=show_values, proporcao=proporcao)
 
@@ -469,7 +467,7 @@ def _prep_cat(df: pd.DataFrame) -> pd.DataFrame:
 def g22_cat_periodo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
     vc = sub["categoria"].value_counts().sort_index()
-    return _pizza(vc, "Desfecho por Categoria — PV (período total)",
+    return _pizza(vc, "Desfecho por Categoria — Plenário Virtual (período total)",
                   cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
                   show_values=show_values)
 
@@ -477,7 +475,7 @@ def g22_cat_periodo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bo
 def g23_cat_periodo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     vc = sub["categoria"].value_counts().sort_index()
-    return _pizza(vc, "Desfecho por Categoria — PP (período total)",
+    return _pizza(vc, "Desfecho por Categoria — Plenário Presencial (período total)",
                   cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
                   show_values=show_values)
 
@@ -485,7 +483,7 @@ def g23_cat_periodo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bo
 def g24_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Virtual"])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Ano — PV",
+                         "Desfecho por Categoria e Ano — Plenário Virtual",
                          "Inclusões em pauta", "Total PV (Linha)",
                          show_values=show_values, proporcao=proporcao)
 
@@ -493,7 +491,7 @@ def g24_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool
 def g25_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Ano — PP",
+                         "Desfecho por Categoria e Ano — Plenário Presencial",
                          "Inclusões em pauta", "Total PP (Linha)",
                          show_values=show_values, proporcao=proporcao)
 
@@ -550,7 +548,7 @@ def g28_cat_tipo_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
-                              f"Desfecho por Categoria — {t} — PV",
+                              f"Desfecho por Categoria — {t} — Plenário Virtual",
                               "Inclusões em pauta", f"Total {t} PV (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
@@ -560,7 +558,7 @@ def g29_cat_tipo_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
-                              f"Desfecho por Categoria — {t} — PP",
+                              f"Desfecho por Categoria — {t} — Plenário Presencial",
                               "Inclusões em pauta", f"Total {t} PP (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
@@ -579,7 +577,7 @@ def _prep_nc(df: pd.DataFrame) -> pd.DataFrame:
 def g30_nc_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
-                         "Não Concluídos por Categoria e Ano — PV",
+                         "Não Concluídos por Categoria e Ano — Plenário Virtual",
                          "Inclusões em pauta", "Total Não Concluídos PV",
                          show_values=show_values, proporcao=proporcao)
 
@@ -587,7 +585,7 @@ def g30_nc_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: b
 def g31_nc_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
     sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
-                         "Não Concluídos por Categoria e Ano — PP",
+                         "Não Concluídos por Categoria e Ano — Plenário Presencial",
                          "Inclusões em pauta", "Total Não Concluídos PP",
                          show_values=show_values, proporcao=proporcao)
 
@@ -596,7 +594,7 @@ def g32_nc_cat_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: 
     sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {c} — PV",
+                              f"Não Concluídos por Categoria — {c} — Plenário Virtual",
                               "Inclusões em pauta", f"Total {c} PV (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for c in _CLASSES if not sub[sub["classe"] == c].empty}
@@ -606,7 +604,7 @@ def g33_nc_cat_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: 
     sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {c} — PP",
+                              f"Não Concluídos por Categoria — {c} — Plenário Presencial",
                               "Inclusões em pauta", f"Total {c} PP (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for c in _CLASSES if not sub[sub["classe"] == c].empty}
@@ -616,7 +614,7 @@ def g34_nc_cat_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bo
     sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {t} — PV",
+                              f"Não Concluídos por Categoria — {t} — Plenário Virtual",
                               "Inclusões em pauta", f"Total {t} PV (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
@@ -626,7 +624,7 @@ def g35_nc_cat_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bo
     sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {t} — PP",
+                              f"Não Concluídos por Categoria — {t} — Plenário Presencial",
                               "Inclusões em pauta", f"Total {t} PP (Linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}

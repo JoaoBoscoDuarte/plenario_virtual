@@ -339,4 +339,9 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
             "- **Renomeação:** `IJ` → `QI` (Questão Incidental) apenas na exibição"
         )
 
-    _render(fn, df)
+    if idx in (21, 22):
+        show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
+        fig = fn(df, show_values=show_values)
+        st.plotly_chart(fig, width="stretch")
+    else:
+        _render(fn, df)

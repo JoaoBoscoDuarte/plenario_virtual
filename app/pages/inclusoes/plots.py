@@ -444,7 +444,7 @@ def g25_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
 # GRUPO 3 — Categoria × tipo de questão  (gráficos 26–29)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str) -> go.Figure:
+def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str, show_values: bool = True) -> go.Figure:
     tipos = [t for t in _TIPOS if t in sub["tipo_questao"].unique()]
     n = len(tipos)
     fig = make_subplots(
@@ -458,34 +458,34 @@ def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str) -> go.Fig
         fig.add_trace(go.Pie(
             labels=vc.index, values=vc.values, hole=0.4,
             marker=dict(colors=cores, line=dict(color="white", width=1.5)),
-            textinfo="label+percent",
-            textfont=dict(size=10),
-            textposition="auto",
+            textinfo="percent" if show_values else "none",
+            textfont=dict(size=11),
+            textposition="inside",
             insidetextorientation="radial",
             showlegend=i == 0,
             legendgroup="cat",
         ), row=1, col=i + 1)
     fig.update_layout(
         title_text=f"Desfecho por Categoria e Tipo de Questão — {ambiente_label} (período total)",
-        template="plotly_white", height=420,
-        margin=dict(t=100, b=40, l=40, r=40),
+        template="plotly_white", height=480,
+        margin=dict(t=110, b=100, l=40, r=40),
         legend=dict(
-            orientation="h", yanchor="bottom", y=-0.15,
+            orientation="h", yanchor="bottom", y=-0.3,
             xanchor="center", x=0.5,
-            font=dict(size=10), bgcolor="#fcfcfc",
+            font=dict(size=11), bgcolor="#fcfcfc",
         ),
     )
     return fig
 
 
-def g26_cat_tipo_periodo_pv(df: pd.DataFrame) -> go.Figure:
+def g26_cat_tipo_periodo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
-    return _pizzas_categoria_por_tipo(sub, "Plenário Virtual")
+    return _pizzas_categoria_por_tipo(sub, "Plenário Virtual", show_values=show_values)
 
 
-def g27_cat_tipo_periodo_pp(df: pd.DataFrame) -> go.Figure:
+def g27_cat_tipo_periodo_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Físico"]))
-    return _pizzas_categoria_por_tipo(sub, "Plenário Físico")
+    return _pizzas_categoria_por_tipo(sub, "Plenário Físico", show_values=show_values)
 
 
 def g28_cat_tipo_anual_pv(df: pd.DataFrame) -> dict[str, go.Figure]:

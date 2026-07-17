@@ -288,8 +288,8 @@ _SUMARIO = {
 }
 
 
-def _render(fn, df: pd.DataFrame) -> None:
-    result = fn(df)
+def _render(fn, df: pd.DataFrame, show_values: bool | None = None) -> None:
+    result = fn(df) if show_values is None else fn(df, show_values=show_values)
     if isinstance(result, dict):
         if not result:
             st.info("Sem dados para exibir.")
@@ -301,6 +301,11 @@ def _render(fn, df: pd.DataFrame) -> None:
     elif isinstance(result, tuple):
         for fig in result:
             st.plotly_chart(fig, width="stretch")
+    elif isinstance(result, list):
+        cols = st.columns(len(result))
+        for col, fig in zip(cols, result):
+            with col:
+                st.plotly_chart(fig, width="stretch")
     else:
         st.plotly_chart(result, width="stretch")
 
@@ -341,7 +346,6 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
 
     if idx in (21, 22):
         show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
-        fig = fn(df, show_values=show_values)
-        st.plotly_chart(fig, width="stretch")
+        _render(fn, df, show_values=show_values)
     else:
         _render(fn, df)

@@ -444,38 +444,38 @@ def g25_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
 # GRUPO 3 — Categoria × tipo de questão  (gráficos 26–29)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str, show_values: bool = True) -> go.Figure:
-    tipos = [t for t in _TIPOS if t in sub["tipo_questao"].unique()]
-    n = len(tipos)
-    fig = make_subplots(
-        rows=1, cols=n,
-        specs=[[{'type': 'domain'} for _ in range(n)]],
-        subplot_titles=[f"{t}" for t in tipos],
-    )
-    for i, t in enumerate(tipos):
-        vc = sub[sub["tipo_questao"] == t]["categoria"].value_counts().sort_index()
-        cores = [CORES_CATEGORIA.get(l, "#999") for l in vc.index]
-        fig.add_trace(go.Pie(
-            labels=vc.index, values=vc.values, hole=0.4,
-            marker=dict(colors=cores, line=dict(color="white", width=1.5)),
-            textinfo="percent" if show_values else "none",
-            textfont=dict(size=11),
-            textposition="inside",
-            insidetextorientation="radial",
-            showlegend=i == 0,
-            legendgroup="cat",
-        ), row=1, col=i + 1)
+def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> go.Figure:
+    cores = [CORES_CATEGORIA.get(l, "#999") for l in vc.index]
+    fig = go.Figure(go.Pie(
+        labels=vc.index, values=vc.values, hole=0.4,
+        marker=dict(colors=cores, line=dict(color="white", width=1.5)),
+        textinfo="percent" if show_values else "none",
+        textfont=dict(size=11), textposition="inside",
+        insidetextorientation="radial",
+    ))
     fig.update_layout(
-        title_text=f"Desfecho por Categoria e Tipo de Questão — {ambiente_label} (período total)",
-        template="plotly_white", height=480,
-        margin=dict(t=110, b=100, l=40, r=40),
+        title_text=titulo, template="plotly_white", height=400,
+        margin=dict(t=60, b=120, l=20, r=20),
         legend=dict(
-            orientation="h", yanchor="bottom", y=-0.3,
+            orientation="h", yanchor="bottom", y=-0.25,
             xanchor="center", x=0.5,
-            font=dict(size=11), bgcolor="#fcfcfc",
+            font=dict(size=10),
         ),
     )
     return fig
+
+
+def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str, show_values: bool = True) -> list[go.Figure]:
+    tipos = [t for t in _TIPOS if t in sub["tipo_questao"].unique()]
+    return [
+        _pizza_categoria(
+            t,
+            sub[sub["tipo_questao"] == t]["categoria"].value_counts().sort_index(),
+            f"{t} — {ambiente_label}",
+            show_values,
+        )
+        for t in tipos
+    ]
 
 
 def g26_cat_tipo_periodo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

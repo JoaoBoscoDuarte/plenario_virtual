@@ -15,8 +15,6 @@ from .plots import (
     g30_nc_cat_anual_pv, g31_nc_cat_anual_pp,
     g32_nc_cat_classe_pv, g33_nc_cat_classe_pp,
     g34_nc_cat_tipo_pv, g35_nc_cat_tipo_pp,
-    g36_sust_periodo_pv, g37_sust_periodo_pp,
-    g38_sust_anual_pv, g39_sust_anual_pp,
     _refinar_motivos_diversos,
 )
 
@@ -189,31 +187,6 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
         "Mesmo recorte do G34 para o PP.",
         g35_nc_cat_tipo_pp,
     ),
-    # ── Sustentação Oral ──────────────────────────────────────────────────────
-    (
-        "G36 — Sustentação Oral — Período — Plenário Virtual",
-        "Sustentação Oral — Plenário Virtual (período total)",
-        "Pizza com a proporção de inclusões com e sem sustentação oral no Plenário Virtual ao longo de todo o período.",
-        g36_sust_periodo_pv,
-    ),
-    (
-        "G37 — Sustentação Oral — Período — Plenário Presencial",
-        "Sustentação Oral — Plenário Presencial (período total)",
-        "Pizza com a proporção de inclusões com e sem sustentação oral no Plenário Presencial ao longo de todo o período.",
-        g37_sust_periodo_pp,
-    ),
-    (
-        "G38 — Sustentação Oral — Anual — Plenário Virtual",
-        "Sustentação Oral por Ano — Plenário Virtual",
-        "Contagem anual de inclusões com sustentação oral realizada no Plenário Virtual (2020–2025).",
-        g38_sust_anual_pv,
-    ),
-    (
-        "G39 — Sustentação Oral — Anual — Plenário Presencial",
-        "Sustentação Oral por Ano — Plenário Presencial",
-        "Contagem anual de inclusões com sustentação oral realizada no Plenário Presencial (2020–2025).",
-        g39_sust_anual_pp,
-    ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
@@ -242,10 +215,6 @@ _SUMARIO = {
         "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
         "G32/G33 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
         "G34/G35 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
-    ],
-    "Sustentação Oral (G36–G39)": [
-        "G36/G37 — proporção com/sem sustentação no período (Plenário Virtual e Plenário Presencial)",
-        "G38/G39 — contagem anual com sustentação oral (Plenário Virtual e Plenário Presencial)",
     ],
 }
 
@@ -276,10 +245,6 @@ _TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
     22: ("ano", "categoria_nc", "PP"),
     23: ("ano", "categoria_nc", "PV"),
     24: ("ano", "categoria_nc", "PP"),
-    25: ("teve_sustentacao", None, "PV"),
-    26: ("teve_sustentacao", None, "PP"),
-    27: ("ano", None, "PV"),
-    28: ("ano", None, "PP"),
 }
 
 

@@ -283,7 +283,7 @@ _CORES_POR_COLUNA: dict[str, dict] = {
     "macro_desfecho": CORES_MACRO,
     "desfecho":      CORES_DESFECHO,
     "ambiente":      {"Plenário Virtual": "#2563eb", "Plenário Físico": "#f59e0b"},
-    "teve_reajuste": {True: "#ef4444", False: "#9ca3af"},
+    "teve_reajuste": {"Com reajuste": "#ef4444", "Sem reajuste": "#9ca3af"},
     "teve_sustentacao": {True: "#2563eb", False: "#9ca3af"},
 }
 
@@ -305,6 +305,10 @@ def gt10_tabulador(
     """Gráfico de barras reconfigurável: eixo X, grupo/cor e métrica livres."""
     d = df.copy()
     d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    if "teve_reajuste" in (eixo_x, grupo):
+        d["teve_reajuste"] = d["teve_reajuste"].map(
+            {True: "Com reajuste", False: "Sem reajuste"}
+        )
 
     if metrica == "processos":
         d = d.drop_duplicates("incidente")

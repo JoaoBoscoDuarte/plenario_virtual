@@ -12,7 +12,7 @@ from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
 _DIMS_LABEL = list(DIMENSOES.keys())
 
-_PREDEFINIDOS_REAJ = [
+_PREDEFINIDOS_TAB = [
     ("Ano × Reajuste (inclusões, empilhado 100%)",    "ano",          "teve_reajuste",  "inclusoes", "100%"),
     ("Ambiente × Reajuste (inclusões, agrupado)",     "ambiente",     "teve_reajuste",  "inclusoes", "group"),
     ("Classe × Reajuste (inclusões, empilhado 100%)", "classe",       "teve_reajuste",  "inclusoes", "100%"),
@@ -20,7 +20,7 @@ _PREDEFINIDOS_REAJ = [
     ("Macro-Desfecho × Reajuste (inclusões)",         "macro_desfecho", "teve_reajuste", "inclusoes", "group"),
     ("Desfecho Detalhado × Reajuste (inclusões)",     "desfecho",       "teve_reajuste",  "inclusoes", "group"),
 ]
-_LABELS_PRE_REAJ = [p[0] for p in _PREDEFINIDOS_REAJ]
+_LABELS_PRE_TAB = [p[0] for p in _PREDEFINIDOS_TAB]
 
 def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True):
     """Tipo de Questão × Reajuste (inclusões)."""
@@ -84,6 +84,13 @@ _CATAlOGO_TEMP = [
         "Distribuição das inclusões com/sem reajuste por desfecho detalhado.",
         _gr_desfecho_vs_reajuste,
     ),
+    (
+        "R9 — Tabulador Gráfico Interativo",
+        "Tabulador Gráfico Interativo",
+        "Configure livremente eixos, agrupamento e modo de barras para explorar "
+        "cruzamentos entre dimensões.",
+        None,
+    ),
 ]
 
 # recuperar nome correto da variável (evitar conflito de nomes no patch)
@@ -102,6 +109,13 @@ _SUMARIO = {
     "Por classe (R5–R6)": [
         "R5 — reajustes por ano e classe — PV",
         "R6 — reajustes por ano e classe — PP",
+    ],
+    "Distribuição (R7–R8)": [
+        "R7 — reajuste por tipo de questão",
+        "R8 — reajuste por desfecho detalhado",
+    ],
+    "Livre (R9)": [
+        "R9 — tabulador gráfico interativo",
     ],
 }
 
@@ -260,53 +274,7 @@ def _render_dados_brutos(df: pd.DataFrame) -> None:
 
 # ── Ponto de entrada ──────────────────────────────────────────────────────────
 
-def render_graficos(df: pd.DataFrame) -> None:
-    with st.expander("Sumário — visualizações disponíveis", expanded=True):
-        cols = st.columns(2)
-        for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
-            with cols[i % 2]:
-                st.markdown(f"**{bloco}**")
-                for g in graficos:
-                    st.markdown(f"- {g}")
-
-    st.markdown("---")
-
-    escolha = st.selectbox(
-        "Selecione a visualização",
-        options=_LABELS,
-        index=0,
-        key="reajuste_selectbox",
-    )
-
-    idx = _LABELS.index(escolha)
-    _, subtitulo, descricao, fn = _CATALOGO[idx]
-
-    st.subheader(subtitulo)
-    st.caption(descricao)
-    with st.expander("Critério / Caminho dos dados"):
-        st.markdown(
-            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
-            "- **Unidade:** inclusão em pauta  \n"
-            "- **Período:** 2020–2025"
-        )
-
-    # Pizzas (R1/R2) não têm show_values
-    is_bar = idx >= 2
-    show_values = (
-        st.checkbox("Exibir valores", value=True, key=f"reajuste_show_{idx}")
-        if is_bar else True
-    )
-    fig = fn(df, show_values=show_values) if is_bar else fn(df)
-    st.plotly_chart(fig, width="stretch")
-
-    st.markdown("---")
-    _render_tabulador(df)
-
-    st.markdown("---")
-    _render_dados_brutos(df)
-
-    # ── Tabulador gráfico ──────────────────────────────────────────────────────────────────────────────
-    st.markdown("---")
+def _render_interactive_tabulador(df: pd.DataFrame) -> None:
     st.subheader("Tabulador Gráfico Interativo")
     st.caption("Configure livremente os eixos, agrupamento e modo de barras.")
 
@@ -314,7 +282,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     with col_pre:
         pre_escolha = st.selectbox(
             "🔖 Pré-definidos",
-            options=["— ou configure manualmente abaixo —"] + _LABELS_PRE_REAJ,
+            options=["— ou configure manualmente abaixo —"] + _LABELS_PRE_TAB,
             index=0,
             key="reaj_predefinido",
         )
@@ -322,7 +290,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     if pre_escolha.startswith("—"):
         def_x, def_g, def_m, def_bm = 0, 1, 0, 0
     else:
-        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_REAJ if p[0] == pre_escolha)
+        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_TAB if p[0] == pre_escolha)
         def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
         def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
         def_m  = ["inclusoes", "processos"].index(pm)
@@ -356,3 +324,58 @@ def render_graficos(df: pd.DataFrame) -> None:
             gt10_tabulador(df, eixo_x, eixo_y, metrica, barmode, show_values_tab),
             width="stretch",
         )
+
+
+# ── Ponto de entrada ──────────────────────────────────────────────────────────
+
+def render_graficos(df: pd.DataFrame) -> None:
+    with st.expander("Sumário — visualizações disponíveis", expanded=True):
+        cols = st.columns(2)
+        for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
+            with cols[i % 2]:
+                st.markdown(f"**{bloco}**")
+                for g in graficos:
+                    st.markdown(f"- {g}")
+
+    st.markdown("---")
+
+    escolha = st.selectbox(
+        "Selecione a visualização",
+        options=_LABELS,
+        index=0,
+        key="reajuste_selectbox",
+    )
+
+    idx = _LABELS.index(escolha)
+    _, subtitulo, descricao, fn = _CATALOGO[idx]
+
+    if fn is None:
+        _render_interactive_tabulador(df)
+        st.markdown("---")
+        _render_tabulador(df)
+        st.markdown("---")
+        _render_dados_brutos(df)
+        return
+
+    st.subheader(subtitulo)
+    st.caption(descricao)
+    with st.expander("Critério / Caminho dos dados"):
+        st.markdown(
+            "- **Fonte:** `data/processed/inclusoes_em_pauta.parquet`  \n"
+            "- **Unidade:** inclusão em pauta  \n"
+            "- **Período:** 2020–2025"
+        )
+
+    is_bar = idx >= 2
+    show_values = (
+        st.checkbox("Exibir valores", value=True, key=f"reajuste_show_{idx}")
+        if is_bar else True
+    )
+    fig = fn(df, show_values=show_values) if is_bar else fn(df)
+    st.plotly_chart(fig, width="stretch")
+
+    st.markdown("---")
+    _render_tabulador(df)
+
+    st.markdown("---")
+    _render_dados_brutos(df)

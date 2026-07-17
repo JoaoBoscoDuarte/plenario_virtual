@@ -394,45 +394,25 @@ def _refinar_motivos_diversos(df: pd.DataFrame, df_dec: pd.DataFrame) -> pd.Data
     return d
 
 
-def g18_nc_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
+def g18_nc_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                          ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = _prep_tipo(df[(df["ambiente"] == ambiente) &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Não Concluídos por Tipo de Questão — Plenário Virtual",
-                         "Inclusões em pauta", "Total Não Concluídos PV",
+                         f"Não Concluídos por Tipo de Questão — {ambiente}",
+                         "Inclusões em pauta", "Total Não Concluídos",
                          show_values=show_values, proporcao=proporcao)
 
 
-def g19_nc_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
-                        (df["macro_desfecho"] == "Não concluído")])
-    return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Não Concluídos por Tipo de Questão — Plenário Presencial",
-                         "Inclusões em pauta", "Total Não Concluídos PP",
-                         show_values=show_values, proporcao=proporcao)
-
-
-def g20_c_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Virtual") &
+def g20_c_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                         ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = _prep_tipo(df[(df["ambiente"] == ambiente) &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Concluídos por Tipo de Questão — Plenário Virtual",
-                         "Inclusões em pauta", "Total Concluídos PV",
+                         f"Concluídos por Tipo de Questão — {ambiente}",
+                         "Inclusões em pauta", "Total Concluídos",
                          show_values=show_values, proporcao=proporcao)
 
-
-def g21_c_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_tipo(df[(df["ambiente"] == "Plenário Presencial") &
-                        (df["macro_desfecho"] == "Concluído")])
-    return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         "Concluídos por Tipo de Questão — Plenário Presencial",
-                         "Inclusões em pauta", "Total Concluídos PP",
-                         show_values=show_values, proporcao=proporcao)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# GRUPO 2 — Desfecho concluído por categoria  (gráficos 22–25)
-# ═══════════════════════════════════════════════════════════════════════════════
 
 def _prep_cat(df: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
@@ -509,6 +489,37 @@ def g28_cat_tipo_anual_filtravel(df: pd.DataFrame, show_values: bool = True, pro
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
+def g30_nc_cat_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                               ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = _prep_nc(df[df["ambiente"] == ambiente])
+    return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
+                         f"Não Concluídos por Categoria e Ano — {ambiente}",
+                         "Inclusões em pauta", "Total Não Concluídos",
+                         show_values=show_values, proporcao=proporcao)
+
+
+def g32_nc_cat_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                                ambiente: str = "Plenário Virtual") -> dict[str, go.Figure]:
+    sub = _prep_nc(df[df["ambiente"] == ambiente])
+    return {c: _barras_grupo(sub[sub["classe"] == c],
+                              "ano", "categoria_nc", CORES_NC,
+                              f"Não Concluídos por Categoria — {c} — {ambiente}",
+                              "Inclusões em pauta", f"Total {c} (Linha)",
+                              show_values=show_values, proporcao=proporcao)
+            for c in _CLASSES if not sub[sub["classe"] == c].empty}
+
+
+def g34_nc_cat_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                              ambiente: str = "Plenário Virtual") -> dict[str, go.Figure]:
+    sub = _prep_nc(_prep_tipo(df[df["ambiente"] == ambiente]))
+    return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
+                              "ano", "categoria_nc", CORES_NC,
+                              f"Não Concluídos por Categoria — {t} — {ambiente}",
+                              "Inclusões em pauta", f"Total {t} (Linha)",
+                              show_values=show_values, proporcao=proporcao)
+            for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # GRUPO 4 — Desfecho não concluído por categoria  (gráficos 30–35)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -519,60 +530,7 @@ def _prep_nc(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
-def g30_nc_cat_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
-    return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
-                         "Não Concluídos por Categoria e Ano — Plenário Virtual",
-                         "Inclusões em pauta", "Total Não Concluídos PV",
-                         show_values=show_values, proporcao=proporcao)
 
-
-def g31_nc_cat_anual_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
-    return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
-                         "Não Concluídos por Categoria e Ano — Plenário Presencial",
-                         "Inclusões em pauta", "Total Não Concluídos PP",
-                         show_values=show_values, proporcao=proporcao)
-
-
-def g32_nc_cat_classe_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Virtual"])
-    return {c: _barras_grupo(sub[sub["classe"] == c],
-                              "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {c} — Plenário Virtual",
-                              "Inclusões em pauta", f"Total {c} PV (Linha)",
-                              show_values=show_values, proporcao=proporcao)
-            for c in _CLASSES if not sub[sub["classe"] == c].empty}
-
-
-def g33_nc_cat_classe_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_nc(df[df["ambiente"] == "Plenário Presencial"])
-    return {c: _barras_grupo(sub[sub["classe"] == c],
-                              "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {c} — Plenário Presencial",
-                              "Inclusões em pauta", f"Total {c} PP (Linha)",
-                              show_values=show_values, proporcao=proporcao)
-            for c in _CLASSES if not sub[sub["classe"] == c].empty}
-
-
-def g34_nc_cat_tipo_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
-    return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
-                              "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {t} — Plenário Virtual",
-                              "Inclusões em pauta", f"Total {t} PV (Linha)",
-                              show_values=show_values, proporcao=proporcao)
-            for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
-
-
-def g35_nc_cat_tipo_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> dict[str, go.Figure]:
-    sub = _prep_nc(_prep_tipo(df[df["ambiente"] == "Plenário Presencial"]))
-    return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
-                              "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {t} — Plenário Presencial",
-                              "Inclusões em pauta", f"Total {t} PP (Linha)",
-                              show_values=show_values, proporcao=proporcao)
-            for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
 
 

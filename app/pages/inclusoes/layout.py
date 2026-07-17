@@ -7,13 +7,12 @@ from .plots import (
     g5_anual_ambiente, g6_classe_filtravel, g8_desfecho_filtravel,
     g10_macro_anual_filtravel, g12_concluidos_filtravel,
     g14_nao_concluidos_classe_filtravel, g16_concluidos_classe_filtravel,
-    g18_nc_tipo_pv, g19_nc_tipo_pp, g20_c_tipo_pv, g21_c_tipo_pp,
+    g18_nc_tipo_filtravel, g20_c_tipo_filtravel,
     g22_cat_periodo_filtravel, g24_cat_anual_filtravel,
     g26_cat_tipo_periodo_filtravel, g28_cat_tipo_anual_filtravel,
-    g30_nc_cat_anual_pv, g31_nc_cat_anual_pp,
-    g32_nc_cat_classe_pv, g33_nc_cat_classe_pp,
-    g34_nc_cat_tipo_pv, g35_nc_cat_tipo_pp,
-    _refinar_motivos_diversos,
+    g30_nc_cat_anual_filtravel, g32_nc_cat_classe_filtravel,
+    g34_nc_cat_tipo_filtravel,
+    _categoria_desfecho, _categoria_nc, _refinar_motivos_diversos,
 )
 
 # Catálogo: (label do selectbox, subtítulo, descrição, callable)
@@ -68,29 +67,17 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     # ── Tipo de Questão ───────────────────────────────────────────────────────
     (
-        "G18 — Não Concluídos por Tipo de Questão — Plenário Virtual",
-        "Não Concluídos por Tipo de Questão — Plenário Virtual",
-        "Barras por tipo de questão (PR / RC / QI) com linha do total de não concluídos no Plenário Virtual. "
-        "IJ renomeado para QI na exibição.",
-        g18_nc_tipo_pv,
+        "G18 — Não Concluídos por Tipo de Questão (Plenário Virtual e Plenário Presencial)",
+        "Não Concluídos por Tipo de Questão",
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de não concluídos. "
+        "IJ renomeado para QI na exibição. Selecione o âmbito.",
+        g18_nc_tipo_filtravel,
     ),
     (
-        "G19 — Não Concluídos por Tipo de Questão — Plenário Presencial",
-        "Não Concluídos por Tipo de Questão — Plenário Presencial",
-        "Mesmo recorte do G18 para o Plenário Presencial.",
-        g19_nc_tipo_pp,
-    ),
-    (
-        "G20 — Concluídos por Tipo de Questão — Plenário Virtual",
-        "Concluídos por Tipo de Questão — Plenário Virtual",
-        "Barras por tipo de questão (PR / RC / QI) com linha do total de concluídos no Plenário Virtual.",
-        g20_c_tipo_pv,
-    ),
-    (
-        "G21 — Concluídos por Tipo de Questão — Plenário Presencial",
-        "Concluídos por Tipo de Questão — Plenário Presencial",
-        "Mesmo recorte do G20 para o Plenário Presencial.",
-        g21_c_tipo_pp,
+        "G20 — Concluídos por Tipo de Questão (Plenário Virtual e Plenário Presencial)",
+        "Concluídos por Tipo de Questão",
+        "Barras por tipo de questão (PR / RC / QI) com linha do total de concluídos. Selecione o âmbito.",
+        g20_c_tipo_filtravel,
     ),
     # ── Desfecho Concluído por Categoria ─────────────────────────────────────
     (
@@ -122,72 +109,54 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     ),
     # ── Desfecho Não Concluído por Categoria ──────────────────────────────────
     (
-        "G30 — Não Concluídos por Categoria e Ano — Plenário Virtual",
-        "Não Concluídos por Categoria — Plenário Virtual",
+        "G30 — Não Concluídos por Categoria e Ano (Plenário Virtual e Plenário Presencial)",
+        "Não Concluídos por Categoria e Ano",
         "Evolução anual das 4 categorias de não conclusão: Pedido de vista, Destaque, "
-        "Retirado de pauta e Motivos diversos. PV.",
-        g30_nc_cat_anual_pv,
+        "Retirado de pauta e Motivos diversos. Selecione o âmbito.",
+        g30_nc_cat_anual_filtravel,
     ),
     (
-        "G31 — Não Concluídos por Categoria e Ano — Plenário Presencial",
-        "Não Concluídos por Categoria — Plenário Presencial",
-        "Mesmo recorte do G30 para o PP. Destaque = 0 no Plenário Presencial.",
-        g31_nc_cat_anual_pp,
+        "G32 — Não Concluídos por Categoria e Classe (Plenário Virtual e Plenário Presencial)",
+        "Não Concluídos por Categoria e Classe",
+        "Um gráfico por classe (ADI, ADPF, ADC, ADO) com as categorias de não conclusão. "
+        "Selecione o âmbito e a classe na sub-aba.",
+        g32_nc_cat_classe_filtravel,
     ),
     (
-        "G32 — Não Concluídos por Categoria e Classe — Plenário Virtual",
-        "Não Concluídos por Categoria e Classe — Plenário Virtual",
-        "Um gráfico por classe (ADI, ADPF, ADC, ADO) com as categorias de não conclusão no Plenário Virtual. "
-        "Selecione a classe na sub-aba.",
-        g32_nc_cat_classe_pv,
-    ),
-    (
-        "G33 — Não Concluídos por Categoria e Classe — Plenário Presencial",
-        "Não Concluídos por Categoria e Classe — Plenário Presencial",
-        "Mesmo recorte do G32 para o PP.",
-        g33_nc_cat_classe_pp,
-    ),
-    (
-        "G34 — Não Concluídos por Categoria e Tipo — Plenário Virtual",
-        "Não Concluídos por Categoria e Tipo de Questão — Plenário Virtual",
-        "Um gráfico por tipo de questão (PR, RC, QI) com as categorias de não conclusão no Plenário Virtual. "
-        "Selecione o tipo na sub-aba.",
-        g34_nc_cat_tipo_pv,
-    ),
-    (
-        "G35 — Não Concluídos por Categoria e Tipo — Plenário Presencial",
-        "Não Concluídos por Categoria e Tipo de Questão — Plenário Presencial",
-        "Mesmo recorte do G34 para o PP.",
-        g35_nc_cat_tipo_pp,
+        "G34 — Não Concluídos por Categoria e Tipo (Plenário Virtual e Plenário Presencial)",
+        "Não Concluídos por Categoria e Tipo de Questão",
+        "Um gráfico por tipo de questão (PR, RC, QI) com as categorias de não conclusão. "
+        "Selecione o âmbito e o tipo na sub-aba.",
+        g34_nc_cat_tipo_filtravel,
     ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
-    "Inclusões em Pauta (G5–G17)": [
+    "Inclusões em Pauta (G5, G6, G8, G10, G12, G14, G16)": [
         "G5 — volume anual por ambiente (Plenário Virtual vs Plenário Presencial)",
         "G6 — volume por classe e ano (Plenário Virtual / Plenário Presencial selecionável)",
-        "G8/G9 — desfecho geral no período (Plenário Virtual / Plenário Presencial selecionável)",
-        "G10/G11 — macro-desfecho anual (Plenário Virtual e Plenário Presencial)",
-        "G12/G13 — concluídos por ano (Plenário Virtual e Plenário Presencial)",
-        "G14/G15 — não concluídos por classe (Plenário Virtual e Plenário Presencial)",
-        "G16/G17 — concluídos por classe (Plenário Virtual e Plenário Presencial)",
+        "G8 — desfecho geral no período (Plenário Virtual / Plenário Presencial selecionável)",
+        "G10 — macro-desfecho anual (Plenário Virtual e Plenário Presencial)",
+        "G12 — concluídos por ano (Plenário Virtual e Plenário Presencial)",
+        "G14 — não concluídos por classe (Plenário Virtual e Plenário Presencial)",
+        "G16 — concluídos por classe (Plenário Virtual e Plenário Presencial)",
     ],
-    "Tipo de Questão (G18–G21)": [
-        "G18/G19 — não concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
-        "G20/G21 — concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
+    "Tipo de Questão (G18, G20)": [
+        "G18 — não concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
+        "G20 — concluídos por tipo PR/RC/QI (Plenário Virtual e Plenário Presencial)",
     ],
-    "Desfecho Concluído por Categoria (G22–G29)": [
+    "Desfecho Concluído por Categoria (G22, G24, G26, G28)": [
         "G22 — distribuição por categoria no período (PV/PP selecionável)",
         "G24 — evolução anual por categoria (PV/PP selecionável)",
         "G26 — categoria × tipo de questão no período (PV/PP selecionável)",
         "G28 — categoria × tipo de questão por ano (PV/PP selecionável)",
     ],
-    "Desfecho Não Concluído por Categoria (G30–G35)": [
-        "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
-        "G32/G33 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
-        "G34/G35 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
+    "Desfecho Não Concluído por Categoria (G30, G32, G34)": [
+        "G30 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
+        "G32 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
+        "G34 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
     ],
 }
 
@@ -201,25 +170,25 @@ _TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
     5: ("ano", "classe", "NC_PV"),
     6: ("ano", "classe", "C_PV"),
     7: ("ano", "tipo_questao", "NC_PV"),
-    8: ("ano", "tipo_questao", "NC_PP"),
-    9: ("ano", "tipo_questao", "C_PV"),
-    10: ("ano", "tipo_questao", "C_PP"),
-    11: ("categoria", None, "PV"),
+    8: ("ano", "tipo_questao", "C_PV"),
+    9: ("categoria", None, "PV"),
+    10: ("ano", "categoria", "PV"),
+    11: ("tipo_questao", "categoria", "PV"),
     12: ("ano", "categoria", "PV"),
-    13: ("tipo_questao", "categoria", "PV"),
-    14: ("ano", "categoria", "PV"),
+    13: ("ano", "categoria_nc", "PV"),
+    14: ("ano", "categoria_nc", "PV"),
     15: ("ano", "categoria_nc", "PV"),
-    16: ("ano", "categoria_nc", "PP"),
-    17: ("ano", "categoria_nc", "PV"),
-    18: ("ano", "categoria_nc", "PP"),
-    19: ("ano", "categoria_nc", "PV"),
-    20: ("ano", "categoria_nc", "PP"),
 }
 
 
 def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None, str | None]) -> pd.DataFrame:
     col_linha, col_grupo, filtro = spec
     d = df.copy()
+
+    if "categoria" in (col_linha, col_grupo) and "categoria" not in d.columns:
+        d["categoria"] = d["desfecho"].apply(_categoria_desfecho)
+    if "categoria_nc" in (col_linha, col_grupo) and "categoria_nc" not in d.columns:
+        d["categoria_nc"] = d["desfecho"].apply(_categoria_nc)
 
     if filtro == "PV":
         d = d[d["ambiente"] == "Plenário Virtual"]
@@ -239,13 +208,16 @@ def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None, str | None]) ->
         tab = tab.pivot_table(index=col_linha, columns=col_grupo, values="n", fill_value=0)
         tab["Total"] = tab.sum(axis=1)
         tab.loc["Total"] = tab.sum()
-        for c in tab.columns:
-            if c != "Total":
-                tab[f"{c} (%)"] = (tab[c] / tab["Total"] * 100).round(1)
     else:
         tab = d.groupby(col_linha, observed=True).size().reset_index(name="n")
         tab.columns = [col_linha, "Total"]
-        tab.loc["Total"] = tab["Total"].sum() if "Total" in tab.columns else tab.iloc[:, 1].sum()
+        tab.loc["Total"] = {col_linha: "Total", "Total": tab["Total"].sum()}
+    tab = tab.reset_index()
+    tab[tab.columns[0]] = tab[tab.columns[0]].astype(str)
+    if col_grupo:
+        for c in tab.columns:
+            if c not in (tab.columns[0], "Total"):
+                tab[f"{c} (%)"] = (tab[c] / tab["Total"] * 100).round(1)
     return tab
 
 
@@ -333,7 +305,7 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
         mapa = {"Ambos": "percent+value", "Valores": "value", "Percentual": "percent"}
         _render(fn, df, show_values=show_values, ambiente=amb,
                 pizza_textinfo=mapa[modo])
-    elif idx in (3, 4, 5, 6, 11, 12, 13, 14):
+    elif idx in (3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15):
         amb = st.selectbox("Âmbito", ["Plenário Virtual", "Plenário Presencial"],
                            key=f"inc_amb_{idx}")
         _render(fn, df, show_values=show_values, ambiente=amb)

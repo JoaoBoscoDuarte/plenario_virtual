@@ -331,15 +331,8 @@ def render_graficos(df: pd.DataFrame) -> None:
     if idx == len(_CATALOGO) - 1:  # S9 — tabulador
         _render_tabulador_grafico(df)
     else:
-        is_bar = idx >= 2  # S1/S2 são pizzas
-        show_values = (
-            st.checkbox("Exibir valores", value=True, key=f"sust_sv_{idx}")
-            if is_bar else True
-        )
-        try:
-            fig = fn(df, show_values=show_values)
-        except TypeError:
-            fig = fn(df)
+        show_values = st.checkbox("Exibir valores", value=True, key=f"sust_sv_{idx}")
+        fig = fn(df, show_values=show_values)
         st.plotly_chart(fig, width="stretch")
 
     st.markdown("---")

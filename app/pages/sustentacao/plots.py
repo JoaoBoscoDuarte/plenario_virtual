@@ -41,12 +41,12 @@ _LAYOUT_PIZZA = dict(
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _pizza(serie: pd.Series, titulo: str, cores: list) -> go.Figure:
+def _pizza(serie: pd.Series, titulo: str, cores: list, show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
         labels=serie.index, values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="label+value+percent",
+        textinfo="label+value+percent" if show_values else "label",
         textfont=dict(size=13),
         textposition="auto",
         insidetextorientation="radial",
@@ -115,21 +115,23 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
 # S1–S2 — Pizza período total (PV e PP)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs1_pizza_pv(df: pd.DataFrame) -> go.Figure:
+def gs1_pizza_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ambiente"] == "Plenário Virtual"]
     return _pizza(
         _serie_sust(sub),
         "Inclusões com Sustentação Oral — Plenário Virtual (2020–2025)",
         [CORES_SUST.get(l, "#999") for l in _serie_sust(sub).index],
+        show_values=show_values,
     )
 
 
-def gs2_pizza_pp(df: pd.DataFrame) -> go.Figure:
+def gs2_pizza_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ambiente"] == "Plenário Físico"]
     return _pizza(
         _serie_sust(sub),
         "Inclusões com Sustentação Oral — Plenário Físico (2020–2025)",
         [CORES_SUST.get(l, "#999") for l in _serie_sust(sub).index],
+        show_values=show_values,
     )
 
 

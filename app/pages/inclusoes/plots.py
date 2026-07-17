@@ -294,7 +294,77 @@ def _por_classe_com_total(df_amb: pd.DataFrame, filtro_macro: str,
 
 def _prep_tipo(df: pd.DataFrame) -> pd.DataFrame:
     d = df.copy()
-    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI", "Não identificado": "PR"}).fillna("PR")
+    return d
+
+
+RE_EXCLUSAO = (
+    r'Incluído na Lista|Agendado para|Julgamento Presencial|'
+    r'Sess[ãa]o (?:Ordinária|Extraordinária|Ordinaria|Extraordinaria) Virtual'
+)
+
+
+def _classificar_desfecho_texto(texto: str) -> str | None:
+    if not isinstance(texto, str) or not texto.strip():
+        return None
+    t = texto.strip().lower()
+    if 'unânime' in t or 'unanimidade' in t:
+        return 'concluido_unanime'
+    if 'por maioria' in t or 'vencido' in t:
+        return 'concluido_maioria'
+    if 'procedente' in t or 'improcedente' in t or 'parcialmente' in t:
+        return 'concluido_merito'
+    if 'indeferiu' in t or 'não conheceu' in t:
+        return 'concluido_sem_merito'
+    return None
+
+
+def _refinar_motivos_diversos(df: pd.DataFrame, df_dec: pd.DataFrame) -> pd.DataFrame:
+    d = df.copy()
+    mask_div = (d["ambiente"] == "Plenário Físico") & (d["desfecho"] == "Não concluído - motivos diversos")
+    if not mask_div.any():
+        return d
+
+    dec_pleno = df_dec[
+        (df_dec['dec_julgador'].str.strip().str.upper() == 'TRIBUNAL PLENO') &
+        (~df_dec['dec_complemento'].str.contains(RE_EXCLUSAO, case=False, na=False, regex=True))
+    ].copy()
+    if not dec_pleno.empty:
+        dec_pleno['dec_data_dt'] = pd.to_datetime(dec_pleno['dec_data'], dayfirst=True, errors='coerce')
+
+    indices_div = d.index[mask_div]
+    novos = []
+    for idx in indices_div:
+        row = d.loc[idx]
+        inc = row['incidente']
+        inicio = row['data_inclusao_dt']
+
+        proximas = d[(d['incidente'] == inc) & (d['data_inclusao_dt'] > inicio)]['data_inclusao_dt']
+        fim = proximas.min() if not proximas.empty else pd.Timestamp('2026-12-31')
+
+        if dec_pleno.empty:
+            novos.append('Não concluído - sem decisão registrada')
+            continue
+
+        dec_janela = dec_pleno[
+            (dec_pleno['incidente'] == inc) &
+            (dec_pleno['dec_data_dt'] >= inicio) &
+            (dec_pleno['dec_data_dt'] < fim)
+        ]
+
+        if dec_janela.empty:
+            novos.append('Não concluído - sem decisão registrada')
+        else:
+            classificaveis = [
+                t for t in dec_janela['dec_complemento']
+                if _classificar_desfecho_texto(t) is not None
+            ]
+            if classificaveis:
+                novos.append('Não concluído - decisão não capturada')
+            else:
+                novos.append('Não concluído - registro sem fórmula de votação')
+
+    d.loc[mask_div, 'desfecho'] = novos
     return d
 
 
@@ -372,20 +442,48 @@ def g25_cat_anual_pp(df: pd.DataFrame) -> go.Figure:
 # GRUPO 3 — Categoria × tipo de questão  (gráficos 26–29)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _pizzas_categoria_por_tipo(sub: pd.DataFrame, ambiente_label: str) -> go.Figure:
+    tipos = [t for t in _TIPOS if t in sub["tipo_questao"].unique()]
+    n = len(tipos)
+    fig = make_subplots(
+        rows=1, cols=n,
+        specs=[[{'type': 'domain'} for _ in range(n)]],
+        subplot_titles=[f"{t}" for t in tipos],
+    )
+    for i, t in enumerate(tipos):
+        vc = sub[sub["tipo_questao"] == t]["categoria"].value_counts().sort_index()
+        cores = [CORES_CATEGORIA.get(l, "#999") for l in vc.index]
+        fig.add_trace(go.Pie(
+            labels=vc.index, values=vc.values, hole=0.4,
+            marker=dict(colors=cores, line=dict(color="white", width=1.5)),
+            textinfo="label+percent",
+            textfont=dict(size=10),
+            textposition="auto",
+            insidetextorientation="radial",
+            showlegend=i == 0,
+            legendgroup="cat",
+        ), row=1, col=i + 1)
+    fig.update_layout(
+        title_text=f"Desfecho por Categoria e Tipo de Questão — {ambiente_label} (período total)",
+        template="plotly_white", height=420,
+        margin=dict(t=100, b=40, l=40, r=40),
+        legend=dict(
+            orientation="h", yanchor="bottom", y=-0.15,
+            xanchor="center", x=0.5,
+            font=dict(size=10), bgcolor="#fcfcfc",
+        ),
+    )
+    return fig
+
+
 def g26_cat_tipo_periodo_pv(df: pd.DataFrame) -> go.Figure:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Virtual"]))
-    return _barras_grupo(sub, "tipo_questao", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Tipo de Questão — PV (período total)",
-                         "Inclusões em pauta", "Total por tipo (Linha)",
-                         x_title="Tipo de Questão")
+    return _pizzas_categoria_por_tipo(sub, "Plenário Virtual")
 
 
 def g27_cat_tipo_periodo_pp(df: pd.DataFrame) -> go.Figure:
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == "Plenário Físico"]))
-    return _barras_grupo(sub, "tipo_questao", "categoria", CORES_CATEGORIA,
-                         "Desfecho por Categoria e Tipo de Questão — PP (período total)",
-                         "Inclusões em pauta", "Total por tipo (Linha)",
-                         x_title="Tipo de Questão")
+    return _pizzas_categoria_por_tipo(sub, "Plenário Físico")
 
 
 def g28_cat_tipo_anual_pv(df: pd.DataFrame) -> dict[str, go.Figure]:

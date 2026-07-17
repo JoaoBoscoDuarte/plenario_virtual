@@ -20,6 +20,7 @@ from .plots import (
     g34_nc_cat_tipo_pv, g35_nc_cat_tipo_pp,
     g36_sust_periodo_pv, g37_sust_periodo_pp,
     g38_sust_anual_pv, g39_sust_anual_pp,
+    _refinar_motivos_diversos,
 )
 
 # Catálogo: (label do selectbox, subtítulo, descrição, callable)
@@ -162,7 +163,9 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
     (
         "G26 — Categoria × Tipo de Questão — PV (período total)",
         "Categoria de Desfecho por Tipo de Questão — Plenário Virtual",
-        "Eixo X = tipo de questão (PR/RC/QI); barras empilhadas pelas 4 categorias. Período total, PV.",
+        "Uma pizza por tipo de questão (PR/RC/QI) com as 4 categorias de desfecho. Período total, PV. "
+        "Processos sem tipo de questão classificados como PR. "
+        "PP: 'motivos diversos' refinado em subcategorias.",
         g26_cat_tipo_periodo_pv,
     ),
     (
@@ -302,8 +305,9 @@ def _render(fn, df: pd.DataFrame) -> None:
         st.plotly_chart(result, width="stretch")
 
 
-def render_graficos(df: pd.DataFrame) -> None:
-    # ── Sumário ───────────────────────────────────────────────────────────────
+def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> None:
+    df = _refinar_motivos_diversos(df, df_dec if df_dec is not None else pd.DataFrame())
+
     with st.expander("Sumário — visualizações disponíveis", expanded=True):
         cols = st.columns(2)
         items = list(_SUMARIO.items())
@@ -315,7 +319,6 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     st.markdown("---")
 
-    # ── Seletor único ─────────────────────────────────────────────────────────
     escolha = st.selectbox(
         "Selecione a visualização",
         options=_LABELS,

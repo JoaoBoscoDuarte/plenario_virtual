@@ -10,8 +10,14 @@ _root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
+from pathlib import Path
+import pandas as pd
 from dados.loader import load_inclusoes_em_pauta
 from pages.inclusoes.layout import render_graficos
+
+_here = Path(__file__).resolve()
+_root = _here.parent.parent.parent
+_data = _root / "data" / "processed"
 
 try:
     df = load_inclusoes_em_pauta()
@@ -22,6 +28,12 @@ except Exception as e:
 if df.empty:
     st.warning("O dataframe retornou vazio.")
     st.stop()
+
+try:
+    df_dec = pd.read_parquet(_data / "dim_decisoes.parquet")
+except Exception as e:
+    st.warning(f"Não foi possível carregar decisões para refinamento: {e}")
+    df_dec = pd.DataFrame()
 
 # ── Cabeçalho ─────────────────────────────────────────────────────────────────
 st.title("Inclusões em Pauta")
@@ -45,4 +57,4 @@ Os gráficos cobrem quatro dimensões de análise:
 st.markdown("---")
 
 # ── Renderização ──────────────────────────────────────────────────────────────
-render_graficos(df)
+render_graficos(df, df_dec)

@@ -203,24 +203,21 @@ def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
     return fig, fig_p
 
 
-def g8_desfecho_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
-    df_pv = df[df["ambiente"] == "Plenário Virtual"]
-    vc = df_pv["macro_desfecho"].value_counts()
-    fig_macro = _pizza(vc, "Concluídos e Não Concluídos — PV (período total)",
+def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                          ambiente: str = "Plenário Virtual",
+                          pizza_textinfo: str | None = None) -> go.Figure | tuple[go.Figure, go.Figure]:
+    d = df[df["ambiente"] == ambiente]
+    rotulo = "PV" if ambiente == "Plenário Virtual" else "PP"
+    vc = d["macro_desfecho"].value_counts()
+    fig_macro = _pizza(vc, f"Concluídos e Não Concluídos — {rotulo} (período total)",
                        cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
-                       show_values=show_values)
-    fig_det = _pizza(df_pv["desfecho"].value_counts(),
-                     "Desfecho Detalhado — PV (período total)", buraco=0.3,
-                     show_values=show_values)
-    return fig_macro, fig_det
-
-
-def g9_desfecho_pp(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    df_pp = df[df["ambiente"] == "Plenário Presencial"]
-    vc = df_pp["macro_desfecho"].value_counts()
-    return _pizza(vc, "Concluídos e Não Concluídos — PP (período total)",
-                  cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
-                  show_values=show_values)
+                       show_values=show_values, pizza_textinfo=pizza_textinfo)
+    if ambiente == "Plenário Virtual":
+        fig_det = _pizza(d["desfecho"].value_counts(),
+                         f"Desfecho Detalhado — {rotulo} (período total)", buraco=0.3,
+                         show_values=show_values, pizza_textinfo=pizza_textinfo)
+        return fig_macro, fig_det
+    return fig_macro
 
 
 def g10_macro_anual_pv(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> go.Figure:

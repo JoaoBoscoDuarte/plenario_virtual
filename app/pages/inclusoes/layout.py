@@ -4,7 +4,7 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import (
-    g5_anual_ambiente, g6_pv_por_classe, g7_pp_por_classe,
+    g5_anual_ambiente, g6_classe_filtravel,
     g8_desfecho_pv, g9_desfecho_pp,
     g10_macro_anual_pv, g11_macro_anual_pp,
     g12_concluidos_pv, g13_concluidos_pp,
@@ -35,17 +35,12 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
         g5_anual_ambiente,
     ),
     (
-        "G6 — Inclusões por Classe e Ano — PV",
-        "Inclusões por Classe — Plenário Virtual",
+        "G6 — Inclusões por Classe (PV e PP)",
+        "Inclusões por Classe",
         "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total geral no eixo secundário. "
+        "Selecione o âmbito (PV/PP) e filtre as classes desejadas. "
         "Inclui pizza com a distribuição por classe no período.",
-        g6_pv_por_classe,
-    ),
-    (
-        "G7 — Inclusões por Classe e Ano — PP",
-        "Inclusões por Classe — Plenário Presencial",
-        "Mesmo recorte do G6, aplicado ao Plenário Presencial.",
-        g7_pp_por_classe,
+        g6_classe_filtravel,
     ),
     (
         "G8 — Desfecho Geral — PV (período total)",
@@ -259,7 +254,7 @@ _LABELS = [item[0] for item in _CATALOGO]
 _SUMARIO = {
     "Inclusões em Pauta (G5–G17)": [
         "G5 — volume anual por ambiente (PV vs PP)",
-        "G6/G7 — volume por classe e ano (PV e PP)",
+        "G6 — volume por classe e ano (PV/PP selecionável)",
         "G8/G9 — desfecho geral no período (PV e PP)",
         "G10/G11 — macro-desfecho anual (PV e PP)",
         "G12/G13 — concluídos por ano (PV e PP)",
@@ -291,39 +286,38 @@ _SUMARIO = {
 _TABELA_SPECS: dict[int, tuple[str, str | None, str | None]] = {
     0: ("ano", "ambiente", None),
     1: ("ano", "classe", "PV"),
-    2: ("ano", "classe", "PP"),
-    3: ("macro_desfecho", None, "PV"),
-    4: ("macro_desfecho", None, "PP"),
-    5: ("ano", "macro_desfecho", "PV"),
-    6: ("ano", "macro_desfecho", "PP"),
-    7: ("ano", None, "PV"),
-    8: ("ano", None, "PP"),
-    9: ("ano", "classe", "NC_PV"),
-    10: ("ano", "classe", "NC_PP"),
-    11: ("ano", "classe", "C_PV"),
-    12: ("ano", "classe", "C_PP"),
-    13: ("ano", "tipo_questao", "NC_PV"),
-    14: ("ano", "tipo_questao", "NC_PP"),
-    15: ("ano", "tipo_questao", "C_PV"),
-    16: ("ano", "tipo_questao", "C_PP"),
-    17: ("categoria", None, "PV"),
-    18: ("categoria", None, "PP"),
-    19: ("ano", "categoria", "PV"),
-    20: ("ano", "categoria", "PP"),
-    21: ("tipo_questao", "categoria", "PV"),
-    22: ("tipo_questao", "categoria", "PP"),
-    23: ("ano", "categoria", "PV"),
-    24: ("ano", "categoria", "PP"),
-    25: ("ano", "categoria_nc", "PV"),
-    26: ("ano", "categoria_nc", "PP"),
-    27: ("ano", "categoria_nc", "PV"),
-    28: ("ano", "categoria_nc", "PP"),
-    29: ("ano", "categoria_nc", "PV"),
-    30: ("ano", "categoria_nc", "PP"),
-    31: ("teve_sustentacao", None, "PV"),
-    32: ("teve_sustentacao", None, "PP"),
-    33: ("ano", None, "PV"),
-    34: ("ano", None, "PP"),
+    2: ("macro_desfecho", None, "PV"),
+    3: ("macro_desfecho", None, "PP"),
+    4: ("ano", "macro_desfecho", "PV"),
+    5: ("ano", "macro_desfecho", "PP"),
+    6: ("ano", None, "PV"),
+    7: ("ano", None, "PP"),
+    8: ("ano", "classe", "NC_PV"),
+    9: ("ano", "classe", "NC_PP"),
+    10: ("ano", "classe", "C_PV"),
+    11: ("ano", "classe", "C_PP"),
+    12: ("ano", "tipo_questao", "NC_PV"),
+    13: ("ano", "tipo_questao", "NC_PP"),
+    14: ("ano", "tipo_questao", "C_PV"),
+    15: ("ano", "tipo_questao", "C_PP"),
+    16: ("categoria", None, "PV"),
+    17: ("categoria", None, "PP"),
+    18: ("ano", "categoria", "PV"),
+    19: ("ano", "categoria", "PP"),
+    20: ("tipo_questao", "categoria", "PV"),
+    21: ("tipo_questao", "categoria", "PP"),
+    22: ("ano", "categoria", "PV"),
+    23: ("ano", "categoria", "PP"),
+    24: ("ano", "categoria_nc", "PV"),
+    25: ("ano", "categoria_nc", "PP"),
+    26: ("ano", "categoria_nc", "PV"),
+    27: ("ano", "categoria_nc", "PP"),
+    28: ("ano", "categoria_nc", "PV"),
+    29: ("ano", "categoria_nc", "PP"),
+    30: ("teve_sustentacao", None, "PV"),
+    31: ("teve_sustentacao", None, "PP"),
+    32: ("ano", None, "PV"),
+    33: ("ano", None, "PP"),
 }
 
 
@@ -368,9 +362,10 @@ def _render_tabela(df: pd.DataFrame, idx: int) -> None:
         st.dataframe(tab.style.format("{:,.0f}", na_rep="—"), width="stretch", height=280)
 
 
-def _render(fn, df: pd.DataFrame, show_values: bool | None = None, proporcao: bool = False) -> None:
+def _render(fn, df: pd.DataFrame, show_values: bool | None = None, proporcao: bool = False,
+            **kwargs) -> None:
     if show_values is not None:
-        result = fn(df, show_values=show_values, proporcao=proporcao)
+        result = fn(df, show_values=show_values, proporcao=proporcao, **kwargs)
     else:
         result = fn(df)
     if isinstance(result, dict):
@@ -421,5 +416,14 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
     st.caption(descricao)
 
     show_values = st.checkbox("Exibir valores", value=True, key=f"inc_sv_{idx}")
-    _render(fn, df, show_values=show_values)
-    _render_tabela(df, idx)
+
+    if idx == 1:
+        amb = st.selectbox("Âmbito", ["Plenário Virtual", "Plenário Presencial"],
+                           key="inc_amb_classe")
+        todas = sorted(df["classe"].dropna().unique())
+        sel = st.multiselect("Classes", todas, default=todas, key="inc_cls_filtro")
+        _render(fn, df, show_values=show_values, ambiente=amb, classes=sel)
+        _render_tabela(df, idx)
+    else:
+        _render(fn, df, show_values=show_values)
+        _render_tabela(df, idx)

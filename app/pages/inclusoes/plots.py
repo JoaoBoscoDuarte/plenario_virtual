@@ -181,28 +181,20 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
     return fig, fig_p
 
 
-def g6_pv_por_classe(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
-    df_pv = df[df["ambiente"] == "Plenário Virtual"]
-    fig = _barras_grupo(df_pv, "ano", "classe", CORES_CLASSE,
-                        "Inclusões por Classe e Ano — Plenário Virtual",
-                        "Inclusões por classe", "Total PV (Linha)",
+def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                        ambiente: str = "Plenário Virtual",
+                        classes: list[str] | None = None) -> tuple[go.Figure, go.Figure]:
+    d = df[df["ambiente"] == ambiente]
+    if classes:
+        d = d[d["classe"].isin(classes)]
+    rotulo = "PV" if ambiente == "Plenário Virtual" else "PP"
+    fig = _barras_grupo(d, "ano", "classe", CORES_CLASSE,
+                        f"Inclusões por Classe e Ano — {ambiente}",
+                        "Inclusões por classe", f"Total {rotulo} (Linha)",
                         show_values=show_values, proporcao=proporcao)
-    fig_p = _pizza(df_pv["classe"].value_counts(),
-                   "Proporção por Classe — PV (período total)",
-                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pv["classe"].value_counts().index],
-                   show_values=show_values)
-    return fig, fig_p
-
-
-def g7_pp_por_classe(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False) -> tuple[go.Figure, go.Figure]:
-    df_pp = df[df["ambiente"] == "Plenário Presencial"]
-    fig = _barras_grupo(df_pp, "ano", "classe", CORES_CLASSE,
-                        "Inclusões por Classe e Ano — Plenário Presencial",
-                        "Inclusões por classe", "Total PP (Linha)",
-                        show_values=show_values, proporcao=proporcao)
-    fig_p = _pizza(df_pp["classe"].value_counts(),
-                   "Proporção por Classe — PP (período total)",
-                   cores=[CORES_CLASSE.get(l, "#999") for l in df_pp["classe"].value_counts().index],
+    fig_p = _pizza(d["classe"].value_counts(),
+                   f"Proporção por Classe — {rotulo} (período total)",
+                   cores=[CORES_CLASSE.get(l, "#999") for l in d["classe"].value_counts().index],
                    show_values=show_values)
     return fig, fig_p
 

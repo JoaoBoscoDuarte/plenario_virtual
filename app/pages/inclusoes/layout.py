@@ -14,6 +14,22 @@ from .plots import (
     g34_nc_cat_tipo_filtravel,
     _categoria_desfecho, _categoria_nc, _refinar_motivos_diversos,
 )
+from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
+
+_DIMS_LABEL = list(DIMENSOES.keys())
+
+_PREDEFINIDOS_TAB = [
+    ("Ano × Ambiente (inclusões, agrupado)",           "ano",      "ambiente",       "inclusoes", "group"),
+    ("Ano × Classe (inclusões, empilhado)",            "ano",      "classe",         "inclusoes", "stack"),
+    ("Ano × Tipo de Questão (inclusões, agrupado)",    "ano",      "tipo_questao",   "inclusoes", "group"),
+    ("Ambiente × Classe (inclusões, agrupado)",         "ambiente", "classe",         "inclusoes", "group"),
+    ("Ambiente × Macro-Desfecho (inclusões, 100%)",    "ambiente", "macro_desfecho", "inclusoes", "100%"),
+    ("Classe × Macro-Desfecho (inclusões, agrupado)",   "classe",   "macro_desfecho", "inclusoes", "group"),
+    ("Classe × Desfecho Detalhado (inclusões)",         "classe",   "desfecho",       "inclusoes", "group"),
+    ("Tipo de Questão × Macro-Desfecho (inclusões)",    "tipo_questao", "macro_desfecho", "inclusoes", "group"),
+    ("Tipo de Questão × Desfecho Detalhado (inclusões)","tipo_questao", "desfecho",     "inclusoes", "group"),
+]
+_LABELS_PRE_TAB = [p[0] for p in _PREDEFINIDOS_TAB]
 
 # Catálogo: (label do selectbox, subtítulo, descrição, callable)
 # Para gráficos que retornam dict, o callable retorna dict e _render trata.
@@ -129,6 +145,14 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
         "Selecione o âmbito e o tipo na sub-aba.",
         g34_nc_cat_tipo_filtravel,
     ),
+    # ── Tabulador ──────────────────────────────────────────────────────────────
+    (
+        "G36 — Tabulador Interativo",
+        "Tabulador Interativo",
+        "Configure livremente os eixos, agrupamento e modo de barras. "
+        "A tabela abaixo reflete a mesma seleção.",
+        None,
+    ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
@@ -157,6 +181,9 @@ _SUMARIO = {
         "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
         "G32/G33 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
         "G34/G35 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
+    ],
+    "Tabulador (G36)": [
+        "G36 — tabulador interativo: gráfico + tabela com eixos configuráveis",
     ],
 }
 
@@ -258,6 +285,75 @@ def _render(fn, df: pd.DataFrame, show_values: bool | None = None, proporcao: bo
         st.plotly_chart(result, width="stretch")
 
 
+def _render_interactive_tabulador(df: pd.DataFrame) -> None:
+    st.subheader("Tabulador Gráfico Interativo")
+    st.caption("Configure livremente os eixos, agrupamento e modo de barras.")
+
+    col_pre, _ = st.columns([2, 1])
+    with col_pre:
+        pre_escolha = st.selectbox(
+            "🔖 Pré-definidos",
+            options=["— ou configure manualmente abaixo —"] + _LABELS_PRE_TAB,
+            index=0,
+            key="inc_tab_predef",
+        )
+
+    if pre_escolha.startswith("—"):
+        def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+    else:
+        _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_TAB if p[0] == pre_escolha)
+        def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+        def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+        def_m  = ["inclusoes", "processos"].index(pm)
+        def_bm = ["group", "stack", "100%"].index(pbm)
+
+    c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
+    with c1:
+        eixo_x_lbl = st.selectbox("Eixo X", _DIMS_LABEL, index=def_x, key="inc_tab_x")
+    with c2:
+        eixo_y_lbl = st.selectbox("Eixo Y (cor/grupo)", _DIMS_LABEL, index=def_g, key="inc_tab_y")
+    with c3:
+        metrica = st.selectbox(
+            "Métrica", ["inclusoes", "processos"], index=def_m, key="inc_tab_m",
+            format_func=lambda v: "Inclusões em pauta" if v == "inclusoes" else "Processos distintos",
+        )
+    with c4:
+        barmode = st.selectbox(
+            "Modo", ["group", "stack", "100%"], index=def_bm, key="inc_tab_bm",
+            format_func=lambda v: {"group": "Agrupado", "stack": "Empilhado", "100%": "Empilhado 100%"}[v],
+        )
+    with c5:
+        show_values_tab = st.checkbox("Exibir valores", value=False, key="inc_tab_sv")
+
+    eixo_x = DIMENSOES[eixo_x_lbl]
+    eixo_y = DIMENSOES[eixo_y_lbl]
+
+    if eixo_x == eixo_y:
+        st.warning("Eixo X e Eixo Y não podem ser a mesma dimensão.")
+        return
+
+    fig = gt10_tabulador(df, eixo_x, eixo_y, metrica, barmode, show_values_tab)
+    st.plotly_chart(fig, width="stretch")
+
+    st.markdown("---")
+    st.subheader("Tabela — mesmos eixos")
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    if metrica == "processos":
+        d = d.drop_duplicates("incidente")
+    tab = d.groupby([eixo_x, eixo_y], observed=True).size().reset_index(name="n")
+    if barmode == "100%":
+        totais = tab.groupby(eixo_x)["n"].transform("sum")
+        tab["n"] = (tab["n"] / totais * 100).round(1)
+    pvt = tab.pivot_table(index=eixo_x, columns=eixo_y, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    fmt = {c: "{:,.0f}" for c in pvt.columns if pvt[c].dtype.kind in "iuf"}
+    st.dataframe(pvt.style.format(fmt, na_rep="—"), width="stretch", height=280)
+
+
 def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> None:
     df = _refinar_motivos_diversos(df, df_dec if df_dec is not None else pd.DataFrame())
 
@@ -281,6 +377,10 @@ def render_graficos(df: pd.DataFrame, df_dec: pd.DataFrame | None = None) -> Non
 
     idx = _LABELS.index(escolha)
     _, subtitulo, descricao, fn = _CATALOGO[idx]
+
+    if fn is None:
+        _render_interactive_tabulador(df)
+        return
 
     st.subheader(subtitulo)
     st.caption(descricao)

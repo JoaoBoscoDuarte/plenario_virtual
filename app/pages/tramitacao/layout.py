@@ -154,6 +154,7 @@ _LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
 _DIMS_LABEL = list(DIMENSOES.keys())
 
 _TABELA_SPECS: dict[int, tuple[str, str | None]] = {
+    0: ("tramitacao", None),
     1: ("classe", "tramitacao"),
     2: ("tipo_questao", "tramitacao"),
     4: ("tramitacao", "macro_desfecho"),
@@ -169,6 +170,15 @@ def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None]) -> pd.DataFram
     d = df.copy()
     d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
     d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+    if col_grupo is None:
+        tab = d[col_linha].value_counts().reset_index()
+        tab.columns = [col_linha, "n"]
+        pvt = tab.set_index(col_linha)
+        pvt.loc["Total"] = pvt["n"].sum()
+        pvt.loc["Total", col_linha] = "Total" if col_linha not in pvt.columns else None
+        pvt = pvt.reset_index()
+        pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+        return pvt
     tab = d.groupby([col_linha, col_grupo], observed=True).size().reset_index(name="n")
     pvt = tab.pivot_table(index=col_linha, columns=col_grupo, values="n", fill_value=0)
     pvt["Total"] = pvt.sum(axis=1)

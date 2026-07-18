@@ -119,8 +119,6 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
         xaxis=dict(title=col_x.capitalize()),
         yaxis=dict(title=label_y),
         yaxis2=dict(title="Total", overlaying="y", side="right"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="center", x=0.5),
         **_LAYOUT,
     )
     if y_max:
@@ -464,33 +462,42 @@ def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True
 # T13 — Processos por tipo de tramitação (período total, sem quebra anual)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+CORES_TRAMITACAO = {
+    "Só Virtual":         "#2563eb",
+    "Só Presencial":      "#f59e0b",
+    "Ambos os ambientes": "#16a34a",
+}
+
+
+def _classificar_tramitacao_t13(ambientes: set) -> str:
+    tem_v = "Plenário Virtual" in ambientes
+    tem_p = "Plenário Presencial" in ambientes
+    if tem_v and tem_p:
+        return "Ambos os ambientes"
+    return "Só Virtual" if tem_v else "Só Presencial"
+
+
 def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     proc = (
         df.groupby("incidente")["ambiente"]
         .apply(set)
         .reset_index(name="ambientes")
     )
-    proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
+    proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao_t13)
     proc["periodo"] = "2020–2025"
 
     tab = proc.groupby(["periodo", "tramitacao"], observed=True).size().reset_index(name="n")
-    total = proc.groupby("periodo", observed=True).size().reset_index(name="n")
 
     fig = go.Figure()
-    ord_tram = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
+    ord_tram = ["Só Virtual", "Só Presencial", "Ambos os ambientes"]
     for tr in ord_tram:
         d = tab[tab["tramitacao"] == tr]
         fig.add_trace(go.Bar(
             x=d["periodo"], y=d["n"], name=tr,
-            marker_color=CORES_TRAM[tr],
+            marker_color=CORES_TRAMITACAO[tr],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
         ))
-    fig.add_trace(go.Scatter(
-        x=total["periodo"], y=total["n"], name="Total",
-        mode="lines+markers", line=dict(color="#333", width=2),
-        marker=dict(size=6),
-    ))
     fig.update_layout(
         title_text="Processos por tipo de tramitação — 2020–2025",
         barmode="group",

@@ -493,19 +493,19 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     for tr in ord_tram:
         d = tab[tab["tramitacao"] == tr]
         fig.add_trace(go.Bar(
-            x=d["periodo"], y=d["n"], name=tr,
+            x=d["periodo"], y=d["n"], name=tr.upper(),
             marker_color=CORES_TRAMITACAO[tr],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=15, color="black"),
         ))
     fig.update_layout(
-        title=dict(text="Processos por tipo de tramitação — 2020–2025",
+        title=dict(text="PROCESSOS POR TIPO DE TRAMITAÇÃO — 2020–2025",
                    font=dict(family="Arial, sans-serif", size=22, color="black")),
         barmode="group",
-        xaxis=dict(title=dict(text="Período", font=dict(family="Arial, sans-serif", size=16, color="black")),
+        xaxis=dict(title=dict(text="PERÍODO", font=dict(family="Arial, sans-serif", size=16, color="black")),
                    tickfont=dict(family="Arial, sans-serif", size=15, color="black")),
-        yaxis=dict(title=dict(text="Processos (incidentes distintos)", font=dict(family="Arial, sans-serif", size=16, color="black")),
+        yaxis=dict(title=dict(text="PROCESSOS (INCIDENTES DISTINTOS)", font=dict(family="Arial, sans-serif", size=16, color="black")),
                    tickfont=dict(family="Arial, sans-serif", size=15, color="black")),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
                     font=dict(family="Arial, sans-serif", size=15, color="black")),

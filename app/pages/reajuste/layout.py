@@ -26,10 +26,10 @@ def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: 
 
 
 def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False):
-    """R8: desfecho vs reajuste com quebra de linha."""
+    """R8: desfecho vs reajuste — labels com quebra via annotation."""
     import re
     fig = gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
-    # extrai valores x únicos das traces
+    fig.update_xaxes(showticklabels=False, tickangle=0)
     seen: set = set()
     vals: list[str] = []
     for tr in fig.data:
@@ -37,13 +37,15 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
             if isinstance(v, str) and v not in seen:
                 seen.add(v)
                 vals.append(v)
-    breaks = [re.sub(r"\s*-\s*", "\n", v, count=1) for v in vals]
-    fig.update_xaxes(
-        tickmode="array",
-        tickvals=vals,
-        ticktext=breaks,
-        tickangle=0,
-    )
+    for i, v in enumerate(vals):
+        fig.add_annotation(
+            x=i, y=-0.12, xref="x", yref="paper",
+            text=re.sub(r"\s*-\s*", "<br>", v, count=1),
+            showarrow=False,
+            font=dict(family="Arial, sans-serif", size=17, color="black"),
+            xanchor="center", yanchor="top",
+        )
+    fig.update_layout(margin=dict(b=200))
     return fig
 
 

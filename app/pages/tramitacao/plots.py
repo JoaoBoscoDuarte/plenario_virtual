@@ -39,18 +39,25 @@ _TRAMS   = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
 
 _LEGEND = dict(
     orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(size=10, color="#333333"),
-    bgcolor="#fcfcfc", bordercolor="#cccccc", borderwidth=1,
+    font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 _LAYOUT = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
     legend=_LEGEND,
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )
 _LAYOUT_PIZZA = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
     showlegend=False,
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+)
+_AXIS = dict(
+    showline=True, linewidth=2, linecolor="black",
+    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 
 
@@ -90,6 +97,8 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
         yaxis=dict(title=label_y),
         **_LAYOUT,
     )
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -123,6 +132,8 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
     )
     if y_max:
         fig.update_yaxes(range=[0, y_max])
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -200,6 +211,8 @@ def gt4_ambos_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
         yaxis=dict(title="Processos distintos"),
         **_LAYOUT,
     )
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -393,6 +406,8 @@ def gt10_tabulador(
         yaxis=dict(title=label_y),
         **_LAYOUT,
     )
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 

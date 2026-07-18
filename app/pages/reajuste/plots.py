@@ -25,20 +25,35 @@ _ANOS    = list(range(2020, 2026))
 
 _LEGEND = dict(
     orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(size=10, color="#333333"),
-    bgcolor="#fcfcfc", bordercolor="#cccccc", borderwidth=1,
+    font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 _LAYOUT_PIZZA = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
     showlegend=False,
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )
 _LAYOUT_BAR = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
     legend=_LEGEND,
-    xaxis=dict(dtick=1, title="Ano", tickangle=-45),
-    yaxis=dict(title="Inclusões com reajuste de voto"),
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+    xaxis=dict(dtick=1, title="Ano", tickangle=-45,
+               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+               showline=True, linewidth=2, linecolor="black",
+               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
+    yaxis=dict(title="Inclusões com reajuste de voto",
+               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+               showline=True, linewidth=2, linecolor="black",
+               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
+)
+_AXIS = dict(
+    showline=True, linewidth=2, linecolor="black",
+    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 
 
@@ -102,6 +117,8 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         name="Com reajuste",
     ))
     fig.update_layout(title_text=titulo, **_LAYOUT_BAR)
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -136,4 +153,6 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         barmode="group",
         **_LAYOUT_BAR,
     )
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig

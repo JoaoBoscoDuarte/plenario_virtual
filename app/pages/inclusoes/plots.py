@@ -46,15 +46,26 @@ COR_PP    = "#94a3b8"
 
 _LEGEND = dict(
     orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(size=10, color="#333333"),
-    bgcolor="#fcfcfc", bordercolor="#cccccc", borderwidth=1,
+    font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 _LAYOUT = dict(
-    template="plotly_white",
-    height=500,
+    template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
     legend=_LEGEND,
-    xaxis=dict(dtick=1, title="Ano", tickangle=-45),
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+    xaxis=dict(
+        dtick=1, title="Ano", tickangle=-45,
+        showline=True, linewidth=2, linecolor="black",
+        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+    ),
+    yaxis=dict(
+        showline=True, linewidth=2, linecolor="black",
+        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+    ),
 )
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
@@ -71,7 +82,13 @@ def _bar_fig(barmode: str = "group") -> go.Figure:
 def _bar_com_linha(label_y: str, label_total: str,
                    x_title: str = "Ano") -> go.Figure:
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    layout = {**_LAYOUT, "xaxis": dict(dtick=1, title=x_title, tickangle=-45)}
+    layout = {**_LAYOUT, "xaxis": dict(
+        dtick=1, title=x_title, tickangle=-45,
+        showline=True, linewidth=2, linecolor="black",
+        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+    )}
     fig.update_layout(**layout, barmode="group")
     fig.update_yaxes(title_text=label_y, secondary_y=False)
     fig.update_yaxes(title_text=label_total, secondary_y=True)
@@ -95,6 +112,7 @@ def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
     fig.update_layout(
         title_text=titulo, template="plotly_white", height=420,
         margin=dict(t=80, b=60), legend=_LEGEND,
+        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
     )
     return fig
 
@@ -432,10 +450,11 @@ def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> g
     fig.update_layout(
         title_text=titulo, template="plotly_white", height=400,
         margin=dict(t=60, b=120, l=20, r=20),
+        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
         legend=dict(
             orientation="h", yanchor="bottom", y=-0.25,
             xanchor="center", x=0.5,
-            font=dict(size=10),
+            font=dict(family="Arial, sans-serif", size=17, color="black"),
         ),
     )
     return fig

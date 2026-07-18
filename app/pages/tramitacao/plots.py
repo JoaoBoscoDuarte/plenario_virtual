@@ -3,11 +3,6 @@
 from __future__ import annotations
 import plotly.graph_objects as go
 import pandas as pd
-from tema import (
-    is_dark, get_legend, get_layout, get_axis,
-    get_bar_textfont, get_pizza_textfont, get_pizza_layout,
-    get_pizza_title_font, _cor_base, _cor_grid, _templ, _font, _cores_cinza,
-)
 
 CORES_TRAM = {
     "Ambos os ambientes": "#8b5cf6",
@@ -42,6 +37,23 @@ _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
 _TRAMS   = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
 
+_LEGEND = dict(
+    orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
+    font=dict(family="Arial, sans-serif", size=17, color="black"),
+)
+_LAYOUT = dict(
+    template="plotly_white", height=700,
+    margin=dict(t=130, b=140, l=120, r=60),
+    legend=_LEGEND,
+    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+)
+_AXIS = dict(
+    showline=True, linewidth=2, linecolor="black",
+    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+)
+
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -52,12 +64,20 @@ def _pizza(serie: pd.Series, titulo: str, cores: list,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
         textinfo="percent" if show_values else "none",
-        textfont=get_pizza_textfont(),
+        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
         textposition="inside",
         insidetextorientation="radial",
         showlegend=True,
     ))
-    fig.update_layout(title_text=titulo, **get_pizza_layout())
+    fig.update_layout(
+        title_text=titulo, template="plotly_white", height=500,
+        margin=dict(t=120, b=100, l=60, r=60),
+        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+        legend=dict(
+            orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
+            font=dict(family="Arial, sans-serif", size=17, color="black"),
+        ),
+    )
     return fig
 
 
@@ -74,16 +94,16 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
-            textfont=get_bar_textfont(),
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
         title_text=titulo.upper(), barmode="group",
         xaxis=dict(title=x_title.upper()),
         yaxis=dict(title=label_y.upper()),
-        **get_layout(),
+        **_LAYOUT,
     )
-    fig.update_xaxes(**get_axis())
-    fig.update_yaxes(**get_axis())
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -102,7 +122,7 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
-            textfont=get_bar_textfont(),
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ), secondary_y=False)
     fig.add_trace(go.Scatter(
         x=total[col_x], y=total["n"], name="TOTAL",
@@ -114,12 +134,12 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
         xaxis=dict(title=col_x.capitalize()),
         yaxis=dict(title=label_y.upper()),
         yaxis2=dict(title="TOTAL", overlaying="y", side="right"),
-        **get_layout(),
+        **_LAYOUT,
     )
     if y_max:
         fig.update_yaxes(range=[0, y_max])
-    fig.update_xaxes(**get_axis())
-    fig.update_yaxes(**get_axis())
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -190,17 +210,17 @@ def gt4_ambos_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
             marker_color=CORES_TIPO.get(row["tipo_questao"], "#999"),
             text=[row["n"]] if show_values else None,
             textposition="outside", cliponaxis=False,
-            textfont=get_bar_textfont(),
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
         title_text="PROCESSOS EM AMBOS OS AMBIENTES POR TIPO DE QUESTÃO (2020–2025)",
         barmode="group",
         xaxis=dict(title="TIPO DE QUESTÃO"),
         yaxis=dict(title="PROCESSOS DISTINTOS"),
-        **get_layout(),
+        **_LAYOUT,
     )
-    fig.update_xaxes(**get_axis())
-    fig.update_yaxes(**get_axis())
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -380,7 +400,7 @@ def gt10_tabulador(
             text=d_g["n"].apply(lambda v: f"{v:.1f}%" if barmode == "100%" else str(int(v))) if show_values else None,
             textposition="outside" if bm != "stack" else "inside",
             cliponaxis=False,
-            textfont=get_bar_textfont(),
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
 
     # rótulos legíveis para título
@@ -395,10 +415,10 @@ def gt10_tabulador(
         barmode=bm,
         xaxis=dict(title=inv.get(eixo_x, eixo_x).upper()),
         yaxis=dict(title=label_y),
-        **get_layout(),
+        **_LAYOUT,
     )
-    fig.update_xaxes(**get_axis())
-    fig.update_yaxes(**get_axis())
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -503,7 +523,7 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
             marker_color=CORES_TRAMITACAO[tr],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
-            textfont=get_bar_textfont(),
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
         title=dict(text="PROCESSOS POR TIPO DE TRAMITAÇÃO — 2020–2025",

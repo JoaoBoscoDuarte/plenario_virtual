@@ -48,6 +48,23 @@ def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
     ).value_counts()
 
 
+def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
+    serie = _serie_reajuste(df_amb)
+    cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
+    textinfo = "label+value+percent" if show_values else "label+percent"
+    fig = go.Figure(go.Pie(
+        labels=serie.index, values=serie.values,
+        hole=0.4,
+        marker=dict(colors=cores, line=dict(color="white", width=2)),
+        textinfo=textinfo,
+        textfont=dict(size=13),
+        textposition="auto",
+        insidetextorientation="radial",
+    ))
+    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
+    return fig
+
+
 # ── G-R1 — Pizza reajuste por ambiente (selecionável) ──────────────────────────
 
 def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,

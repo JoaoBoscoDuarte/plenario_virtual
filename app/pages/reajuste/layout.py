@@ -29,7 +29,7 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
     """R8: desfecho vs reajuste — labels e título como annotations."""
     import re
     fig = gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
-    fig.update_xaxes(showticklabels=False, tickangle=0, title="")
+    fig.update_xaxes(showticklabels=False, tickangle=0)
     seen: set = set()
     vals: list[str] = []
     for tr in fig.data:
@@ -44,17 +44,12 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
         else:
             s = re.sub(r"\s*-\s*", "<br>", s, count=1)
         fig.add_annotation(
-            x=i, y=0, xref="x", yref="paper", yshift=-35,
+            x=i, y=0, xref="x", yref="paper", yshift=-25,
             text=s, showarrow=False,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
             xanchor="center", yanchor="top",
         )
-    fig.add_annotation(
-        x=0.5, y=0, xref="paper", yref="paper", yshift=-105,
-        text="DESFECHO DETALHADO", showarrow=False,
-        font=dict(family="Arial, sans-serif", size=18, color="black"),
-        xanchor="center", yanchor="top",
-    )
+    fig.update_xaxes(title=dict(standoff=80))
     fig.update_layout(margin=dict(b=200), legend=dict(y=-0.2))
     return fig
 

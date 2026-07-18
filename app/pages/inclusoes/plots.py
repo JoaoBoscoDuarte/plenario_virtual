@@ -464,10 +464,10 @@ def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> g
     ))
     fig.update_layout(
         title_text=titulo, template="plotly_white", height=400,
-        margin=dict(t=60, b=120, l=20, r=20),
+        margin=dict(t=60, b=140, l=20, r=20),
         title_font=dict(family="Arial, sans-serif", size=26, color="black"),
         legend=dict(
-            orientation="h", yanchor="bottom", y=-0.25,
+            orientation="h", yanchor="top", y=-0.35,
             xanchor="center", x=0.5,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
         ),

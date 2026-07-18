@@ -120,7 +120,7 @@ def render_timeline() -> None:
         )
 
     fig.update_layout(
-        title_text="<b>Evolução do Plenário Virtual e Controle Concentrado (STF)</b>",
+        title_text="<b>Evolução do Plenário Virtual e controle concentrado (STF)</b>",
         title_x=0.5,
         paper_bgcolor="white", plot_bgcolor="white",
         showlegend=False,

@@ -16,8 +16,8 @@ CORES_REAJUSTE = {
 }
 CORES_TRAM = {
     "Ambos os ambientes": "#8b5cf6",
-    "Só Virtual":         "#2563eb",
-    "Só Físico":          "#f59e0b",
+    "Virtual":            "#2563eb",
+    "Físico":             "#f59e0b",
 }
 CORES_TIPO = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
@@ -60,14 +60,14 @@ def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Fig
     fig = make_subplots(
         rows=1, cols=2,
         specs=[[{'type': 'pie'}, {'type': 'pie'}]],
-        subplot_titles=["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"],
+        subplot_titles=["Plenário Virtual", "Plenário Presencial"],
     )
     for i, amb in enumerate(["Plenário Virtual", "Plenário Presencial"]):
         d = df[df["ambiente"] == amb]
         serie = _serie_reajuste(d)
         cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
         fig.add_trace(go.Pie(
-            labels=serie.index, values=serie.values,
+            labels=[str(l).upper() for l in serie.index], values=serie.values,
             hole=0.4,
             marker=dict(colors=cores, line=dict(color="white", width=2)),
             textinfo="percent" if show_values else "none",
@@ -78,7 +78,7 @@ def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Fig
             legendgroup="group",
         ), row=1, col=i + 1)
     fig.update_layout(
-        title_text="INCLUSÕES COM REAJUSTE DE VOTO — PERÍODO TOTAL (2020–2025)",
+        title_text="Inclusões com reajuste de voto — período total (2020–2025)",
         template="plotly_white", height=500,
         margin=dict(t=120, b=120, l=60, r=60),
         title_font=dict(family="Arial, sans-serif", size=26, color="black"),
@@ -97,7 +97,7 @@ def gr3_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
                         ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == ambiente],
-        f"Reajuste de Voto por Ano — {ambiente} (2020–2025)",
+        f"Reajuste de voto por ano — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
@@ -112,7 +112,7 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         text=tab["n"] if show_values else None,
         textposition="outside",
         cliponaxis=False,
-        name="Com reajuste",
+        name="COM REAJUSTE",
     ))
     fig.update_layout(title_text=titulo, **_LAYOUT_BAR)
     fig.update_xaxes(**_AXIS)
@@ -124,7 +124,7 @@ def gr5_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: 
                          ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_classe(
         df[df["ambiente"] == ambiente],
-        f"Reajuste de Voto por Ano e Classe — {ambiente} (2020–2025)",
+        f"Reajuste de voto por ano e classe — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
@@ -136,7 +136,7 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         if d.empty:
             continue
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=cls,
+            x=d["ano"], y=d["n"], name=cls.upper(),
             marker_color=CORES_CLASSE[cls],
             text=d["n"] if show_values else None,
             textposition="outside",

@@ -96,7 +96,7 @@ _CATALOGO = [
         "T12 — Processos por Tipo de Tramitação",
         "Processos por tipo de tramitação, por ano sem repetição (2020–2025)",
         "Cada processo conta uma única vez: ano da primeira inclusão, "
-        "categoria conforme todo o histórico (Só Virtual / Só Físico / Ambos).",
+        "categoria conforme todo o histórico (Virtual / Físico / Ambos).",
         gt12_proc_tramitacao_primeiro_ano,
     ),
     (

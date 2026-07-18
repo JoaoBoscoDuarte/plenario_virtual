@@ -114,7 +114,7 @@ def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
     ti = pizza_textinfo if pizza_textinfo else ("percent+value" if show_values else "none")
     ti = "none" if not show_values else ti
     fig = go.Figure(go.Pie(
-        labels=series.index, values=series.values, hole=buraco,
+        labels=[str(l).upper() for l in series.index], values=series.values, hole=buraco,
         textinfo=ti,
         textposition="auto",
         insidetextorientation="radial",
@@ -178,7 +178,7 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
         if d.empty:
             continue
         fig.add_trace(go.Bar(
-            x=d[col_x], y=d["y"], name=g,
+            x=d[col_x], y=d["y"], name=g.upper(),
             marker_color=cores[g],
             text=texto[d.index] if isinstance(texto, pd.Series) else texto,
             textposition="outside", cliponaxis=False,
@@ -187,7 +187,7 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
         fig.add_trace(go.Scatter(
             x=total[col_x], y=total["y"], mode="lines+markers",
             line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
-            name=label_total,
+            name=label_total.upper(),
         ), secondary_y=True)
     fig.update_layout(title_text=titulo)
     return fig
@@ -204,10 +204,10 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
         d = tab[tab["ambiente"] == amb]
         texto = d["n"] if show_values else None
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=amb, marker_color=cor,
+            x=d["ano"], y=d["n"], name=amb.upper(), marker_color=cor,
             text=texto, textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(title_text="Inclusões em Pauta por Ano e Ambiente")
+    fig.update_layout(title_text="Inclusões em pauta por ano e ambiente")
 
     pizza = df["ambiente"].value_counts()
     cores_pizza = [COR_PV if l == "Plenário Virtual" else COR_PP
@@ -225,11 +225,11 @@ def g6_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
     if classes:
         d = d[d["classe"].isin(classes)]
     fig = _barras_grupo(d, "ano", "classe", CORES_CLASSE,
-                        f"Inclusões por Classe e Ano — {ambiente}",
-                        "Inclusões por classe", f"Total (Linha)",
+                        f"Inclusões por classe e ano — {ambiente}",
+                        "Inclusões por classe", f"Total (linha)",
                         show_values=show_values, proporcao=proporcao)
     fig_p = _pizza(d["classe"].value_counts(),
-                   f"Proporção por Classe — {ambiente} (período total)",
+                   f"Proporção por classe — {ambiente} (período total)",
                    cores=[CORES_CLASSE.get(l, "#999") for l in d["classe"].value_counts().index],
                    show_values=show_values, pizza_textinfo=pizza_textinfo)
     return fig, fig_p
@@ -240,12 +240,12 @@ def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
                           pizza_textinfo: str | None = None) -> go.Figure | tuple[go.Figure, go.Figure]:
     d = df[df["ambiente"] == ambiente]
     vc = d["macro_desfecho"].value_counts()
-    fig_macro = _pizza(vc, f"Concluídos e Não Concluídos — {ambiente} (período total)",
+    fig_macro = _pizza(vc, f"Concluídos e não concluídos — {ambiente} (período total)",
                        cores=[CORES_MACRO.get(l, "#94a3b8") for l in vc.index],
                        show_values=show_values, pizza_textinfo=pizza_textinfo)
     if ambiente == "Plenário Virtual":
         fig_det = _pizza(d["desfecho"].value_counts(),
-                         f"Desfecho Detalhado — {ambiente} (período total)", buraco=0.3,
+                         f"Desfecho detalhado — {ambiente} (período total)", buraco=0.3,
                          show_values=show_values, pizza_textinfo=pizza_textinfo)
         return fig_macro, fig_det
     return fig_macro
@@ -254,14 +254,14 @@ def g8_desfecho_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
 def g10_macro_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
                               ambiente: str = "Plenário Virtual") -> go.Figure:
     return _macro_anual(df[df["ambiente"] == ambiente],
-                        f"Concluídos e Não Concluídos por Ano — {ambiente}",
+                        f"Concluídos e não concluídos por ano — {ambiente}",
                         show_values=show_values, proporcao=proporcao)
 
 
 def g12_concluidos_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
                              ambiente: str = "Plenário Virtual") -> go.Figure:
     return _concluidos_anual(df[df["ambiente"] == ambiente],
-                             f"Concluídos por Ano — {ambiente}",
+                             f"Concluídos por ano — {ambiente}",
                              show_values=show_values, proporcao=proporcao)
 
 
@@ -269,8 +269,8 @@ def g14_nao_concluidos_classe_filtravel(df: pd.DataFrame, show_values: bool = Tr
                                         ambiente: str = "Plenário Virtual") -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == ambiente],
                                  "Não concluído",
-                                 f"Não Concluídos por Classe e Ano — {ambiente}",
-                                 f"Total Não Concluídos",
+                                 f"Não concluídos por classe e ano — {ambiente}",
+                                 f"Total não concluídos",
                                  show_values=show_values, proporcao=proporcao)
 
 
@@ -278,8 +278,8 @@ def g16_concluidos_classe_filtravel(df: pd.DataFrame, show_values: bool = True, 
                                     ambiente: str = "Plenário Virtual") -> go.Figure:
     return _por_classe_com_total(df[df["ambiente"] == ambiente],
                                  "Concluído",
-                                 f"Concluídos por Classe e Ano — {ambiente}",
-                                 f"Total Concluídos",
+                                 f"Concluídos por classe e ano — {ambiente}",
+                                 f"Total concluídos",
                                  show_values=show_values, proporcao=proporcao)
 
 
@@ -302,7 +302,7 @@ def _macro_anual(df_amb: pd.DataFrame, titulo: str,
         if d.empty:
             continue
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["y"], name=macro,
+            x=d["ano"], y=d["y"], name=macro.upper(),
             marker_color=CORES_MACRO[macro],
             text=texto[d.index] if isinstance(texto, pd.Series) else texto,
             textposition="outside", cliponaxis=False,
@@ -328,7 +328,7 @@ def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
 
     fig = _bar_fig()
     fig.add_trace(go.Bar(
-        x=tab["ano"], y=tab["y"], name="Concluídos",
+        x=tab["ano"], y=tab["y"], name="CONCLUÍDOS",
         marker_color=CORES_MACRO["Concluído"],
         text=texto, textposition="outside", cliponaxis=False,
     ))
@@ -432,8 +432,8 @@ def g18_nc_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao:
     sub = _prep_tipo(df[(df["ambiente"] == ambiente) &
                         (df["macro_desfecho"] == "Não concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         f"Não Concluídos por Tipo de Questão — {ambiente}",
-                         "Inclusões em pauta", "Total Não Concluídos",
+                         f"Não concluídos por tipo de questão — {ambiente}",
+                         "Inclusões em pauta", "Total não concluídos",
                          show_values=show_values, proporcao=proporcao)
 
 
@@ -442,8 +442,8 @@ def g20_c_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: 
     sub = _prep_tipo(df[(df["ambiente"] == ambiente) &
                         (df["macro_desfecho"] == "Concluído")])
     return _barras_grupo(sub, "ano", "tipo_questao", CORES_TIPO,
-                         f"Concluídos por Tipo de Questão — {ambiente}",
-                         "Inclusões em pauta", "Total Concluídos",
+                         f"Concluídos por tipo de questão — {ambiente}",
+                         "Inclusões em pauta", "Total concluídos",
                          show_values=show_values, proporcao=proporcao)
 
 
@@ -456,7 +456,7 @@ def _prep_cat(df: pd.DataFrame) -> pd.DataFrame:
 def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> go.Figure:
     cores = [CORES_CATEGORIA.get(l, "#999") for l in vc.index]
     fig = go.Figure(go.Pie(
-        labels=vc.index, values=vc.values, hole=0.4,
+        labels=[str(l).upper() for l in vc.index], values=vc.values, hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=1.5)),
         textinfo="percent" if show_values else "none",
         textfont=dict(size=11), textposition="inside",
@@ -492,7 +492,7 @@ def g22_cat_periodo_filtravel(df: pd.DataFrame, show_values: bool = True, propor
                               ambiente: str = "Plenário Virtual") -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == ambiente])
     vc = sub["categoria"].value_counts().sort_index()
-    return _pizza(vc, f"Desfecho por Categoria — {ambiente} (período total)",
+    return _pizza(vc, f"Desfecho por categoria — {ambiente} (período total)",
                   cores=[CORES_CATEGORIA.get(l, "#999") for l in vc.index],
                   show_values=show_values)
 
@@ -501,8 +501,8 @@ def g24_cat_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporca
                             ambiente: str = "Plenário Virtual") -> go.Figure:
     sub = _prep_cat(df[df["ambiente"] == ambiente])
     return _barras_grupo(sub, "ano", "categoria", CORES_CATEGORIA,
-                         f"Desfecho por Categoria e Ano — {ambiente}",
-                         "Inclusões em pauta", "Total (Linha)",
+                         f"Desfecho por categoria e ano — {ambiente}",
+                         "Inclusões em pauta", "Total (linha)",
                          show_values=show_values, proporcao=proporcao)
 
 
@@ -517,8 +517,8 @@ def g28_cat_tipo_anual_filtravel(df: pd.DataFrame, show_values: bool = True, pro
     sub = _prep_cat(_prep_tipo(df[df["ambiente"] == ambiente]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria", CORES_CATEGORIA,
-                              f"Desfecho por Categoria — {t} — {ambiente}",
-                              "Inclusões em pauta", f"Total {t} (Linha)",
+                              f"Desfecho por categoria — {t} — {ambiente}",
+                              "Inclusões em pauta", f"Total {t} (linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 
@@ -527,8 +527,8 @@ def g30_nc_cat_anual_filtravel(df: pd.DataFrame, show_values: bool = True, propo
                                ambiente: str = "Plenário Virtual") -> go.Figure:
     sub = _prep_nc(df[df["ambiente"] == ambiente])
     return _barras_grupo(sub, "ano", "categoria_nc", CORES_NC,
-                         f"Não Concluídos por Categoria e Ano — {ambiente}",
-                         "Inclusões em pauta", "Total Não Concluídos",
+                         f"Não concluídos por categoria e ano — {ambiente}",
+                         "Inclusões em pauta", "Total não concluídos",
                          show_values=show_values, proporcao=proporcao)
 
 
@@ -537,8 +537,8 @@ def g32_nc_cat_classe_filtravel(df: pd.DataFrame, show_values: bool = True, prop
     sub = _prep_nc(df[df["ambiente"] == ambiente])
     return {c: _barras_grupo(sub[sub["classe"] == c],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {c} — {ambiente}",
-                              "Inclusões em pauta", f"Total {c} (Linha)",
+                              f"Não concluídos por categoria — {c} — {ambiente}",
+                              "Inclusões em pauta", f"Total {c} (linha)",
                               show_values=show_values, proporcao=proporcao)
             for c in _CLASSES if not sub[sub["classe"] == c].empty}
 
@@ -548,8 +548,8 @@ def g34_nc_cat_tipo_filtravel(df: pd.DataFrame, show_values: bool = True, propor
     sub = _prep_nc(_prep_tipo(df[df["ambiente"] == ambiente]))
     return {t: _barras_grupo(sub[sub["tipo_questao"] == t],
                               "ano", "categoria_nc", CORES_NC,
-                              f"Não Concluídos por Categoria — {t} — {ambiente}",
-                              "Inclusões em pauta", f"Total {t} (Linha)",
+                              f"Não concluídos por categoria — {t} — {ambiente}",
+                              "Inclusões em pauta", f"Total {t} (linha)",
                               show_values=show_values, proporcao=proporcao)
             for t in _TIPOS if not sub[sub["tipo_questao"] == t].empty}
 

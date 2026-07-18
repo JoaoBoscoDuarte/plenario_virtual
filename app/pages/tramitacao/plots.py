@@ -6,8 +6,8 @@ import pandas as pd
 
 CORES_TRAM = {
     "Ambos os ambientes": "#8b5cf6",
-    "Só Virtual":         "#2563eb",
-    "Só Físico":          "#f59e0b",
+    "Virtual":            "#2563eb",
+    "Físico":             "#f59e0b",
 }
 CORES_AMBIENTE = {
     "Plenário Virtual":   "#2563eb",
@@ -35,7 +35,7 @@ CORES_DESFECHO = {
 }
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
-_TRAMS   = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
+_TRAMS   = ["Virtual", "Físico", "Ambos os ambientes"]
 
 _LEGEND = dict(
     orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
@@ -60,7 +60,7 @@ _AXIS = dict(
 def _pizza(serie: pd.Series, titulo: str, cores: list,
            show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
-        labels=serie.index, values=serie.values,
+        labels=[str(l).upper() for l in serie.index], values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
         textinfo="percent" if show_values else "none",
@@ -97,9 +97,9 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title_text=titulo.upper(), barmode="group",
-        xaxis=dict(title=x_title.upper()),
-        yaxis=dict(title=label_y.upper()),
+        title_text=titulo, barmode="group",
+        xaxis=dict(title=x_title),
+        yaxis=dict(title=label_y),
         **_LAYOUT,
     )
     fig.update_xaxes(**_AXIS)
@@ -130,10 +130,10 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
         marker=dict(size=6),
     ), secondary_y=True)
     fig.update_layout(
-        title_text=titulo.upper(), barmode="group",
+        title_text=titulo, barmode="group",
         xaxis=dict(title=col_x.capitalize()),
-        yaxis=dict(title=label_y.upper()),
-        yaxis2=dict(title="TOTAL", overlaying="y", side="right"),
+        yaxis=dict(title=label_y),
+        yaxis2=dict(title="Total", overlaying="y", side="right"),
         **_LAYOUT,
     )
     if y_max:
@@ -158,7 +158,7 @@ def gt1_tramitacao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     serie = _proc(df)["tramitacao"].value_counts()
     return _pizza(
         serie,
-        "Tramitação por Ambiente — Processos CC (2020–2025)",
+        "Tramitação por ambiente — Processos CC (2020–2025)",
         [CORES_TRAM.get(l, "#999") for l in serie.index],
         show_values=show_values,
     )
@@ -173,7 +173,7 @@ def gt2_tram_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.Figure
     tab = proc.groupby(["classe", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "classe", "tramitacao", CORES_TRAM,
-        "Tramitação por Ambiente e Classe — Processos CC (2020–2025)",
+        "Tramitação por ambiente e classe — Processos CC (2020–2025)",
         "Processos distintos", "Classe", show_values=show_values,
     )
 
@@ -188,8 +188,8 @@ def gt3_tram_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = proc.groupby(["tipo_questao", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tipo_questao", "tramitacao", CORES_TRAM,
-        "Tramitação por Ambiente e Tipo de Questão — Processos CC (2020–2025)",
-        "Processos distintos", "Tipo de Questão", show_values=show_values,
+        "Tramitação por ambiente e tipo de questão — Processos CC (2020–2025)",
+        "Processos distintos", "Tipo de questão", show_values=show_values,
     )
 
 
@@ -206,17 +206,17 @@ def gt4_ambos_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     for _, row in tab.iterrows():
         fig.add_trace(go.Bar(
             x=[row["tipo_questao"]], y=[row["n"]],
-            name=row["tipo_questao"],
+            name=row["tipo_questao"].upper(),
             marker_color=CORES_TIPO.get(row["tipo_questao"], "#999"),
             text=[row["n"]] if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title_text="PROCESSOS EM AMBOS OS AMBIENTES POR TIPO DE QUESTÃO (2020–2025)",
+        title_text="Processos em ambos os ambientes por tipo de questão (2020–2025)",
         barmode="group",
-        xaxis=dict(title="TIPO DE QUESTÃO"),
-        yaxis=dict(title="PROCESSOS DISTINTOS"),
+        xaxis=dict(title="Tipo de questão"),
+        yaxis=dict(title="Processos distintos"),
         **_LAYOUT,
     )
     fig.update_xaxes(**_AXIS)
@@ -232,7 +232,7 @@ def gt5_macro_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = df.groupby(["tramitacao", "macro_desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "macro_desfecho", CORES_MACRO,
-        "Macro-Desfecho por Ambiente de Tramitação — Inclusões (2020–2025)",
+        "Macro-desfecho por ambiente de tramitação — Inclusões (2020–2025)",
         "Inclusões em pauta", "Tramitação", show_values=show_values,
     )
 
@@ -245,7 +245,7 @@ def gt6_desfecho_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     tab = df.groupby(["tramitacao", "desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "desfecho", CORES_DESFECHO,
-        "Desfecho Detalhado por Ambiente de Tramitação — Inclusões (2020–2025)",
+        "Desfecho detalhado por ambiente de tramitação — Inclusões (2020–2025)",
         "Inclusões em pauta", "Tramitação", show_values=show_values,
     )
 
@@ -264,7 +264,7 @@ def gt7_classe_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str,
         serie = sub["classe"].value_counts()
         result[tram] = _pizza(
             serie,
-            f"Distribuição por Classe — {tram} (2020–2025)",
+            f"Distribuição por classe — {tram} (2020–2025)",
             [CORES_CLASSE.get(l, "#999") for l in serie.index],
             show_values=show_values,
         )
@@ -286,7 +286,7 @@ def gt8_tipo_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, g
         serie = sub["tipo_questao"].value_counts()
         result[tram] = _pizza(
             serie,
-            f"Distribuição por Tipo de Questão — {tram} (2020–2025)",
+            f"Distribuição por tipo de questão — {tram} (2020–2025)",
             [CORES_TIPO.get(l, "#999") for l in serie.index],
             show_values=show_values,
         )
@@ -307,7 +307,7 @@ def gt9_taxa_conclusao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = tab[tab["n"] > 0]
     return _barras_grupo(
         tab, "tramitacao", "classe", CORES_CLASSE,
-        "Taxa de Conclusão (%) por Ambiente de Tramitação e Classe (2020–2025)",
+        "Taxa de conclusão (%) por ambiente de tramitação e classe (2020–2025)",
         "% de inclusões concluídas", "Tramitação", show_values=show_values,
     )
 
@@ -318,15 +318,15 @@ def gt9_taxa_conclusao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
 
 # Mapeamento legível das dimensões disponíveis
 DIMENSOES: dict[str, str] = {
-    "Ambiente de Tramitação": "tramitacao",
+    "Ambiente de tramitação": "tramitacao",
     "Classe":                 "classe",
-    "Tipo de Questão":        "tipo_questao",
+    "Tipo de questão":        "tipo_questao",
     "Ambiente (PV/PP)":       "ambiente",
-    "Macro-Desfecho":         "macro_desfecho",
-    "Desfecho Detalhado":     "desfecho",
+    "Macro-desfecho":         "macro_desfecho",
+    "Desfecho detalhado":     "desfecho",
     "Ano":                    "ano",
-    "Reajuste de Voto":       "teve_reajuste",
-    "Sustentação Oral":       "teve_sustentacao",
+    "Reajuste de voto":       "teve_reajuste",
+    "Sustentação oral":       "teve_sustentacao",
 }
 
 # Paleta de fallback para dimensões sem cor definida
@@ -372,16 +372,16 @@ def gt10_tabulador(
 
     if metrica == "processos":
         d = d.drop_duplicates("incidente")
-        label_y = "PROCESSOS DISTINTOS"
+        label_y = "Processos distintos"
     else:
-        label_y = "INCLUSÕES EM PAUTA"
+        label_y = "Inclusões em pauta"
 
     tab = d.groupby([eixo_x, grupo], observed=True).size().reset_index(name="n")
 
     if barmode == "100%":
         totais = tab.groupby(eixo_x)["n"].transform("sum")
         tab["n"] = (tab["n"] / totais * 100).round(1)
-        label_y = "% DO TOTAL"
+        label_y = "% do total"
         bm = "stack"
     else:
         bm = barmode
@@ -407,13 +407,13 @@ def gt10_tabulador(
     inv = {v: k for k, v in DIMENSOES.items()}
     titulo = (
         f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)} "
-        f"({'PROCESSOS' if metrica == 'processos' else 'INCLUSÕES'}) — 2020–2025"
+        f"({'Processos' if metrica == 'processos' else 'Inclusões'}) — 2020–2025"
     )
 
     fig.update_layout(
-        title_text=titulo.upper(),
+        title_text=titulo,
         barmode=bm,
-        xaxis=dict(title=inv.get(eixo_x, eixo_x).upper()),
+        xaxis=dict(title=inv.get(eixo_x, eixo_x)),
         yaxis=dict(title=label_y),
         **_LAYOUT,
     )
@@ -457,7 +457,7 @@ def _classificar_tramitacao(ambientes: set) -> str:
     tem_f = "Plenário Físico" in ambientes
     if tem_v and tem_f:
         return "Ambos os ambientes"
-    return "Só Virtual" if tem_v else "Só Físico"
+    return "Virtual" if tem_v else "Físico"
 
 
 def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -489,8 +489,8 @@ def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True
 # ═══════════════════════════════════════════════════════════════════════════════
 
 CORES_TRAMITACAO = {
-    "Só Virtual":         "#2563eb",
-    "Só Presencial":      "#f59e0b",
+    "Virtual":            "#2563eb",
+    "Presencial":         "#f59e0b",
     "Ambos os ambientes": "#16a34a",
 }
 
@@ -500,7 +500,7 @@ def _classificar_tramitacao_t13(ambientes: set) -> str:
     tem_p = "Plenário Presencial" in ambientes
     if tem_v and tem_p:
         return "Ambos os ambientes"
-    return "Só Virtual" if tem_v else "Só Presencial"
+    return "Virtual" if tem_v else "Presencial"
 
 
 def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -515,7 +515,7 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     tab = proc.groupby(["periodo", "tramitacao"], observed=True).size().reset_index(name="n")
 
     fig = go.Figure()
-    ord_tram = ["Só Virtual", "Só Presencial", "Ambos os ambientes"]
+    ord_tram = ["Virtual", "Presencial", "Ambos os ambientes"]
     for tr in ord_tram:
         d = tab[tab["tramitacao"] == tr]
         fig.add_trace(go.Bar(
@@ -526,14 +526,14 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title=dict(text="PROCESSOS POR TIPO DE TRAMITAÇÃO — 2020–2025",
+        title=dict(text="Processos por tipo de tramitação — 2020–2025",
                    font=dict(family="Arial, sans-serif", size=26, color="black")),
         barmode="group",
-        xaxis=dict(title=dict(text="PERÍODO", font=dict(family="Arial, sans-serif", size=18, color="black")),
+        xaxis=dict(title=dict(text="Período", font=dict(family="Arial, sans-serif", size=18, color="black")),
                    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
                    showline=True, linewidth=2, linecolor="black",
                    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",),
-        yaxis=dict(title=dict(text="PROCESSOS (INCIDENTES DISTINTOS)", font=dict(family="Arial, sans-serif", size=18, color="black")),
+        yaxis=dict(title=dict(text="Processos (incidentes distintos)", font=dict(family="Arial, sans-serif", size=18, color="black")),
                    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
                    showline=True, linewidth=2, linecolor="black",
                    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",),

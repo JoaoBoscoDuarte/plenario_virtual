@@ -55,7 +55,7 @@ _AXIS = dict(
 
 def _pizza(serie: pd.Series, titulo: str, cores: list, show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
-        labels=serie.index, values=serie.values,
+        labels=[str(l).upper() for l in serie.index], values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
         textinfo="percent" if show_values else "none",
@@ -90,7 +90,7 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         text=tab["n"] if show_values else None,
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-        name="Com sustentação",
+        name="COM SUSTENTAÇÃO",
     ))
     fig.update_layout(
         title_text=titulo,
@@ -119,7 +119,7 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
     for g in grupos:
         d = tab[tab[col_grupo] == g]
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=g,
+            x=d["ano"], y=d["n"], name=g.upper(),
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
@@ -128,7 +128,7 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
     fig.add_trace(go.Scatter(
         x=total["ano"], y=total["n"], mode="lines+markers",
         line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
-        name="Total",
+        name="TOTAL",
     ), secondary_y=True)
     fig.update_layout(title_text=titulo)
     fig.update_xaxes(**_AXIS)
@@ -144,7 +144,7 @@ def gs1_sust_filtravel(df: pd.DataFrame, show_values: bool = True,
                        ambiente: str = "Plenário Virtual") -> go.Figure:
     return _pizza_sust(
         df[df["ambiente"] == ambiente],
-        f"Inclusões com Sustentação Oral — {ambiente} (2020–2025)",
+        f"Inclusões com sustentação oral — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
@@ -157,7 +157,7 @@ def gs3_sust_anual_filtravel(df: pd.DataFrame, show_values: bool = True,
                              ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_anuais(
         df[df["ambiente"] == ambiente],
-        f"Sustentação Oral por Ano — {ambiente} (2020–2025)",
+        f"Sustentação oral por ano — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
@@ -170,7 +170,7 @@ def gs5_sust_classe_filtravel(df: pd.DataFrame, show_values: bool = True,
                               ambiente: str = "Plenário Virtual") -> go.Figure:
     sub = df[(df["ambiente"] == ambiente) & df["teve_sustentacao"]]
     return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         f"Sustentação Oral por Ano e Classe — {ambiente} (2020–2025)",
+                         f"Sustentação oral por ano e classe — {ambiente} (2020–2025)",
                          show_values=show_values)
 
 
@@ -183,7 +183,7 @@ def gs7_sust_tipo_filtravel(df: pd.DataFrame, show_values: bool = True,
     sub = df[(df["ambiente"] == ambiente) & df["teve_sustentacao"]].copy()
     sub["tipo_questao"] = sub["tipo_questao"].replace({"IJ": "QI"})
     return _barras_grupo(sub, "tipo_questao", CORES_TIPO,
-                         f"Sustentação Oral por Ano e Tipo de Questão — {ambiente} (2020–2025)",
+                         f"Sustentação oral por ano e tipo de questão — {ambiente} (2020–2025)",
                          show_values=show_values)
 
 
@@ -199,14 +199,14 @@ def gs8_taxa_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
         d = tab[tab["ambiente"] == amb]
         vals = d["n"].round(1)
         fig.add_trace(go.Bar(
-            x=d["ano"], y=vals, name=amb,
+            x=d["ano"], y=vals, name=amb.upper(),
             marker_color=cor,
             text=(vals.astype(str) + "%") if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title_text="Taxa de Sustentação Oral por Ano e Ambiente (%) (2020–2025)",
+        title_text="Taxa de sustentação oral por ano e ambiente (%) (2020–2025)",
         barmode="group",
         xaxis=dict(dtick=1, title="Ano", tickangle=-45),
         yaxis=dict(title="% de inclusões com sustentação"),

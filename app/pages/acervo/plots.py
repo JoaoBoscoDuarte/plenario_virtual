@@ -44,10 +44,10 @@ def _add_marcos(fig: go.Figure, max_y: float) -> None:
     for label, _, color, _ in _MARCOS:
         fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines",
                                  line=dict(color=color, width=1.5, dash="dash"),
-                                 name=label))
+                                 name=label.upper()))
     fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers",
                              marker=dict(color="green", symbol="square", size=12, opacity=0.2),
-                             name="Período da ESPIN (Portaria GM/MS nº 186/2020 e nº 913/2020)"))
+                             name="PERÍODO DA ESPIN (PORTARIA GM/MS Nº 186/2020 E Nº 913/2020)"))
 
 
 def plotar_grafico_stf(
@@ -80,7 +80,7 @@ def plotar_grafico_stf(
             text=df_total[coluna_metrica] if show_values else None,
             textposition="outside",
             cliponaxis=False,
-            name=f"Total Geral ({label_metrica})",
+            name=f"TOTAL GERAL ({label_metrica.upper()})",
         ))
     else:
         fig.set_subplots(specs=[[{"secondary_y": True}]])
@@ -94,7 +94,7 @@ def plotar_grafico_stf(
             mode="lines+markers",
             line=dict(color="#7f7f7f", width=2),
             marker=dict(size=4),
-            name=f"Total Geral ({label_metrica})",
+            name=f"TOTAL GERAL ({label_metrica.upper()})",
         ), secondary_y=True)
 
         # Barras da classe no eixo primário
@@ -105,7 +105,7 @@ def plotar_grafico_stf(
             text=df_classe[coluna_metrica] if show_values else None,
             textposition="outside",
             cliponaxis=False,
-            name=f"Classe: {classe_nome}",
+            name=f"CLASSE: {classe_nome.upper()}",
         ), secondary_y=False)
 
     _add_marcos(fig, max_y)

@@ -3,6 +3,7 @@
 from __future__ import annotations
 import plotly.graph_objects as go
 import pandas as pd
+from tema import get_layout_bar as _get_layout_bar, get_axis as _get_axis, get_pizza_textfont, get_bar_textfont, _cores_cinza, _font, is_dark
 
 CORES_CLASSE = {
     "ADI":  "#2563eb",
@@ -12,7 +13,7 @@ CORES_CLASSE = {
 }
 CORES_REAJUSTE = {
     "Com reajuste de voto": "#dc2626",
-    "Sem reajuste de voto": "#e5e7eb",
+    "Sem reajuste de voto": _cores_cinza(),
 }
 CORES_TRAM = {
     "Ambos os ambientes": "#8b5cf6",
@@ -23,32 +24,7 @@ CORES_TIPO = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _ANOS    = list(range(2020, 2026))
 
-_LEGEND = dict(
-    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-_LAYOUT_BAR = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-    xaxis=dict(dtick=1, title="Ano", tickangle=-45,
-               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-               showline=True, linewidth=2, linecolor="black",
-               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
-    yaxis=dict(title="Inclusões com reajuste de voto",
-               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-               showline=True, linewidth=2, linecolor="black",
-               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
-)
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-)
+
 def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
     return df_amb["teve_reajuste"].map(
         {True: "Com reajuste de voto", False: "Sem reajuste de voto"}
@@ -71,7 +47,7 @@ def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Fig
             hole=0.4,
             marker=dict(colors=cores, line=dict(color="white", width=2)),
             textinfo="percent" if show_values else "none",
-            textfont=dict(family="Arial, sans-serif", size=14, color="black"),
+            textfont=get_pizza_textfont(),
             textposition="inside",
             insidetextorientation="radial",
             showlegend=True,
@@ -79,12 +55,12 @@ def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Fig
         ), row=1, col=i + 1)
     fig.update_layout(
         title_text="INCLUSÕES COM REAJUSTE DE VOTO — PERÍODO TOTAL (2020–2025)",
-        template="plotly_white", height=500,
+        template="plotly_dark" if is_dark() else "plotly_white", height=500,
         margin=dict(t=120, b=120, l=60, r=60),
-        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+        title_font=_font(26),
         legend=dict(
             orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
-            font=dict(family="Arial, sans-serif", size=17, color="black"),
+            font=_font(17),
         ),
     )
     fig.update_annotations(
@@ -114,9 +90,9 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         cliponaxis=False,
         name="Com reajuste",
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_BAR)
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_layout(title_text=titulo, **_get_layout_bar())
+    fig.update_xaxes(**_get_axis())
+    fig.update_yaxes(**_get_axis())
     return fig
 # ── G-R5 — Barras anuais por classe por ambiente (selecionável) ────────────────
 
@@ -145,8 +121,8 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
     fig.update_layout(
         title_text=titulo,
         barmode="group",
-        **_LAYOUT_BAR,
+        **_get_layout_bar(),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_xaxes(**_get_axis())
+    fig.update_yaxes(**_get_axis())
     return fig

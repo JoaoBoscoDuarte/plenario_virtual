@@ -31,7 +31,9 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
     d["desfecho"] = d["desfecho"].apply(
         lambda v: re.sub(r"\s*-\s*", "\n", str(v), count=1)
     )
-    return gt10_tabulador(d, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
+    fig = gt10_tabulador(d, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
+    fig.update_xaxes(tickangle=0)
+    return fig
 
 
 _CATALOGO = [

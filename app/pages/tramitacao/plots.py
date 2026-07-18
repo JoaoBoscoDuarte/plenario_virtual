@@ -535,7 +535,7 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
                    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",),
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
                     font=dict(family="Arial, sans-serif", size=17, color="black")),
-        template="plotly_white", height=500,
+    template="plotly_white", height=600,
         margin=dict(t=120, b=80, l=60, r=60),
     )
     return fig

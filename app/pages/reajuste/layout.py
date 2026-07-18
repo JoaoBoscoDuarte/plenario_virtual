@@ -44,18 +44,18 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
         else:
             s = re.sub(r"\s*-\s*", "<br>", s, count=1)
         fig.add_annotation(
-            x=i, y=-0.03, xref="x", yref="paper",
+            x=i, y=0, xref="x", yref="paper", yshift=-35,
             text=s, showarrow=False,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
             xanchor="center", yanchor="top",
         )
     fig.add_annotation(
-        x=0.5, y=-0.14, xref="paper", yref="paper",
+        x=0.5, y=0, xref="paper", yref="paper", yshift=-105,
         text="DESFECHO DETALHADO", showarrow=False,
         font=dict(family="Arial, sans-serif", size=18, color="black"),
         xanchor="center", yanchor="top",
     )
-    fig.update_layout(margin=dict(b=200), legend=dict(y=-0.2))
+    fig.update_layout(margin=dict(b=200), legend=dict(y=-0.18))
     return fig
 
 

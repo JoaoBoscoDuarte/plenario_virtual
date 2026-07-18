@@ -30,6 +30,7 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
     import re
     fig = gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
     fig.update_xaxes(showticklabels=False, tickangle=0)
+    fig.update_xaxes(title=dict(standoff=140))
     seen: set = set()
     vals: list[str] = []
     for tr in fig.data:

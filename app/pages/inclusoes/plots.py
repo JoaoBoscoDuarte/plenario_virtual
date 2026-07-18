@@ -63,7 +63,7 @@ _LAYOUT = dict(
     yaxis=dict(
         showline=True, linewidth=2, linecolor="black",
         showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
+        title_font=dict(family="Arial, sans-serif", size=22, color="black"),
         tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ),
 )

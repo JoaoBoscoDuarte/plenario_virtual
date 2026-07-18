@@ -27,12 +27,15 @@ def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: 
 
 def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False):
     import re
-    d = df.copy()
-    d["desfecho"] = d["desfecho"].apply(
-        lambda v: re.sub(r"\s*-\s*", "\n", str(v), count=1)
+    orig = sorted(df["desfecho"].dropna().unique())
+    broken = [re.sub(r"\s*-\s*", "\n", str(v), count=1) for v in orig]
+    fig = gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
+    fig.update_xaxes(
+        tickmode="array",
+        tickvals=list(orig),
+        ticktext=broken,
+        tickangle=0,
     )
-    fig = gt10_tabulador(d, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
-    fig.update_xaxes(tickangle=0)
     return fig
 
 

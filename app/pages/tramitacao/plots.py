@@ -43,7 +43,7 @@ _LEGEND = dict(
 )
 _LAYOUT = dict(
     template="plotly_white", height=500,
-    margin=dict(t=120, b=260, l=60, r=60),
+    margin=dict(t=140, b=260, l=160, r=60),
     legend=_LEGEND,
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )

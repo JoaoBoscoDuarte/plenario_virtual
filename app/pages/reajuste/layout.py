@@ -38,10 +38,14 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
                 seen.add(v)
                 vals.append(v)
     for i, v in enumerate(vals):
+        s = str(v)
+        if "decisão " in s and s.startswith("Concluído"):
+            s = s.replace("decisão ", "decisão<br>", 1)
+        else:
+            s = re.sub(r"\s*-\s*", "<br>", s, count=1)
         fig.add_annotation(
             x=i, y=-0.12, xref="x", yref="paper",
-            text=re.sub(r"\s*-\s*", "<br>", v, count=1),
-            showarrow=False,
+            text=s, showarrow=False,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
             xanchor="center", yanchor="top",
         )

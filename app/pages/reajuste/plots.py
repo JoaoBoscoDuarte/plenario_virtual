@@ -27,12 +27,6 @@ _LEGEND = dict(
     orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
     font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
-_LAYOUT_PIZZA = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    showlegend=False,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-)
 _LAYOUT_BAR = dict(
     template="plotly_white", height=500,
     margin=dict(t=120, b=80, l=60, r=60),
@@ -66,17 +60,25 @@ def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
 def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     serie = _serie_reajuste(df_amb)
     cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
-    textinfo = "label+value+percent" if show_values else "label+percent"
     fig = go.Figure(go.Pie(
         labels=serie.index, values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo=textinfo,
-        textfont=dict(size=13),
-        textposition="auto",
+        textinfo="percent" if show_values else "none",
+        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
+        textposition="inside",
         insidetextorientation="radial",
+        showlegend=True,
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
+    fig.update_layout(
+        title_text=titulo, template="plotly_white", height=500,
+        margin=dict(t=120, b=100, l=60, r=60),
+        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+        legend=dict(
+            orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5,
+            font=dict(family="Arial, sans-serif", size=17, color="black"),
+        ),
+    )
     return fig
 
 

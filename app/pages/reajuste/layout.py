@@ -26,7 +26,9 @@ def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: 
 
 
 def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False):
-    return gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
+    d = df.copy()
+    d["desfecho"] = d["desfecho"].str.replace(" - ", "\n", n=1)
+    return gt10_tabulador(d, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
 
 
 _CATALOGO = [

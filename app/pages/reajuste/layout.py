@@ -26,14 +26,24 @@ def _gr_tipo_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: 
 
 
 def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False):
+    """R8: desfecho vs reajuste com quebra de linha."""
     import re
     fig = gt10_tabulador(df, "desfecho", "teve_reajuste", "inclusoes", "group", show_values)
-    for trace in fig.data:
-        trace.x = tuple(
-            re.sub(r"\s*-\s*", "\n", str(v), count=1)
-            if isinstance(v, str) else v
-            for v in trace.x
-        )
+    # extrai valores x únicos das traces
+    seen: set = set()
+    vals: list[str] = []
+    for tr in fig.data:
+        for v in tr.x:
+            if isinstance(v, str) and v not in seen:
+                seen.add(v)
+                vals.append(v)
+    breaks = [re.sub(r"\s*-\s*", "\n", v, count=1) for v in vals]
+    fig.update_xaxes(
+        tickmode="array",
+        tickvals=vals,
+        ticktext=breaks,
+        tickangle=0,
+    )
     return fig
 
 

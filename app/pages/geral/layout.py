@@ -143,26 +143,27 @@ def render_metricas(df: pd.DataFrame) -> None:
 
 
 def _build_tabela_processos(df: pd.DataFrame) -> pd.DataFrame:
-    proc      = df.drop_duplicates("incidente").copy()
-    inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
-    inc_pv    = (df[df["ambiente"] == "Plenário Virtual"]
-                 .groupby("incidente").size().rename("Inclusões PV"))
-    inc_pp    = (df[df["ambiente"] == "Plenário Presencial"]
-                 .groupby("incidente").size().rename("Inclusões PP"))
-    tab = (
-        proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao", "tramitacao"]]
-        .join(inc_total, on="incidente")
-        .join(inc_pv,    on="incidente")
-        .join(inc_pp,    on="incidente")
-    )
-    tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
-    tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
+    proc = df.drop_duplicates("incidente").copy()
+    tab = proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao"]].copy()
     tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
+    if "tramitacao" in df.columns:
+        tab["Tramitação"] = proc["tramitacao"]
+    else:
+        tab["Tramitação"] = "—"
+    if "ambiente" in df.columns:
+        inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
+        inc_pv = (df[df["ambiente"] == "Plenário Virtual"]
+                  .groupby("incidente").size().rename("Inclusões PV"))
+        inc_pp = (df[df["ambiente"] == "Plenário Presencial"]
+                  .groupby("incidente").size().rename("Inclusões PP"))
+        tab = tab.join(inc_total, on="incidente").join(inc_pv, on="incidente").join(inc_pp, on="incidente")
+        tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
+        tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
     return (
         tab.rename(columns={
             "incidente": "Incidente", "nome_processo": "Processo",
             "classe": "Classe", "relator": "Relator",
-            "tipo_questao": "Tipo", "tramitacao": "Tramitação",
+            "tipo_questao": "Tipo",
         })
         .sort_values("Processo")
         .reset_index(drop=True)
@@ -179,7 +180,10 @@ def render_tabela_processos(df: pd.DataFrame) -> None:
     with col1:
         classes   = st.multiselect("Classe",     sorted(tab["Classe"].unique()),     key="geral_classe")
     with col2:
-        ambientes = st.multiselect("Tramitação", sorted(tab["Tramitação"].unique()), key="geral_tram")
+        if "Tramitação" in tab.columns and tab["Tramitação"].nunique() > 1:
+            ambientes = st.multiselect("Tramitação", sorted(tab["Tramitação"].unique()), key="geral_tram")
+        else:
+            ambientes = []
     with col3:
         busca = st.text_input("Buscar processo", key="geral_busca", placeholder="ex: ADI 3423")
 
@@ -191,16 +195,18 @@ def render_tabela_processos(df: pd.DataFrame) -> None:
         tab = tab[tab["Processo"].str.contains(busca, case=False, na=False)]
 
     st.caption(f"{len(tab):,} processos exibidos")
+    cols_cfg = {
+        "Processo":           st.column_config.TextColumn(width="medium"),
+        "Relator":            st.column_config.TextColumn(width="medium"),
+        "Tramitação":         st.column_config.TextColumn(width="medium"),
+    }
+    if "Inclusões PV" in tab.columns:
+        cols_cfg["Total de Inclusões"] = st.column_config.NumberColumn(width="small")
+        cols_cfg["Inclusões PV"]       = st.column_config.NumberColumn(width="small")
+        cols_cfg["Inclusões PP"]       = st.column_config.NumberColumn(width="small")
     st.dataframe(
         tab.drop(columns=["Incidente"]),
         width="stretch",
         hide_index=True,
-        column_config={
-            "Processo":           st.column_config.TextColumn(width="medium"),
-            "Relator":            st.column_config.TextColumn(width="medium"),
-            "Tramitação":         st.column_config.TextColumn(width="medium"),
-            "Total de Inclusões": st.column_config.NumberColumn(width="small"),
-            "Inclusões PV":       st.column_config.NumberColumn(width="small"),
-            "Inclusões PP":       st.column_config.NumberColumn(width="small"),
-        },
+        column_config=cols_cfg,
     )

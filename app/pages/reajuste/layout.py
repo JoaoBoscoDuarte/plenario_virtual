@@ -55,7 +55,7 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
         font=dict(family="Arial, sans-serif", size=18, color="black"),
         xanchor="center", yanchor="top",
     )
-    fig.update_layout(margin=dict(b=200), legend=dict(y=-0.18))
+    fig.update_layout(margin=dict(b=200), legend=dict(y=-0.2))
     return fig
 
 

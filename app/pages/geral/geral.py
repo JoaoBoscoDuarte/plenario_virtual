@@ -13,7 +13,7 @@ if str(_root) not in sys.path:
 from dados.loader import load_parquet
 from components.filters import render_sidebar_filters
 from dados.filters import filter_by_values, filter_by_year_range
-from pages.geral.layout import render_metricas, render_timeline
+from pages.geral.layout import render_metricas, render_timeline, render_tabela_processos
 
 from config import HF_REPO_ID
 
@@ -41,6 +41,9 @@ if df_f.empty and not df.empty:
 
 # ── Métricas ──────────────────────────────────────────────────────────────────
 render_metricas(df_f)
+
+st.markdown("---")
+render_tabela_processos(df_f)
 
 with st.expander("Colunas disponíveis no dataset", expanded=False):
     st.write(list(df.columns))

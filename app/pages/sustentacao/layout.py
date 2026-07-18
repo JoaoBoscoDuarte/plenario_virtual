@@ -4,58 +4,39 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import (
-    gs1_pizza_pv, gs2_pizza_pp,
-    gs3_anual_pv, gs4_anual_pp,
-    gs5_classe_pv, gs6_classe_pp,
-    gs7_tipo_pv, gs8_taxa_ambiente,
+    gs1_sust_filtravel, gs3_sust_anual_filtravel,
+    gs5_sust_classe_filtravel, gs7_sust_tipo_filtravel, gs8_taxa_ambiente,
 )
 from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
 _CATALOGO = [
     (
-        "S1 — Proporção com/sem sustentação — Plenário Virtual (período total)",
-        "Sustentação Oral — Plenário Virtual (período total)",
-        "Pizza com a proporção de inclusões que tiveram sustentação oral realizada "
-        "no Plenário Virtual ao longo de todo o período (2020–2025).",
-        gs1_pizza_pv,
+        "S1/S2 — Proporção com/sem sustentação (Plenário Virtual e Plenário Presencial)",
+        "Sustentação Oral — período total",
+        "Pizza com a proporção de inclusões que tiveram sustentação oral. "
+        "Selecione o âmbito.",
+        gs1_sust_filtravel,
     ),
     (
-        "S2 — Proporção com/sem sustentação — Plenário Presencial (período total)",
-        "Sustentação Oral — Plenário Presencial (período total)",
-        "Mesmo recorte do S1 para o Plenário Presencial.",
-        gs2_pizza_pp,
+        "S3/S4 — Sustentações por Ano (Plenário Virtual e Plenário Presencial)",
+        "Sustentação Oral por Ano",
+        "Volume anual de inclusões com sustentação oral. "
+        "Anos sem ocorrência aparecem com valor zero. Selecione o âmbito.",
+        gs3_sust_anual_filtravel,
     ),
     (
-        "S3 — Sustentações por Ano — Plenário Virtual",
-        "Sustentação Oral por Ano — Plenário Virtual",
-        "Volume anual de inclusões com sustentação oral no Plenário Virtual. "
-        "Anos sem ocorrência aparecem com valor zero.",
-        gs3_anual_pv,
+        "S5/S6 — Sustentações por Ano e Classe (Plenário Virtual e Plenário Presencial)",
+        "Sustentação Oral por Ano e Classe",
+        "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total "
+        "no eixo secundário. Selecione o âmbito.",
+        gs5_sust_classe_filtravel,
     ),
     (
-        "S4 — Sustentações por Ano — Plenário Presencial",
-        "Sustentação Oral por Ano — Plenário Presencial",
-        "Mesmo recorte do S3 para o Plenário Presencial.",
-        gs4_anual_pp,
-    ),
-    (
-        "S5 — Sustentações por Ano e Classe — Plenário Virtual",
-        "Sustentação Oral por Ano e Classe — Plenário Virtual",
-        "Barras agrupadas por classe (ADI, ADPF, ADC, ADO) com linha do total no eixo secundário. PV.",
-        gs5_classe_pv,
-    ),
-    (
-        "S6 — Sustentações por Ano e Classe — Plenário Presencial",
-        "Sustentação Oral por Ano e Classe — Plenário Presencial",
-        "Mesmo recorte do S5 para o Plenário Presencial.",
-        gs6_classe_pp,
-    ),
-    (
-        "S7 — Sustentações por Ano e Tipo de Questão — Plenário Virtual",
-        "Sustentação Oral por Ano e Tipo de Questão — Plenário Virtual",
+        "S7 — Sustentações por Ano e Tipo de Questão",
+        "Sustentação Oral por Ano e Tipo de Questão",
         "Barras agrupadas por tipo de questão (PR / RC / QI) com linha do total. "
-        "IJ renomeado para QI na exibição. Apenas PV.",
-        gs7_tipo_pv,
+        "IJ renomeado para QI. Selecione o âmbito.",
+        gs7_sust_tipo_filtravel,
     ),
     (
         "S8 — Taxa de Sustentação por Ano e Ambiente (%)",
@@ -71,22 +52,18 @@ _CATALOGO = [
         None,
     ),
 ]
-
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
-    "Período total (S1–S2)": [
-        "S1 — proporção com/sem sustentação — Plenário Virtual",
-        "S2 — proporção com/sem sustentação — Plenário Presencial",
+    "Período total (S1/S2)": [
+        "S1/S2 — proporção com/sem sustentação (Plenário Virtual e Plenário Presencial)",
     ],
-    "Evolução anual (S3–S4)": [
-        "S3 — volume de sustentações por ano — Plenário Virtual",
-        "S4 — volume de sustentações por ano — Plenário Presencial",
+    "Evolução anual (S3/S4)": [
+        "S3/S4 — volume de sustentações por ano (Plenário Virtual e Plenário Presencial)",
     ],
     "Por classe e tipo (S5–S7)": [
-        "S5 — sustentações por ano e classe — Plenário Virtual",
-        "S6 — sustentações por ano e classe — Plenário Presencial",
-        "S7 — sustentações por ano e tipo de questão — Plenário Virtual",
+        "S5/S6 — sustentações por ano e classe (Plenário Virtual e Plenário Presencial)",
+        "S7 — sustentações por ano e tipo de questão",
     ],
     "Comparação e exploração (S8–S9)": [
         "S8 — taxa de sustentação (%) por ano e ambiente",
@@ -106,55 +83,45 @@ _PREDEFINIDOS_SUST = [
 ]
 _LABELS_PRE = [p[0] for p in _PREDEFINIDOS_SUST]
 
-
-# ── helpers ───────────────────────────────────────────────────────────────────
-
-def _build_dados_brutos(df: pd.DataFrame) -> pd.DataFrame:
-    cols = [
-        "nome_processo", "classe", "relator", "ano", "ambiente",
-        "tipo_questao", "desfecho", "macro_desfecho", "teve_sustentacao",
-    ]
-    tab = df[cols].copy()
-    tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
-    return tab.rename(columns={
-        "nome_processo":   "Processo",
-        "classe":          "Classe",
-        "relator":         "Relator",
-        "ano":             "Ano",
-        "ambiente":        "Ambiente",
-        "tipo_questao":    "Tipo",
-        "desfecho":        "Desfecho",
-        "macro_desfecho":  "Macro-Desfecho",
-        "teve_sustentacao": "Sustentação",
-    }).sort_values(["Ano", "Processo"]).reset_index(drop=True)
+_TABELA_SPECS: dict[int, tuple[str, str | None]] = {
+    0: ("ambiente", "teve_sustentacao"),
+    1: ("ano", "teve_sustentacao"),
+    2: ("ano", "classe"),
+    3: ("ano", "tipo_questao"),
+    4: ("ambiente", "teve_sustentacao"),
+}
 
 
-def _build_tabulador(df: pd.DataFrame) -> pd.DataFrame:
-    rows = []
-    for ano in sorted(df["ano"].unique()):
-        df_ano = df[df["ano"] == ano]
-        row: dict = {"Ano": int(ano)}
-        for amb_label, amb_key in [("Plenário Virtual", "Plenário Virtual"), ("Plenário Presencial", "Plenário Presencial")]:
-            df_amb = df_ano[df_ano["ambiente"] == amb_key]
-            total = len(df_amb)
-            com   = int(df_amb["teve_sustentacao"].sum())
-            taxa  = round(com / total * 100, 1) if total else 0.0
-            row[f"{amb_label} — Total"] = total
-            row[f"{amb_label} — Com sustentação"] = com
-            row[f"{amb_label} — Taxa (%)"]        = taxa
-            for cls in ["ADI", "ADPF", "ADC", "ADO"]:
-                row[f"{amb_label} — {cls}"] = int(
-                    df_amb[df_amb["classe"] == cls]["teve_sustentacao"].sum()
-                )
-        row["Total — Com sustentação"] = int(df_ano["teve_sustentacao"].sum())
-        row["Total — Taxa (%)"]        = round(
-            df_ano["teve_sustentacao"].sum() / len(df_ano) * 100, 1
-        ) if len(df_ano) else 0.0
-        rows.append(row)
-    return pd.DataFrame(rows).set_index("Ano")
+def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None]) -> pd.DataFrame:
+    col_linha, col_grupo = spec
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    d["teve_sustentacao"] = d["teve_sustentacao"].map(
+        {True: "Com sustentação", False: "Sem sustentação"}
+    )
+    tab = d.groupby([col_linha, col_grupo], observed=True).size().reset_index(name="n")
+    pvt = tab.pivot_table(index=col_linha, columns=col_grupo, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    return pvt
 
 
-def _render_tabulador_grafico(df: pd.DataFrame) -> None:
+def _render_tabela(df: pd.DataFrame, idx: int) -> None:
+    spec = _TABELA_SPECS.get(idx)
+    if spec is None:
+        return
+    with st.expander("📊 Dados da tabulação"):
+        tab = _build_tabela(df, spec)
+        fmt = {c: "{:,.0f}" for c in tab.columns if c != tab.columns[0]}
+        st.dataframe(tab.style.format(fmt, na_rep="—"), width="stretch", height=280)
+
+
+def _render_interactive_tabulador(df: pd.DataFrame) -> None:
+    st.subheader("Tabulador Interativo")
+    st.caption("Configure livremente os eixos, agrupamento e modo de barras.")
+
     col_pre, _ = st.columns([2, 1])
     with col_pre:
         pre_escolha = st.selectbox(
@@ -200,102 +167,24 @@ def _render_tabulador_grafico(df: pd.DataFrame) -> None:
 
     st.plotly_chart(gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values), width="stretch")
 
+    st.markdown("---")
+    st.subheader("Tabela — mesmos eixos")
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    if metrica == "processos":
+        d = d.drop_duplicates("incidente")
+    tab = d.groupby([eixo_x, grupo], observed=True).size().reset_index(name="n")
+    if barmode == "100%":
+        totais = tab.groupby(eixo_x)["n"].transform("sum")
+        tab["n"] = (tab["n"] / totais * 100).round(1)
+    pvt = tab.pivot_table(index=eixo_x, columns=grupo, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    fmt = {c: "{:,.0f}" for c in pvt.columns if pvt[c].dtype.kind in "iuf"}
+    st.dataframe(pvt.style.format(fmt, na_rep="—"), width="stretch", height=280)
 
-def _render_tabela_consolidada(df: pd.DataFrame) -> None:
-    st.subheader("Tabulador Consolidado por Ano")
-    st.caption("Contagem de inclusões com sustentação oral por ano, ambiente e classe.")
-
-    col_a, col_b, col_c = st.columns([3, 2, 2])
-    with col_a:
-        anos = sorted(df["ano"].unique())
-        periodo = st.slider(
-            "Período", int(min(anos)), int(max(anos)),
-            (int(min(anos)), int(max(anos))), step=1, key="stab_periodo",
-        )
-    with col_b:
-        classes_sel = st.multiselect(
-            "Classes", ["ADI", "ADPF", "ADC", "ADO"],
-            default=["ADI", "ADPF", "ADC", "ADO"], key="stab_classes",
-        )
-    with col_c:
-        ambientes_sel = st.multiselect(
-            "Ambientes", ["Plenário Virtual", "Plenário Presencial"],
-            default=["Plenário Virtual", "Plenário Presencial"], key="stab_amb",
-        )
-
-    ai, af  = periodo
-    sel_cls = classes_sel  if classes_sel  else ["ADI", "ADPF", "ADC", "ADO"]
-    sel_amb = ambientes_sel if ambientes_sel else ["Plenário Virtual", "Plenário Presencial"]
-
-    df_f = df[
-        df["ano"].between(ai, af) &
-        df["classe"].isin(sel_cls) &
-        df["ambiente"].isin(sel_amb)
-    ]
-
-    tabela = _build_tabulador(df_f)
-    keep = []
-    for col in tabela.columns:
-        partes = col.split(" — ")
-        if partes[0] == "Total":
-            keep.append(col)
-        elif partes[0] in sel_amb:
-            if len(partes) < 2 or partes[1] in sel_cls or partes[1] in ("Total", "Com sustentação", "Taxa (%)"):
-                keep.append(col)
-    tabela = tabela[[c for c in keep if c in tabela.columns]]
-    fmt = {c: "{:.1f}%" if "Taxa" in c else "{:,.0f}" for c in tabela.columns}
-    st.caption(f"{len(tabela):,} anos exibidos")
-    st.dataframe(tabela.style.format(fmt, na_rep="—"), width="stretch", height=320)
-
-
-def _render_dados_brutos(df: pd.DataFrame) -> None:
-    st.subheader("Dados Brutos")
-    st.caption("Uma linha por inclusão em pauta. Use os filtros para explorar.")
-
-    col_a, col_b, col_c, col_d = st.columns(4)
-    with col_a:
-        anos = sorted(df["ano"].unique())
-        periodo = st.slider(
-            "Período", int(min(anos)), int(max(anos)),
-            (int(min(anos)), int(max(anos))), step=1, key="sbruto_periodo",
-        )
-    with col_b:
-        classes_sel = st.multiselect("Classe", sorted(df["classe"].unique()), key="sbruto_classe")
-    with col_c:
-        amb_sel = st.multiselect("Ambiente", sorted(df["ambiente"].unique()), key="sbruto_amb")
-    with col_d:
-        sust_sel = st.selectbox(
-            "Sustentação", ["Todos", "Com sustentação", "Sem sustentação"], key="sbruto_sust",
-        )
-
-    ai, af = periodo
-    tab = _build_dados_brutos(df)
-    tab = tab[tab["Ano"].between(ai, af)]
-    if classes_sel:
-        tab = tab[tab["Classe"].isin(classes_sel)]
-    if amb_sel:
-        tab = tab[tab["Ambiente"].isin(amb_sel)]
-    if sust_sel == "Com sustentação":
-        tab = tab[tab["Sustentação"]]
-    elif sust_sel == "Sem sustentação":
-        tab = tab[~tab["Sustentação"]]
-
-    st.caption(f"{len(tab):,} inclusões exibidas")
-    st.dataframe(
-        tab,
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Processo":    st.column_config.TextColumn(width="medium"),
-            "Relator":     st.column_config.TextColumn(width="medium"),
-            "Desfecho":    st.column_config.TextColumn(width="large"),
-            "Sustentação": st.column_config.CheckboxColumn(width="small"),
-            "Ano":         st.column_config.NumberColumn(width="small"),
-        },
-    )
-
-
-# ── Ponto de entrada ──────────────────────────────────────────────────────────
 
 def render_graficos(df: pd.DataFrame) -> None:
     with st.expander("Sumário — visualizações disponíveis", expanded=True):
@@ -318,18 +207,23 @@ def render_graficos(df: pd.DataFrame) -> None:
     idx = _LABELS.index(escolha)
     _, subtitulo, descricao, fn = _CATALOGO[idx]
 
+    if fn is None:
+        _render_interactive_tabulador(df)
+        return
+
     st.subheader(subtitulo)
     st.caption(descricao)
 
-    if idx == len(_CATALOGO) - 1:  # S9 — tabulador
-        _render_tabulador_grafico(df)
+    show_values = st.checkbox("Exibir valores", value=True, key=f"sust_sv_{idx}")
+
+    if idx <= 3:
+        ambiente = st.selectbox(
+            "Âmbito", ["Plenário Virtual", "Plenário Presencial"],
+            key=f"sust_amb_{idx}",
+        )
+        fig = fn(df, show_values=show_values, ambiente=ambiente)
     else:
-        show_values = st.checkbox("Exibir valores", value=True, key=f"sust_sv_{idx}")
         fig = fn(df, show_values=show_values)
-        st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(fig, width="stretch")
 
-    st.markdown("---")
-    _render_tabela_consolidada(df)
-
-    st.markdown("---")
-    _render_dados_brutos(df)
+    _render_tabela(df, idx)

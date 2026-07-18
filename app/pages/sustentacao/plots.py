@@ -61,6 +61,12 @@ def _serie_sust(df_amb: pd.DataFrame) -> pd.Series:
     ).value_counts()
 
 
+def _pizza_sust(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
+    return _pizza(_serie_sust(df_amb), titulo,
+                  [CORES_SUST.get(l, "#999") for l in _serie_sust(df_amb).index],
+                  show_values=show_values)
+
+
 def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     tab = (df_amb[df_amb["teve_sustentacao"]]
            .groupby("ano").size().reset_index(name="n"))
@@ -112,76 +118,53 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# S1–S2 — Pizza período total (PV e PP)
+# S1/S2 — Pizza período total (PV/PP selecionável)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs1_pizza_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[df["ambiente"] == "Plenário Virtual"]
-    return _pizza(
-        _serie_sust(sub),
-        "Inclusões com Sustentação Oral — Plenário Virtual (2020–2025)",
-        [CORES_SUST.get(l, "#999") for l in _serie_sust(sub).index],
-        show_values=show_values,
-    )
-
-
-def gs2_pizza_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[df["ambiente"] == "Plenário Presencial"]
-    return _pizza(
-        _serie_sust(sub),
-        "Inclusões com Sustentação Oral — Plenário Presencial (2020–2025)",
-        [CORES_SUST.get(l, "#999") for l in _serie_sust(sub).index],
+def gs1_sust_filtravel(df: pd.DataFrame, show_values: bool = True,
+                       ambiente: str = "Plenário Virtual") -> go.Figure:
+    return _pizza_sust(
+        df[df["ambiente"] == ambiente],
+        f"Inclusões com Sustentação Oral — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# S3–S4 — Barras anuais (PV e PP)
+# S3/S4 — Barras anuais (PV/PP selecionável)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+def gs3_sust_anual_filtravel(df: pd.DataFrame, show_values: bool = True,
+                             ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_anuais(
-        df[df["ambiente"] == "Plenário Virtual"],
-        "Sustentação Oral por Ano — Plenário Virtual (2020–2025)",
-        show_values=show_values,
-    )
-
-
-def gs4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _barras_anuais(
-        df[df["ambiente"] == "Plenário Presencial"],
-        "Sustentação Oral por Ano — Plenário Presencial (2020–2025)",
+        df[df["ambiente"] == ambiente],
+        f"Sustentação Oral por Ano — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# S5–S6 — Por ano e classe (PV e PP)
+# S5/S6 — Por ano e classe (PV/PP selecionável)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]]
+def gs5_sust_classe_filtravel(df: pd.DataFrame, show_values: bool = True,
+                              ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = df[(df["ambiente"] == ambiente) & df["teve_sustentacao"]]
     return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         "Sustentação Oral por Ano e Classe — Plenário Virtual (2020–2025)",
-                         show_values=show_values)
-
-
-def gs6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Presencial") & df["teve_sustentacao"]]
-    return _barras_grupo(sub, "classe", CORES_CLASSE,
-                         "Sustentação Oral por Ano e Classe — Plenário Presencial (2020–2025)",
+                         f"Sustentação Oral por Ano e Classe — {ambiente} (2020–2025)",
                          show_values=show_values)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# S7 — Por ano e tipo de questão (PV)
+# S7 — Por ano e tipo de questão (PV/PP selecionável)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gs7_tipo_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["teve_sustentacao"]].copy()
+def gs7_sust_tipo_filtravel(df: pd.DataFrame, show_values: bool = True,
+                            ambiente: str = "Plenário Virtual") -> go.Figure:
+    sub = df[(df["ambiente"] == ambiente) & df["teve_sustentacao"]].copy()
     sub["tipo_questao"] = sub["tipo_questao"].replace({"IJ": "QI"})
     return _barras_grupo(sub, "tipo_questao", CORES_TIPO,
-                         "Sustentação Oral por Ano e Tipo de Questão — Plenário Virtual (2020–2025)",
+                         f"Sustentação Oral por Ano e Tipo de Questão — {ambiente} (2020–2025)",
                          show_values=show_values)
 
 

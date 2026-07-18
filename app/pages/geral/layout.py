@@ -140,3 +140,67 @@ def render_metricas(df: pd.DataFrame) -> None:
               df["classe"].nunique() if "classe" in df.columns else 0)
     c3.metric("Tipos de processo",
               df["tipo_processo"].nunique() if "tipo_processo" in df.columns else 0)
+
+
+def _build_tabela_processos(df: pd.DataFrame) -> pd.DataFrame:
+    proc      = df.drop_duplicates("incidente").copy()
+    inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
+    inc_pv    = (df[df["ambiente"] == "Plenário Virtual"]
+                 .groupby("incidente").size().rename("Inclusões PV"))
+    inc_pp    = (df[df["ambiente"] == "Plenário Presencial"]
+                 .groupby("incidente").size().rename("Inclusões PP"))
+    tab = (
+        proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao", "tramitacao"]]
+        .join(inc_total, on="incidente")
+        .join(inc_pv,    on="incidente")
+        .join(inc_pp,    on="incidente")
+    )
+    tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
+    tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
+    tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
+    return (
+        tab.rename(columns={
+            "incidente": "Incidente", "nome_processo": "Processo",
+            "classe": "Classe", "relator": "Relator",
+            "tipo_questao": "Tipo", "tramitacao": "Tramitação",
+        })
+        .sort_values("Processo")
+        .reset_index(drop=True)
+    )
+
+
+def render_tabela_processos(df: pd.DataFrame) -> None:
+    st.subheader("Tabela Consolidada por Processo")
+    st.caption("Um registro por processo com o total de inclusões em cada ambiente.")
+
+    tab = _build_tabela_processos(df)
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        classes   = st.multiselect("Classe",     sorted(tab["Classe"].unique()),     key="geral_classe")
+    with col2:
+        ambientes = st.multiselect("Tramitação", sorted(tab["Tramitação"].unique()), key="geral_tram")
+    with col3:
+        busca = st.text_input("Buscar processo", key="geral_busca", placeholder="ex: ADI 3423")
+
+    if classes:
+        tab = tab[tab["Classe"].isin(classes)]
+    if ambientes:
+        tab = tab[tab["Tramitação"].isin(ambientes)]
+    if busca:
+        tab = tab[tab["Processo"].str.contains(busca, case=False, na=False)]
+
+    st.caption(f"{len(tab):,} processos exibidos")
+    st.dataframe(
+        tab.drop(columns=["Incidente"]),
+        width="stretch",
+        hide_index=True,
+        column_config={
+            "Processo":           st.column_config.TextColumn(width="medium"),
+            "Relator":            st.column_config.TextColumn(width="medium"),
+            "Tramitação":         st.column_config.TextColumn(width="medium"),
+            "Total de Inclusões": st.column_config.NumberColumn(width="small"),
+            "Inclusões PV":       st.column_config.NumberColumn(width="small"),
+            "Inclusões PP":       st.column_config.NumberColumn(width="small"),
+        },
+    )

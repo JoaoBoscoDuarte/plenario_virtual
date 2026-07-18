@@ -20,7 +20,6 @@ from .plots import (
 )
 
 # ── Catálogo T1–T9 ────────────────────────────────────────────────────────────
-# (label_seletor, subtítulo, descrição, função, unidade)
 _CATALOGO = [
     (
         "T1 — Tramitação por Ambiente (pizza geral)",
@@ -28,7 +27,6 @@ _CATALOGO = [
         "Pizza com a distribuição dos processos distintos por ambiente: "
         "só PV, só PP ou ambos.",
         gt1_tramitacao,
-        "processo (incidente único)",
     ),
     (
         "T2 — Tramitação por Ambiente e Classe",
@@ -36,7 +34,6 @@ _CATALOGO = [
         "Barras agrupadas por ambiente de tramitação (só PV / só PP / ambos) "
         "para cada classe processual (ADI, ADPF, ADC, ADO).",
         gt2_tram_por_classe,
-        "processo (incidente único)",
     ),
     (
         "T3 — Tramitação por Ambiente e Tipo de Questão",
@@ -44,7 +41,6 @@ _CATALOGO = [
         "Barras agrupadas por ambiente de tramitação para cada tipo de questão "
         "(PR / RC / QI). IJ renomeado para QI.",
         gt3_tram_por_tipo,
-        "processo (incidente único)",
     ),
     (
         "T4 — Processos em Ambos os Ambientes por Tipo de Questão",
@@ -52,7 +48,6 @@ _CATALOGO = [
         "Recorte dos processos que tramitaram em ambos os ambientes, "
         "distribuídos por tipo de questão (PR / RC / QI).",
         gt4_ambos_por_tipo,
-        "processo (incidente único)",
     ),
     (
         "T5 — Macro-Desfecho por Ambiente de Tramitação",
@@ -60,7 +55,6 @@ _CATALOGO = [
         "Volume de inclusões concluídas e não concluídas em cada "
         "grupo de tramitação (só PV / só PP / ambos).",
         gt5_macro_por_tram,
-        "inclusão em pauta",
     ),
     (
         "T6 — Desfecho Detalhado por Ambiente de Tramitação",
@@ -68,23 +62,20 @@ _CATALOGO = [
         "Os 7 desfechos detalhados (unânime, maioria, pedido de vista etc.) "
         "para cada grupo de tramitação.",
         gt6_desfecho_por_tram,
-        "inclusão em pauta",
     ),
     (
         "T7 — Distribuição por Classe dentro de cada Ambiente",
         "Distribuição por Classe — por Ambiente de Tramitação (2020–2025)",
         "Uma pizza por ambiente (só PV / só PP / ambos) mostrando a composição "
-        "por classe processual. Selecione o ambiente na sub-aba.",
+        "por classe processual.",
         gt7_classe_por_tram,
-        "processo (incidente único)",
     ),
     (
         "T8 — Distribuição por Tipo de Questão dentro de cada Ambiente",
         "Distribuição por Tipo de Questão — por Ambiente de Tramitação (2020–2025)",
         "Uma pizza por ambiente (só PV / só PP / ambos) mostrando a composição "
-        "por tipo de questão. Selecione o ambiente na sub-aba.",
+        "por tipo de questão.",
         gt8_tipo_por_tram,
-        "processo (incidente único)",
     ),
     (
         "T9 — Taxa de Conclusão por Ambiente e Classe (%)",
@@ -92,7 +83,6 @@ _CATALOGO = [
         "Percentual de inclusões concluídas para cada combinação de ambiente de "
         "tramitação e classe processual.",
         gt9_taxa_conclusao,
-        "inclusão em pauta",
     ),
     (
         "T11 — Processos por Ano e Ambiente",
@@ -100,30 +90,46 @@ _CATALOGO = [
         "Cada processo aparece uma vez por ano-ambiente onde foi pautado. "
         "Barra por ambiente com total geral no eixo secundário.",
         gt11_proc_ano_ambiente,
-        "processo (incidente ano-ambiente)",
     ),
     (
         "T12 — Processos por Tipo de Tramitação",
         "Processos por tipo de tramitação, por ano sem repetição (2020–2025)",
         "Cada processo conta uma única vez: ano da primeira inclusão, "
-        "categoria conforme todo o histórico (Só Virtual / Só Físico / Ambos). "
-        "Soma de todas as barras = total de processos distintos.",
+        "categoria conforme todo o histórico (Só Virtual / Só Físico / Ambos).",
         gt12_proc_tramitacao_primeiro_ano,
-        "processo (incidente único)",
     ),
     (
         "T10 — Tabulador Interativo",
         "Tabulador Interativo — Tramitação por Ambiente (2020–2025)",
-        "Configure livremente os eixos, agrupamento, métrica e modo de barras. "
-        "Use os pré-definidos como ponto de partida.",
+        "Configure livremente os eixos, agrupamento, métrica e modo de barras.",
         None,
-        "variável (conforme configuração)",
     ),
 ]
 
 _LABELS = [item[0] for item in _CATALOGO]
 
-# ── Tabulador ─────────────────────────────────────────────────────────────────
+_SUMARIO = {
+    "Visão geral (T1–T4)": [
+        "T1 — tramitação por ambiente (pizza)",
+        "T2 — tramitação por ambiente e classe",
+        "T3 — tramitação por ambiente e tipo de questão",
+        "T4 — processos em ambos os ambientes por tipo",
+    ],
+    "Detalhamento (T5–T9)": [
+        "T5 — macro-desfecho por tramitação",
+        "T6 — desfecho detalhado por tramitação",
+        "T7 — distribuição por classe por ambiente",
+        "T8 — distribuição por tipo por ambiente",
+        "T9 — taxa de conclusão por tramitação e classe",
+    ],
+    "Temporal (T11–T12)": [
+        "T11 — processos por ano e ambiente",
+        "T12 — processos por tipo de tramitação (sem repetição)",
+    ],
+    "Livre (T10)": [
+        "T10 — tabulador interativo (eixos livres)",
+    ],
+}
 
 _PREDEFINIDOS = [
     ("Ambiente × Classe (inclusões, agrupado)",          "tramitacao",   "classe",         "inclusoes", "group"),
@@ -138,38 +144,42 @@ _PREDEFINIDOS = [
 _LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
 _DIMS_LABEL = list(DIMENSOES.keys())
 
+_TABELA_SPECS: dict[int, tuple[str, str | None]] = {
+    1: ("classe", "tramitacao"),
+    2: ("tipo_questao", "tramitacao"),
+    4: ("tramitacao", "macro_desfecho"),
+    5: ("tramitacao", "desfecho"),
+    8: ("tramitacao", "classe"),
+    9: ("ano", "ambiente"),
+    10: ("ano", "tramitacao"),
+}
 
-# ── helpers ───────────────────────────────────────────────────────────────────
 
-def _build_tabela(df: pd.DataFrame) -> pd.DataFrame:
-    proc      = df.drop_duplicates("incidente").copy()
-    inc_total = df.groupby("incidente").size().rename("Total de Inclusões")
-    inc_pv    = (df[df["ambiente"] == "Plenário Virtual"]
-                 .groupby("incidente").size().rename("Inclusões PV"))
-    inc_pp    = (df[df["ambiente"] == "Plenário Presencial"]
-                 .groupby("incidente").size().rename("Inclusões PP"))
-    tab = (
-        proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao", "tramitacao"]]
-        .join(inc_total, on="incidente")
-        .join(inc_pv,    on="incidente")
-        .join(inc_pp,    on="incidente")
-    )
-    tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
-    tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
-    tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
-    return (
-        tab.rename(columns={
-            "incidente": "Incidente", "nome_processo": "Processo",
-            "classe": "Classe", "relator": "Relator",
-            "tipo_questao": "Tipo", "tramitacao": "Tramitação",
-        })
-        .sort_values("Processo")
-        .reset_index(drop=True)
-    )
+def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None]) -> pd.DataFrame:
+    col_linha, col_grupo = spec
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+    tab = d.groupby([col_linha, col_grupo], observed=True).size().reset_index(name="n")
+    pvt = tab.pivot_table(index=col_linha, columns=col_grupo, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    return pvt
+
+
+def _render_tabela(df: pd.DataFrame, idx: int) -> None:
+    spec = _TABELA_SPECS.get(idx)
+    if spec is None:
+        return
+    with st.expander("📊 Dados da tabulação"):
+        tab = _build_tabela(df, spec)
+        fmt = {c: "{:,.0f}" for c in tab.columns if c != tab.columns[0]}
+        st.dataframe(tab.style.format(fmt, na_rep="—"), width="stretch", height=280)
 
 
 def _render_fig(fn, df: pd.DataFrame, show_values: bool) -> None:
-    """Chama a função de plot e renderiza — suporta retorno dict (sub-abas) ou Figure."""
     try:
         result = fn(df, show_values=show_values)
     except TypeError:
@@ -187,11 +197,10 @@ def _render_fig(fn, df: pd.DataFrame, show_values: bool) -> None:
 
 
 def _render_tabulador(df: pd.DataFrame, key_suffix: str) -> None:
-    """Bloco T10: pré-definidos + configuração livre + show_values."""
     col_pre, _ = st.columns([2, 1])
     with col_pre:
         pre_escolha = st.selectbox(
-            "🔖 Pré-definidos — escolha uma configuração pronta",
+            "🔖 Pré-definidos",
             options=["— ou configure manualmente abaixo —"] + _LABELS_PRE,
             index=0,
             key=f"tab_predefinido_{key_suffix}",
@@ -231,13 +240,38 @@ def _render_tabulador(df: pd.DataFrame, key_suffix: str) -> None:
         st.warning("Eixo X e Cor/Grupo não podem ser a mesma dimensão.")
         return
 
-    fig = gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values)
-    st.plotly_chart(fig, width="stretch")
+    st.plotly_chart(gt10_tabulador(df, eixo_x, grupo, metrica, barmode, show_values), width="stretch")
 
+    st.markdown("---")
+    st.subheader("Tabela — mesmos eixos")
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    if metrica == "processos":
+        d = d.drop_duplicates("incidente")
+    tab = d.groupby([eixo_x, grupo], observed=True).size().reset_index(name="n")
+    if barmode == "100%":
+        totais = tab.groupby(eixo_x)["n"].transform("sum")
+        tab["n"] = (tab["n"] / totais * 100).round(1)
+    pvt = tab.pivot_table(index=eixo_x, columns=grupo, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    fmt = {c: "{:,.0f}" for c in pvt.columns if pvt[c].dtype.kind in "iuf"}
+    st.dataframe(pvt.style.format(fmt, na_rep="—"), width="stretch", height=280)
 
-# ── Ponto de entrada ──────────────────────────────────────────────────────────
 
 def render_graficos(df: pd.DataFrame) -> None:
+    with st.expander("Sumário — visualizações disponíveis", expanded=True):
+        cols = st.columns(2)
+        for i, (bloco, graficos) in enumerate(_SUMARIO.items()):
+            with cols[i % 2]:
+                st.markdown(f"**{bloco}**")
+                for g in graficos:
+                    st.markdown(f"- {g}")
+
+    st.markdown("---")
+
     escolha = st.selectbox(
         "Selecione a visualização",
         options=_LABELS,
@@ -246,7 +280,7 @@ def render_graficos(df: pd.DataFrame) -> None:
     )
 
     idx = _LABELS.index(escolha)
-    _, subtitulo, descricao, fn, unidade = _CATALOGO[idx]
+    _, subtitulo, descricao, fn = _CATALOGO[idx]
 
     st.subheader(subtitulo)
     st.markdown(descricao)
@@ -257,76 +291,4 @@ def render_graficos(df: pd.DataFrame) -> None:
         show_values = st.checkbox("Exibir valores", value=False, key=f"tram_sv_{idx}")
         _render_fig(fn, df, show_values)
 
-    # ── Tabela específica por gráfico ──────────────────────────────────────────
-    n = len(_CATALOGO)
-    if idx == n - 3:  # T11
-        st.markdown("---")
-        st.subheader("Tabela — Processos por Ano e Ambiente")
-        d = df.copy()
-        d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
-        tab = (
-            d.drop_duplicates(subset=["incidente", "ano", "ambiente"])
-            .groupby(["ano", "ambiente"], observed=True).size()
-            .reset_index(name="n")
-        )
-        pvt = tab.pivot_table(index="ano", columns="ambiente", values="n", fill_value=0)
-        pvt["Total"] = pvt.sum(axis=1)
-        pvt.loc["Total"] = pvt.sum()
-        pvt = pvt.reset_index().astype(str)
-        st.dataframe(pvt.style.format("{:,.0f}", na_rep="—"), width="stretch", height=200)
-    elif idx == n - 2:  # T12
-        st.markdown("---")
-        st.subheader("Tabela — Processos por Tipo de Tramitação")
-        d = df.copy()
-        d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
-        proc = (
-            d.groupby("incidente")
-            .agg(ambientes=("ambiente", set), ano_primeira=("data_inclusao_dt", "min"))
-            .reset_index()
-        )
-        from .plots import _classificar_tramitacao
-        proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
-        proc["ano"] = proc["ano_primeira"].dt.year
-        tab = proc.groupby(["ano", "tramitacao"], observed=True).size().reset_index(name="n")
-        pvt = tab.pivot_table(index="ano", columns="tramitacao", values="n", fill_value=0)
-        pvt["Total"] = pvt.sum(axis=1)
-        pvt.loc["Total"] = pvt.sum()
-        pvt = pvt.reset_index().astype(str)
-        st.dataframe(pvt.style.format("{:,.0f}", na_rep="—"), width="stretch", height=200)
-
-    # ── Tabela consolidada ────────────────────────────────────────────────────
-    st.markdown("---")
-    st.subheader("Tabela Consolidada por Processo")
-    st.caption("Um registro por processo com o total de inclusões em cada ambiente.")
-
-    tab = _build_tabela(df)
-
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        classes   = st.multiselect("Classe",     sorted(tab["Classe"].unique()),     key="tab_classe")
-    with col2:
-        ambientes = st.multiselect("Tramitação", sorted(tab["Tramitação"].unique()), key="tab_tram")
-    with col3:
-        busca = st.text_input("Buscar processo", key="tab_busca", placeholder="ex: ADI 3423")
-
-    if classes:
-        tab = tab[tab["Classe"].isin(classes)]
-    if ambientes:
-        tab = tab[tab["Tramitação"].isin(ambientes)]
-    if busca:
-        tab = tab[tab["Processo"].str.contains(busca, case=False, na=False)]
-
-    st.caption(f"{len(tab):,} processos exibidos")
-    st.dataframe(
-        tab.drop(columns=["Incidente"]),
-        width="stretch",
-        hide_index=True,
-        column_config={
-            "Processo":           st.column_config.TextColumn(width="medium"),
-            "Relator":            st.column_config.TextColumn(width="medium"),
-            "Tramitação":         st.column_config.TextColumn(width="medium"),
-            "Total de Inclusões": st.column_config.NumberColumn(width="small"),
-            "Inclusões PV":       st.column_config.NumberColumn(width="small"),
-            "Inclusões PP":       st.column_config.NumberColumn(width="small"),
-        },
-    )
+    _render_tabela(df, idx)

@@ -70,12 +70,21 @@ _LAYOUT = dict(
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
 
+_AXIS = dict(
+    showline=True, linewidth=2, linecolor="black",
+    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
+    title_font=dict(family="Arial, sans-serif", size=22, color="black"),
+    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+)
+
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
 def _bar_fig(barmode: str = "group") -> go.Figure:
     fig = go.Figure()
     fig.update_layout(**_LAYOUT, barmode=barmode)
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -92,6 +101,8 @@ def _bar_com_linha(label_y: str, label_total: str,
     fig.update_layout(**layout, barmode="group")
     fig.update_yaxes(title_text=label_y, secondary_y=False)
     fig.update_yaxes(title_text=label_total, secondary_y=True)
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
     return fig
 
 

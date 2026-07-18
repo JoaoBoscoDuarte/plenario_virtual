@@ -144,8 +144,10 @@ def render_metricas(df: pd.DataFrame) -> None:
 
 def _build_tabela_processos(df: pd.DataFrame) -> pd.DataFrame:
     proc = df.drop_duplicates("incidente").copy()
-    tab = proc[["incidente", "nome_processo", "classe", "relator", "tipo_questao"]].copy()
-    tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
+    base_cols = [c for c in ["incidente", "nome_processo", "classe", "relator", "tipo_questao"] if c in proc.columns]
+    tab = proc[base_cols].copy()
+    if "tipo_questao" in tab.columns:
+        tab["tipo_questao"] = tab["tipo_questao"].replace({"IJ": "QI"})
     if "tramitacao" in df.columns:
         tab["Tramitação"] = proc["tramitacao"]
     else:
@@ -159,12 +161,12 @@ def _build_tabela_processos(df: pd.DataFrame) -> pd.DataFrame:
         tab = tab.join(inc_total, on="incidente").join(inc_pv, on="incidente").join(inc_pp, on="incidente")
         tab["Inclusões PV"] = tab["Inclusões PV"].fillna(0).astype(int)
         tab["Inclusões PP"] = tab["Inclusões PP"].fillna(0).astype(int)
+    rename_map = {"incidente": "Incidente", "nome_processo": "Processo",
+                  "classe": "Classe", "relator": "Relator"}
+    if "tipo_questao" in tab.columns:
+        rename_map["tipo_questao"] = "Tipo"
     return (
-        tab.rename(columns={
-            "incidente": "Incidente", "nome_processo": "Processo",
-            "classe": "Classe", "relator": "Relator",
-            "tipo_questao": "Tipo",
-        })
+        tab.rename(columns=rename_map)
         .sort_values("Processo")
         .reset_index(drop=True)
     )

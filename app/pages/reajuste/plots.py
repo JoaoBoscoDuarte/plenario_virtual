@@ -48,52 +48,24 @@ def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
     ).value_counts()
 
 
-# ── G-R1 e G-R2 — Pizza período total (PV e PP) ───────────────────────────────
+# ── G-R1 — Pizza reajuste por ambiente (selecionável) ──────────────────────────
 
-def gr1_pizza_pv(df: pd.DataFrame) -> go.Figure:
+def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                           ambiente: str = "Plenário Virtual") -> go.Figure:
     return _pizza_reajuste(
-        df[df["ambiente"] == "Plenário Virtual"],
-        "Inclusões com Reajuste de Voto — Plenário Virtual (2020–2025)",
-    )
-
-
-def gr2_pizza_pp(df: pd.DataFrame) -> go.Figure:
-    return _pizza_reajuste(
-        df[df["ambiente"] == "Plenário Presencial"],
-        "Inclusões com Reajuste de Voto — Plenário Presencial (2020–2025)",
-    )
-
-
-def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str) -> go.Figure:
-    serie = _serie_reajuste(df_amb)
-    cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
-    fig = go.Figure(go.Pie(
-        labels=serie.index, values=serie.values,
-        hole=0.4,
-        marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="label+value+percent",
-        textfont=dict(size=13),
-        textposition="auto",
-        insidetextorientation="radial",
-    ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
-    return fig
-
-
-# ── G-R3 e G-R4 — Barras anuais (PV e PP) ────────────────────────────────────
-
-def gr3_anual_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _barras_anuais(
-        df[df["ambiente"] == "Plenário Virtual"],
-        "Reajuste de Voto por Ano — Plenário Virtual (2020–2025)",
+        df[df["ambiente"] == ambiente],
+        f"Inclusões com Reajuste de Voto — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
 
-def gr4_anual_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+# ── G-R3 — Barras anuais por ambiente (selecionável) ───────────────────────────
+
+def gr3_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                        ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_anuais(
-        df[df["ambiente"] == "Plenário Presencial"],
-        "Reajuste de Voto por Ano — Plenário Presencial (2020–2025)",
+        df[df["ambiente"] == ambiente],
+        f"Reajuste de Voto por Ano — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
@@ -116,20 +88,13 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
     return fig
 
 
-# ── G-R5 e G-R6 — Barras anuais por classe (PV e PP) ─────────────────────────
+# ── G-R5 — Barras anuais por classe por ambiente (selecionável) ────────────────
 
-def gr5_classe_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+def gr5_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
+                         ambiente: str = "Plenário Virtual") -> go.Figure:
     return _barras_classe(
-        df[df["ambiente"] == "Plenário Virtual"],
-        "Reajuste de Voto por Ano e Classe — Plenário Virtual (2020–2025)",
-        show_values=show_values,
-    )
-
-
-def gr6_classe_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _barras_classe(
-        df[df["ambiente"] == "Plenário Presencial"],
-        "Reajuste de Voto por Ano e Classe — Plenário Presencial (2020–2025)",
+        df[df["ambiente"] == ambiente],
+        f"Reajuste de Voto por Ano e Classe — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 

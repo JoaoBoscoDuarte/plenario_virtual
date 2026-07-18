@@ -57,12 +57,13 @@ _AXIS = dict(
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _pizza(serie: pd.Series, titulo: str, cores: list) -> go.Figure:
+def _pizza(serie: pd.Series, titulo: str, cores: list,
+           show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
         labels=serie.index, values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="percent",
+        textinfo="percent" if show_values else "none",
         textfont=dict(family="Arial, sans-serif", size=14, color="black"),
         textposition="inside",
         insidetextorientation="radial",
@@ -153,12 +154,13 @@ def _proc(df: pd.DataFrame) -> pd.DataFrame:
 # T1 — Pizza geral por ambiente
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gt1_tramitacao(df: pd.DataFrame) -> go.Figure:
+def gt1_tramitacao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     serie = _proc(df)["tramitacao"].value_counts()
     return _pizza(
         serie,
         "Tramitação por Ambiente — Processos CC (2020–2025)",
         [CORES_TRAM.get(l, "#999") for l in serie.index],
+        show_values=show_values,
     )
 
 
@@ -252,7 +254,7 @@ def gt6_desfecho_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 # T7 — Classe por ambiente de tramitação — pizza por ambiente (dict de figuras)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gt7_classe_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
+def gt7_classe_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, go.Figure]:
     proc = _proc(df)
     result = {}
     for tram in _TRAMS:
@@ -264,6 +266,7 @@ def gt7_classe_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
             serie,
             f"Distribuição por Classe — {tram} (2020–2025)",
             [CORES_CLASSE.get(l, "#999") for l in serie.index],
+            show_values=show_values,
         )
     return result
 
@@ -272,7 +275,7 @@ def gt7_classe_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
 # T8 — Tipo de questão por ambiente de tramitação (dict de figuras)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gt8_tipo_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
+def gt8_tipo_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, go.Figure]:
     proc = _proc(df)
     proc = proc[proc["tipo_questao"].isin(_TIPOS)]
     result = {}
@@ -285,6 +288,7 @@ def gt8_tipo_por_tram(df: pd.DataFrame) -> dict[str, go.Figure]:
             serie,
             f"Distribuição por Tipo de Questão — {tram} (2020–2025)",
             [CORES_TIPO.get(l, "#999") for l in serie.index],
+            show_values=show_values,
         )
     return result
 

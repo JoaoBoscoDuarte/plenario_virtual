@@ -38,12 +38,12 @@ _TIPOS   = ["PR", "RC", "QI"]
 _TRAMS   = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
 
 _LEGEND = dict(
-    orientation="h", yanchor="top", y=-0.6, xanchor="center", x=0.5,
+    orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
     font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 _LAYOUT = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=240, b=260, l=160, r=60),
+    template="plotly_white", height=700,
+    margin=dict(t=130, b=140, l=120, r=60),
     legend=_LEGEND,
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )

@@ -51,7 +51,7 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
         )
     fig.add_annotation(
         x=0.5, y=-0.2, xref="paper", yref="paper",
-        text="DESFECHO DETALHADO", showarrow=False,
+        text="Desfecho detalhado", showarrow=False,
         font=dict(family="Arial, sans-serif", size=18, color="black"),
         xanchor="center", yanchor="top",
     )

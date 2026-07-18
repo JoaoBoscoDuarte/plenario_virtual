@@ -110,11 +110,11 @@ def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
         marker=marker,
     ))
     fig.update_layout(
-        title_text=titulo, template="plotly_white", height=420,
-        margin=dict(t=80, b=100),
+        title_text=titulo, template="plotly_white", height=460,
+        margin=dict(t=80, b=130),
         title_font=dict(family="Arial, sans-serif", size=26, color="black"),
         legend=dict(
-            orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5,
+            orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
         ),
     )

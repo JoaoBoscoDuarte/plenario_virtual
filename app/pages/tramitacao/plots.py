@@ -497,14 +497,18 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
             marker_color=CORES_TRAMITACAO[tr],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=13, color="black"),
         ))
     fig.update_layout(
-        title_text="Processos por tipo de tramitação — 2020–2025",
+        title=dict(text="Processos por tipo de tramitação — 2020–2025",
+                   font=dict(family="Arial, sans-serif", size=18, color="black")),
         barmode="group",
-        xaxis=dict(title="Período"),
-        yaxis=dict(title="Processos (incidentes distintos)"),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02,
-                    xanchor="center", x=0.5),
+        xaxis=dict(title=dict(text="Período", font=dict(family="Arial, sans-serif", size=14, color="black")),
+                   tickfont=dict(family="Arial, sans-serif", size=13, color="black")),
+        yaxis=dict(title=dict(text="Processos (incidentes distintos)", font=dict(family="Arial, sans-serif", size=14, color="black")),
+                   tickfont=dict(family="Arial, sans-serif", size=13, color="black")),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
+                    font=dict(family="Arial, sans-serif", size=13, color="black")),
         template="plotly_white", height=500,
         margin=dict(t=120, b=80, l=60, r=60),
     )

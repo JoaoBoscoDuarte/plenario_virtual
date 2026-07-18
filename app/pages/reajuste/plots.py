@@ -49,50 +49,48 @@ _AXIS = dict(
     title_font=dict(family="Arial, sans-serif", size=18, color="black"),
     tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
 )
-
-
 def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
     return df_amb["teve_reajuste"].map(
         {True: "Com reajuste de voto", False: "Sem reajuste de voto"}
     ).value_counts()
+# ── G-R1 — Pizza reajuste por ambiente (lado a lado) ───────────────────────────
 
-
-def _pizza_reajuste(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
-    serie = _serie_reajuste(df_amb)
-    cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
-    fig = go.Figure(go.Pie(
-        labels=serie.index, values=serie.values,
-        hole=0.4,
-        marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="percent" if show_values else "none",
-        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
-        textposition="inside",
-        insidetextorientation="radial",
-        showlegend=True,
-    ))
+def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    from plotly.subplots import make_subplots
+    fig = make_subplots(
+        rows=1, cols=2,
+        specs=[[{'type': 'pie'}, {'type': 'pie'}]],
+        subplot_titles=["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"],
+    )
+    for i, amb in enumerate(["Plenário Virtual", "Plenário Presencial"]):
+        d = df[df["ambiente"] == amb]
+        serie = _serie_reajuste(d)
+        cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
+        fig.add_trace(go.Pie(
+            labels=serie.index, values=serie.values,
+            hole=0.4,
+            marker=dict(colors=cores, line=dict(color="white", width=2)),
+            textinfo="percent" if show_values else "none",
+            textfont=dict(family="Arial, sans-serif", size=14, color="black"),
+            textposition="inside",
+            insidetextorientation="radial",
+            showlegend=True,
+            legendgroup="group",
+        ), row=1, col=i + 1)
     fig.update_layout(
-        title_text=titulo, template="plotly_white", height=500,
-        margin=dict(t=120, b=100, l=60, r=60),
+        title_text="INCLUSÕES COM REAJUSTE DE VOTO — PERÍODO TOTAL (2020–2025)",
+        template="plotly_white", height=500,
+        margin=dict(t=120, b=120, l=60, r=60),
         title_font=dict(family="Arial, sans-serif", size=26, color="black"),
         legend=dict(
-            orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5,
+            orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
         ),
     )
-    return fig
-
-
-# ── G-R1 — Pizza reajuste por ambiente (selecionável) ──────────────────────────
-
-def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
-                           ambiente: str = "Plenário Virtual") -> go.Figure:
-    return _pizza_reajuste(
-        df[df["ambiente"] == ambiente],
-        f"Inclusões com Reajuste de Voto — {ambiente} (2020–2025)",
-        show_values=show_values,
+    fig.update_annotations(
+        font=dict(family="Arial, sans-serif", size=18, color="black"),
     )
-
-
+    return fig
 # ── G-R3 — Barras anuais por ambiente (selecionável) ───────────────────────────
 
 def gr3_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
@@ -102,8 +100,6 @@ def gr3_anual_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: b
         f"Reajuste de Voto por Ano — {ambiente} (2020–2025)",
         show_values=show_values,
     )
-
-
 def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     tab = (df_amb[df_amb["teve_reajuste"]]
            .groupby("ano").size().reset_index(name="n"))
@@ -122,8 +118,6 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
     fig.update_xaxes(**_AXIS)
     fig.update_yaxes(**_AXIS)
     return fig
-
-
 # ── G-R5 — Barras anuais por classe por ambiente (selecionável) ────────────────
 
 def gr5_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: bool = False,
@@ -133,8 +127,6 @@ def gr5_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: 
         f"Reajuste de Voto por Ano e Classe — {ambiente} (2020–2025)",
         show_values=show_values,
     )
-
-
 def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     sub = df_amb[df_amb["teve_reajuste"]]
     tab = sub.groupby(["ano", "classe"], observed=True).size().reset_index(name="n")

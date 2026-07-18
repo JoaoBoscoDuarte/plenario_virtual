@@ -229,7 +229,9 @@ def render_graficos(df: pd.DataFrame) -> None:
 
     show_values = st.checkbox("Exibir valores", value=True, key=f"reajuste_sv_{idx}")
 
-    if idx <= 2:
+    if idx == 0:
+        fig = fn(df, show_values=show_values)
+    elif idx <= 2:
         ambiente = st.selectbox(
             "Âmbito", ["Plenário Virtual", "Plenário Presencial"],
             key=f"reajuste_amb_{idx}",

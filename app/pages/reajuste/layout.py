@@ -5,7 +5,6 @@ import streamlit as st
 import pandas as pd
 from .plots import (
     gr1_reajuste_filtravel, gr3_anual_filtravel, gr5_classe_filtravel,
-    gr10_tramitacao_periodo,
 )
 from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
@@ -65,13 +64,6 @@ _CATALOGO = [
         _gr_desfecho_vs_reajuste,
     ),
     (
-        "R10 — Processos por Tipo de Tramitação (período total)",
-        "Processos por tipo de tramitação — 2020–2025",
-        "Cada processo aparece uma única vez, classificado pelo(s) ambiente(s) "
-        "em que tramitou ao longo de todo o período.",
-        gr10_tramitacao_periodo,
-    ),
-    (
         "R9 — Tabulador Gráfico Interativo",
         "Tabulador Gráfico Interativo",
         "Configure livremente eixos, agrupamento e modo de barras para explorar "
@@ -91,10 +83,9 @@ _SUMARIO = {
     "Por classe (R5/R6)": [
         "R5/R6 — reajustes por ano e classe (Plenário Virtual e Plenário Presencial)",
     ],
-    "Distribuição (R7–R8, R10)": [
+    "Distribuição (R7–R8)": [
         "R7 — reajuste por tipo de questão",
         "R8 — reajuste por desfecho detalhado",
-        "R10 — processos por tipo de tramitação",
     ],
     "Livre (R9)": [
         "R9 — tabulador gráfico interativo",

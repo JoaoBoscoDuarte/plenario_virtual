@@ -16,6 +16,7 @@ from .plots import (
     gt10_tabulador,
     gt11_proc_ano_ambiente,
     gt12_proc_tramitacao_primeiro_ano,
+    gt13_tramitacao_periodo,
     DIMENSOES,
 )
 
@@ -99,6 +100,13 @@ _CATALOGO = [
         gt12_proc_tramitacao_primeiro_ano,
     ),
     (
+        "T13 — Processos por Tipo de Tramitação (período total)",
+        "Processos por tipo de tramitação — 2020–2025",
+        "Cada processo aparece uma única vez, classificado pelo(s) ambiente(s) "
+        "em que tramitou ao longo de todo o período.",
+        gt13_tramitacao_periodo,
+    ),
+    (
         "T10 — Tabulador Interativo",
         "Tabulador Interativo — Tramitação por Ambiente (2020–2025)",
         "Configure livremente os eixos, agrupamento, métrica e modo de barras.",
@@ -109,11 +117,12 @@ _CATALOGO = [
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
-    "Visão geral (T1–T4)": [
+    "Visão geral (T1–T4, T13)": [
         "T1 — tramitação por ambiente (pizza)",
         "T2 — tramitação por ambiente e classe",
         "T3 — tramitação por ambiente e tipo de questão",
         "T4 — processos em ambos os ambientes por tipo",
+        "T13 — processos por tipo de tramitação (período total)",
     ],
     "Detalhamento (T5–T9)": [
         "T5 — macro-desfecho por tramitação",

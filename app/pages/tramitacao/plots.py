@@ -458,3 +458,47 @@ def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True
         "Processos (incidentes distintos)",
         show_values=show_values,
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# T13 — Processos por tipo de tramitação (período total, sem quebra anual)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    proc = (
+        df.groupby("incidente")["ambiente"]
+        .apply(set)
+        .reset_index(name="ambientes")
+    )
+    proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
+    proc["periodo"] = "2020–2025"
+
+    tab = proc.groupby(["periodo", "tramitacao"], observed=True).size().reset_index(name="n")
+    total = proc.groupby("periodo", observed=True).size().reset_index(name="n")
+
+    fig = go.Figure()
+    ord_tram = ["Só Virtual", "Só Físico", "Ambos os ambientes"]
+    for tr in ord_tram:
+        d = tab[tab["tramitacao"] == tr]
+        fig.add_trace(go.Bar(
+            x=d["periodo"], y=d["n"], name=tr,
+            marker_color=CORES_TRAM[tr],
+            text=d["n"] if show_values else None,
+            textposition="outside", cliponaxis=False,
+        ))
+    fig.add_trace(go.Scatter(
+        x=total["periodo"], y=total["n"], name="Total",
+        mode="lines+markers", line=dict(color="#333", width=2),
+        marker=dict(size=6),
+    ))
+    fig.update_layout(
+        title_text="Processos por tipo de tramitação — 2020–2025",
+        barmode="group",
+        xaxis=dict(title="Período"),
+        yaxis=dict(title="Processos (incidentes distintos)"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                    xanchor="center", x=0.5),
+        template="plotly_white", height=500,
+        margin=dict(t=120, b=80, l=60, r=60),
+    )
+    return fig

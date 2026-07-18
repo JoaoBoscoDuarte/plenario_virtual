@@ -23,20 +23,25 @@ _TIPOS      = ["PR", "RC", "QI"]
 _ANOS       = list(range(2020, 2026))
 
 _LEGEND = dict(
-    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
+    orientation="h", yanchor="top", y=-0.2,
+    xanchor="center", x=0.5,
     font=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 _LAYOUT = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
+    template="plotly_white", height=700,
+    margin=dict(t=130, b=140, l=120, r=60),
     legend=_LEGEND,
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )
 _LAYOUT_PIZZA = dict(
     template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    showlegend=False,
+    margin=dict(t=120, b=100, l=60, r=60),
+    showlegend=True,
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+    legend=dict(
+        orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
+        font=dict(family="Arial, sans-serif", size=17, color="black"),
+    ),
 )
 _AXIS = dict(
     showline=True, linewidth=2, linecolor="black",
@@ -53,10 +58,11 @@ def _pizza(serie: pd.Series, titulo: str, cores: list, show_values: bool = True)
         labels=serie.index, values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="label+value+percent" if show_values else "label",
-        textfont=dict(size=13),
-        textposition="auto",
+        textinfo="percent" if show_values else "none",
+        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
+        textposition="inside",
         insidetextorientation="radial",
+        showlegend=True,
     ))
     fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
     return fig
@@ -83,6 +89,7 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         marker_color="#0891b2",
         text=tab["n"] if show_values else None,
         textposition="outside", cliponaxis=False,
+        textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         name="Com sustentação",
     ))
     fig.update_layout(
@@ -116,6 +123,7 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ), secondary_y=False)
     fig.add_trace(go.Scatter(
         x=total["ano"], y=total["n"], mode="lines+markers",
@@ -195,6 +203,7 @@ def gs8_taxa_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
             marker_color=cor,
             text=(vals.astype(str) + "%") if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
         title_text="Taxa de Sustentação Oral por Ano e Ambiente (%) (2020–2025)",

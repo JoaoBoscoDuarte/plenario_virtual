@@ -47,12 +47,6 @@ _LAYOUT = dict(
     legend=_LEGEND,
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
 )
-_LAYOUT_PIZZA = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    showlegend=False,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-)
 _AXIS = dict(
     showline=True, linewidth=2, linecolor="black",
     showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
@@ -68,12 +62,21 @@ def _pizza(serie: pd.Series, titulo: str, cores: list) -> go.Figure:
         labels=serie.index, values=serie.values,
         hole=0.4,
         marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="label+value+percent",
-        textfont=dict(size=13),
-        textposition="auto",
+        textinfo="percent",
+        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
+        textposition="inside",
         insidetextorientation="radial",
+        showlegend=True,
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
+    fig.update_layout(
+        title_text=titulo, template="plotly_white", height=500,
+        margin=dict(t=120, b=100, l=60, r=60),
+        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+        legend=dict(
+            orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
+            font=dict(family="Arial, sans-serif", size=17, color="black"),
+        ),
+    )
     return fig
 
 
@@ -86,15 +89,16 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
     for g in grupos:
         d = tab[tab[col_grupo] == g]
         fig.add_trace(go.Bar(
-            x=d[col_x], y=d["n"], name=g,
+            x=d[col_x], y=d["n"], name=g.upper(),
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title_text=titulo, barmode="group",
-        xaxis=dict(title=x_title),
-        yaxis=dict(title=label_y),
+        title_text=titulo.upper(), barmode="group",
+        xaxis=dict(title=x_title.upper()),
+        yaxis=dict(title=label_y.upper()),
         **_LAYOUT,
     )
     fig.update_xaxes(**_AXIS)
@@ -113,21 +117,22 @@ def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
     for g in grupos:
         d = tab[tab[col_grupo] == g]
         fig.add_trace(go.Bar(
-            x=d[col_x], y=d["n"], name=g,
+            x=d[col_x], y=d["n"], name=g.upper(),
             marker_color=cores[g],
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ), secondary_y=False)
     fig.add_trace(go.Scatter(
-        x=total[col_x], y=total["n"], name="Total",
+        x=total[col_x], y=total["n"], name="TOTAL",
         mode="lines+markers", line=dict(color="#333", width=2),
         marker=dict(size=6),
     ), secondary_y=True)
     fig.update_layout(
-        title_text=titulo, barmode="group",
+        title_text=titulo.upper(), barmode="group",
         xaxis=dict(title=col_x.capitalize()),
-        yaxis=dict(title=label_y),
-        yaxis2=dict(title="Total", overlaying="y", side="right"),
+        yaxis=dict(title=label_y.upper()),
+        yaxis2=dict(title="TOTAL", overlaying="y", side="right"),
         **_LAYOUT,
     )
     if y_max:
@@ -203,12 +208,13 @@ def gt4_ambos_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
             marker_color=CORES_TIPO.get(row["tipo_questao"], "#999"),
             text=[row["n"]] if show_values else None,
             textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
     fig.update_layout(
-        title_text="Processos em Ambos os Ambientes por Tipo de Questão (2020–2025)",
+        title_text="PROCESSOS EM AMBOS OS AMBIENTES POR TIPO DE QUESTÃO (2020–2025)",
         barmode="group",
-        xaxis=dict(title="Tipo de Questão"),
-        yaxis=dict(title="Processos distintos"),
+        xaxis=dict(title="TIPO DE QUESTÃO"),
+        yaxis=dict(title="PROCESSOS DISTINTOS"),
         **_LAYOUT,
     )
     fig.update_xaxes(**_AXIS)
@@ -362,16 +368,16 @@ def gt10_tabulador(
 
     if metrica == "processos":
         d = d.drop_duplicates("incidente")
-        label_y = "Processos distintos"
+        label_y = "PROCESSOS DISTINTOS"
     else:
-        label_y = "Inclusões em pauta"
+        label_y = "INCLUSÕES EM PAUTA"
 
     tab = d.groupby([eixo_x, grupo], observed=True).size().reset_index(name="n")
 
     if barmode == "100%":
         totais = tab.groupby(eixo_x)["n"].transform("sum")
         tab["n"] = (tab["n"] / totais * 100).round(1)
-        label_y = "% do total"
+        label_y = "% DO TOTAL"
         bm = "stack"
     else:
         bm = barmode
@@ -385,24 +391,25 @@ def gt10_tabulador(
         fig.add_trace(go.Bar(
             x=d_g[eixo_x].astype(str),
             y=d_g["n"],
-            name=str(g),
+            name=str(g).upper(),
             marker_color=cor,
             text=d_g["n"].apply(lambda v: f"{v:.1f}%" if barmode == "100%" else str(int(v))) if show_values else None,
             textposition="outside" if bm != "stack" else "inside",
             cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
 
     # rótulos legíveis para título
     inv = {v: k for k, v in DIMENSOES.items()}
     titulo = (
         f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)} "
-        f"({'processos' if metrica == 'processos' else 'inclusões'}) — 2020–2025"
+        f"({'PROCESSOS' if metrica == 'processos' else 'INCLUSÕES'}) — 2020–2025"
     )
 
     fig.update_layout(
-        title_text=titulo,
+        title_text=titulo.upper(),
         barmode=bm,
-        xaxis=dict(title=inv.get(eixo_x, eixo_x)),
+        xaxis=dict(title=inv.get(eixo_x, eixo_x).upper()),
         yaxis=dict(title=label_y),
         **_LAYOUT,
     )

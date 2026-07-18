@@ -175,7 +175,6 @@ def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None]) -> pd.DataFram
         tab.columns = [col_linha, "n"]
         pvt = tab.set_index(col_linha)
         pvt.loc["Total"] = pvt["n"].sum()
-        pvt.loc["Total", col_linha] = "Total" if col_linha not in pvt.columns else None
         pvt = pvt.reset_index()
         pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
         return pvt

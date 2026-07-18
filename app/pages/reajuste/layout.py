@@ -44,7 +44,7 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
         else:
             s = re.sub(r"\s*-\s*", "<br>", s, count=1)
         fig.add_annotation(
-            x=i, y=-0.05, xref="x", yref="paper",
+            x=i, y=-0.03, xref="x", yref="paper",
             text=s, showarrow=False,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
             xanchor="center", yanchor="top",

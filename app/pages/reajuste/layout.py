@@ -173,11 +173,30 @@ def _render_interactive_tabulador(df: pd.DataFrame) -> None:
 
     if eixo_x == eixo_y:
         st.warning("Eixo X e Eixo Y não podem ser a mesma dimensão.")
-    else:
-        st.plotly_chart(
-            gt10_tabulador(df, eixo_x, eixo_y, metrica, barmode, show_values_tab),
-            width="stretch",
-        )
+        return
+
+    st.plotly_chart(
+        gt10_tabulador(df, eixo_x, eixo_y, metrica, barmode, show_values_tab),
+        width="stretch",
+    )
+
+    st.markdown("---")
+    st.subheader("Tabela — mesmos eixos")
+    d = df.copy()
+    d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
+    if metrica == "processos":
+        d = d.drop_duplicates("incidente")
+    tab = d.groupby([eixo_x, eixo_y], observed=True).size().reset_index(name="n")
+    if barmode == "100%":
+        totais = tab.groupby(eixo_x)["n"].transform("sum")
+        tab["n"] = (tab["n"] / totais * 100).round(1)
+    pvt = tab.pivot_table(index=eixo_x, columns=eixo_y, values="n", fill_value=0)
+    pvt["Total"] = pvt.sum(axis=1)
+    pvt.loc["Total"] = pvt.sum()
+    pvt = pvt.reset_index()
+    pvt[pvt.columns[0]] = pvt[pvt.columns[0]].astype(str)
+    fmt = {c: "{:,.0f}" for c in pvt.columns if pvt[c].dtype.kind in "iuf"}
+    st.dataframe(pvt.style.format(fmt, na_rep="—"), width="stretch", height=280)
 
 
 def render_graficos(df: pd.DataFrame) -> None:

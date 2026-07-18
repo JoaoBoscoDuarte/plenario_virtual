@@ -9,6 +9,10 @@ CORES_TRAM = {
     "Só Virtual":         "#2563eb",
     "Só Físico":          "#f59e0b",
 }
+CORES_AMBIENTE = {
+    "Plenário Virtual":   "#2563eb",
+    "Plenário Físico":    "#f59e0b",
+}
 CORES_CLASSE = {
     "ADI":  "#2563eb",
     "ADPF": "#f59e0b",
@@ -86,6 +90,41 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
         yaxis=dict(title=label_y),
         **_LAYOUT,
     )
+    return fig
+
+
+def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
+                      col_x: str, col_grupo: str,
+                      cores: dict, titulo: str, label_y: str,
+                      show_values: bool = True,
+                      y_max: int | None = None) -> go.Figure:
+    from plotly.subplots import make_subplots
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    grupos = [g for g in cores if g in tab[col_grupo].unique()]
+    for g in grupos:
+        d = tab[tab[col_grupo] == g]
+        fig.add_trace(go.Bar(
+            x=d[col_x], y=d["n"], name=g,
+            marker_color=cores[g],
+            text=d["n"] if show_values else None,
+            textposition="outside", cliponaxis=False,
+        ), secondary_y=False)
+    fig.add_trace(go.Scatter(
+        x=total[col_x], y=total["n"], name="Total",
+        mode="lines+markers", line=dict(color="#333", width=2),
+        marker=dict(size=6),
+    ), secondary_y=True)
+    fig.update_layout(
+        title_text=titulo, barmode="group",
+        xaxis=dict(title=col_x.capitalize()),
+        yaxis=dict(title=label_y),
+        yaxis2=dict(title="Total", overlaying="y", side="right"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02,
+                    xanchor="center", x=0.5),
+        **_LAYOUT,
+    )
+    if y_max:
+        fig.update_yaxes(range=[0, y_max])
     return fig
 
 
@@ -357,3 +396,65 @@ def gt10_tabulador(
         **_LAYOUT,
     )
     return fig
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# T11 — Processos distintos por ano e ambiente
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def gt11_proc_ano_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    """Processos distintos por ano e ambiente (drop_duplicates incidente+ano+ambiente)."""
+    d = df.copy()
+    d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+    tab = (
+        d.drop_duplicates(subset=["incidente", "ano", "ambiente"])
+        .groupby(["ano", "ambiente"], observed=True).size()
+        .reset_index(name="n")
+    )
+    total = (
+        d.drop_duplicates(subset=["incidente", "ano"])
+        .groupby("ano", observed=True).size()
+        .reset_index(name="n")
+    )
+    return _barras_com_total(
+        tab, total, "ano", "ambiente", CORES_AMBIENTE,
+        "Processos distintos por ano e ambiente (2020–2025)",
+        "Processos (incidentes distintos)",
+        show_values=show_values, y_max=800,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# T12 — Processos por tipo de tramitação, sem repetição
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _classificar_tramitacao(ambientes: set) -> str:
+    tem_v = "Plenário Virtual" in ambientes
+    tem_f = "Plenário Físico" in ambientes
+    if tem_v and tem_f:
+        return "Ambos os ambientes"
+    return "Só Virtual" if tem_v else "Só Físico"
+
+
+def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    """Cada processo UMA vez: ano = primeira inclusão, tipo = histórico completo."""
+    d = df.copy()
+    d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+    proc = (
+        d.groupby("incidente")
+        .agg(
+            ambientes=("ambiente", set),
+            ano_primeira=("data_inclusao_dt", "min"),
+        )
+        .reset_index()
+    )
+    proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
+    proc["ano"] = proc["ano_primeira"].dt.year
+    tab = proc.groupby(["ano", "tramitacao"], observed=True).size().reset_index(name="n")
+    total = proc.groupby("ano", observed=True).size().reset_index(name="n")
+    return _barras_com_total(
+        tab, total, "ano", "tramitacao", CORES_TRAM,
+        "Processos por tipo de tramitação, por ano sem repetição (2020–2025)",
+        "Processos (incidentes distintos)",
+        show_values=show_values,
+    )

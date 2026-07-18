@@ -14,6 +14,8 @@ from .plots import (
     gt8_tipo_por_tram,
     gt9_taxa_conclusao,
     gt10_tabulador,
+    gt11_proc_ano_ambiente,
+    gt12_proc_tramitacao_primeiro_ano,
     DIMENSOES,
 )
 
@@ -91,6 +93,23 @@ _CATALOGO = [
         "tramitação e classe processual.",
         gt9_taxa_conclusao,
         "inclusão em pauta",
+    ),
+    (
+        "T11 — Processos por Ano e Ambiente",
+        "Processos distintos por ano e ambiente (2020–2025)",
+        "Cada processo aparece uma vez por ano-ambiente onde foi pautado. "
+        "Barra por ambiente com total geral no eixo secundário.",
+        gt11_proc_ano_ambiente,
+        "processo (incidente ano-ambiente)",
+    ),
+    (
+        "T12 — Processos por Tipo de Tramitação",
+        "Processos por tipo de tramitação, por ano sem repetição (2020–2025)",
+        "Cada processo conta uma única vez: ano da primeira inclusão, "
+        "categoria conforme todo o histórico (Só Virtual / Só Físico / Ambos). "
+        "Soma de todas as barras = total de processos distintos.",
+        gt12_proc_tramitacao_primeiro_ano,
+        "processo (incidente único)",
     ),
     (
         "T10 — Tabulador Interativo",
@@ -237,6 +256,43 @@ def render_graficos(df: pd.DataFrame) -> None:
     else:
         show_values = st.checkbox("Exibir valores", value=False, key=f"tram_sv_{idx}")
         _render_fig(fn, df, show_values)
+
+    # ── Tabela específica por gráfico ──────────────────────────────────────────
+    n = len(_CATALOGO)
+    if idx == n - 3:  # T11
+        st.markdown("---")
+        st.subheader("Tabela — Processos por Ano e Ambiente")
+        d = df.copy()
+        d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+        tab = (
+            d.drop_duplicates(subset=["incidente", "ano", "ambiente"])
+            .groupby(["ano", "ambiente"], observed=True).size()
+            .reset_index(name="n")
+        )
+        pvt = tab.pivot_table(index="ano", columns="ambiente", values="n", fill_value=0)
+        pvt["Total"] = pvt.sum(axis=1)
+        pvt.loc["Total"] = pvt.sum()
+        pvt = pvt.reset_index().astype(str)
+        st.dataframe(pvt.style.format("{:,.0f}", na_rep="—"), width="stretch", height=200)
+    elif idx == n - 2:  # T12
+        st.markdown("---")
+        st.subheader("Tabela — Processos por Tipo de Tramitação")
+        d = df.copy()
+        d["ambiente"] = d["ambiente"].replace({"Plenário Presencial": "Plenário Físico"})
+        proc = (
+            d.groupby("incidente")
+            .agg(ambientes=("ambiente", set), ano_primeira=("data_inclusao_dt", "min"))
+            .reset_index()
+        )
+        from .plots import _classificar_tramitacao
+        proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
+        proc["ano"] = proc["ano_primeira"].dt.year
+        tab = proc.groupby(["ano", "tramitacao"], observed=True).size().reset_index(name="n")
+        pvt = tab.pivot_table(index="ano", columns="tramitacao", values="n", fill_value=0)
+        pvt["Total"] = pvt.sum(axis=1)
+        pvt.loc["Total"] = pvt.sum()
+        pvt = pvt.reset_index().astype(str)
+        st.dataframe(pvt.style.format("{:,.0f}", na_rep="—"), width="stretch", height=200)
 
     # ── Tabela consolidada ────────────────────────────────────────────────────
     st.markdown("---")

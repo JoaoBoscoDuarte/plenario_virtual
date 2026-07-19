@@ -73,7 +73,7 @@ _TIPOS   = ["PR", "RC", "QI"]
 _AXIS = dict(
     showline=True, linewidth=2, linecolor="black",
     showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=22, color="black"),
+    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
     tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
 )
 
@@ -207,8 +207,15 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
             x=d["ano"], y=d["n"], name=amb.upper(), marker_color=cor,
             text=texto, textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(title_text="Inclusões em pauta por ano e ambiente",
-                      yaxis_title="Inclusões")
+    fig.update_layout(
+        title_text="Inclusões em pauta por ano e ambiente",
+        yaxis=dict(
+            title=dict(
+                text="Inclusões",
+                font=dict(family="Arial, sans-serif", size=18, color="black"),
+            ),
+        ),
+    )
 
     pizza = df["ambiente"].value_counts()
     cores_pizza = [COR_PV if l == "Plenário Virtual" else COR_PP

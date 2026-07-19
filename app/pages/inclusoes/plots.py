@@ -208,7 +208,7 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
             text=texto, textposition="outside", cliponaxis=False,
         ))
     fig.update_layout(title_text="Inclusões em pauta por ano e ambiente",
-                      yaxis_title="Inclusões em pauta")
+                      yaxis_title="Inclusões")
 
     pizza = df["ambiente"].value_counts()
     cores_pizza = [COR_PV if l == "Plenário Virtual" else COR_PP

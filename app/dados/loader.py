@@ -112,6 +112,7 @@ def load_tramitacoes() -> pd.DataFrame:
     """Carrega o dataset de inclusões com tramitação por ambiente (PV/PP/ambos)."""
     df = load_parquet(HF_REPO_ID, HF_FILES["tramitacoes"])
     df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
+    df["tramitacao"] = df["tramitacao"].replace({"Só Virtual": "Virtual", "Só Físico": "Físico"})
     return df
 
 

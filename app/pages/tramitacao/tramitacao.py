@@ -19,6 +19,8 @@ except Exception as e:
     st.error(f"Erro ao carregar dataset: {e}")
     st.stop()
 
+df["tramitacao"] = df["tramitacao"].replace({"Só Virtual": "Virtual", "Só Físico": "Físico"})
+
 if df.empty:
     st.warning("O dataframe retornou vazio.")
     st.stop()

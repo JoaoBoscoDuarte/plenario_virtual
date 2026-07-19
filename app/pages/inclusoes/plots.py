@@ -315,7 +315,15 @@ def _macro_anual(df_amb: pd.DataFrame, titulo: str,
             text=texto[d.index] if isinstance(texto, pd.Series) else texto,
             textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(title_text=titulo, yaxis_title=y_title)
+    fig.update_layout(
+        title_text=titulo,
+        yaxis=dict(
+            title=dict(
+                text=y_title,
+                font=dict(family="Arial, sans-serif", size=18, color="black"),
+            ),
+        ),
+    )
     return fig
 
 

@@ -140,7 +140,9 @@ def render_graficos() -> None:
     st.subheader(subtitulo)
     st.caption(descricao)
 
-    fig = fn()
+    show_values = st.checkbox("Exibir valores", value=True, key=f"narrativa_sv_{idx}")
+
+    fig = fn(show_values=show_values)
     st.plotly_chart(fig, width="stretch")
 
     with st.expander("📊 Dados da visualização"):

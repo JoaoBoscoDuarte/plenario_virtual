@@ -28,6 +28,9 @@ pg = st.navigation(
         "Sustentação Oral": [
             st.Page("pages/sustentacao/sustentacao.py", title="Sustentação Oral", icon="🎤"),
         ],
+        "Sessões Virtuais": [
+            st.Page("pages/sessoes_virtuais/sessoes_virtuais.py", title="Sessões Virtuais", icon="🖥️"),
+        ],
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],

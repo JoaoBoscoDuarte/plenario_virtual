@@ -20,7 +20,7 @@ _AXIS = dict(
 )
 
 _LAYOUT_BASE = dict(
-    template="plotly_white", height=500,
+    template="plotly_white", height=650,
     margin=dict(t=130, b=80, l=60, r=60),
     title_font=dict(family="Arial, sans-serif", size=26, color="black"),
     hovermode="x unified",
@@ -37,10 +37,10 @@ def plot_na() -> go.Figure:
                cliponaxis=False, showlegend=False)
     ])
 
-    fig.add_shape(type="line", x0=2.33, x1=2.33, y0=0, y1=85,
+    fig.add_shape(type="line", x0=2.5, x1=2.5, y0=0, y1=85,
                   line=dict(color=COR_ESPIN, width=2, dash="dash"),
                   xref="x", yref="y")
-    fig.add_annotation(x=2.33, y=80, text="fim da ESPIN (abril de 2022)",
+    fig.add_annotation(x=2.5, y=80, text="fim da ESPIN (abril de 2022)",
                        showarrow=False, font=dict(color=COR_ESPIN, size=14),
                        xref="x", yref="y")
 

@@ -41,12 +41,12 @@ def plot_na() -> go.Figure:
                   line=dict(color=COR_ESPIN, width=2, dash="dash"),
                   xref="x", yref="y")
     fig.add_annotation(x=2.5, y=80, text="fim da ESPIN (abril de 2022)",
-                       showarrow=False, font=dict(color=COR_ESPIN, size=14),
+                       showarrow=False, font=dict(color=COR_ESPIN, size=17),
                        xref="x", yref="y")
 
     fig.update_layout(
         title="<b>A participação do Plenário Virtual mantém-se entre 59% e 68% ao ano</b><br><sup>Percentual das inclusões em pauta destinadas ao ambiente virtual, 2020-2025</sup>",
-        yaxis=dict(range=[0, 85], title="%"),
+        yaxis=dict(range=[0, 85]),
         xaxis=dict(title="Ano"),
         **_LAYOUT_BASE,
     )
@@ -67,7 +67,7 @@ def plot_nb() -> go.Figure:
 
     fig.update_layout(
         title="<b>O Plenário Virtual concentra os julgamentos concluídos</b><br><sup>Participação do ambiente virtual na pauta e nos 3.187 julgamentos concluídos, 2020-2025</sup>",
-        yaxis=dict(range=[0, 110], title="%"),
+        yaxis=dict(range=[0, 110]),
         xaxis=dict(title=""),
         **_LAYOUT_BASE,
     )
@@ -164,7 +164,7 @@ def plot_nf() -> go.Figure:
 
     fig.update_layout(
         title="<b>Considerado o processo, o ambiente virtual conclui 86% do que pauta</b><br><sup>Percentual de processos pautados que tiveram julgamento concluído, 2020-2025</sup>",
-        yaxis=dict(range=[0, 105], title="%"),
+        yaxis=dict(range=[0, 105]),
         xaxis=dict(title=""),
         **_LAYOUT_BASE,
     )

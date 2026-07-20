@@ -4,9 +4,6 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import (
-    g1_1_sessoes_por_mes, g1_3_sessoes_trimestre_ano,
-    g2_1_sessoes_relator, g2_2_taxa_conclusao_relator,
-    g2_3_macro_desfecho_relator, g2_4_sessoes_relator_classe,
     g3_1_distribuicao_sessoes, g3_2_faixa_sessoes_classe,
     g3_3_taxa_conclusao_primeira, g3_4_taxa_conclusao_posicao,
     g4_2_sessoes_classe_tipo, g4_3_macro_ano_tipo,
@@ -40,49 +37,6 @@ _PREDEFINIDOS = [
 _LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
 
 _CATALOGO = [
-    (
-        "G1.1 — Sessões virtuais por mês",
-        "Sessões Virtuais por Mês",
-        "Distribuição mensal das sessões virtuais (Jan–Dez). "
-        "Recessos judiciários em janeiro e julho são visíveis.",
-        g1_1_sessoes_por_mes,
-    ),
-    (
-        "G1.2 — Sessões por mês e ano (tabela)",
-        "Sessões por Mês e Ano — Tabela",
-        "Tabela de referência com o volume mensal de sessões por ano.",
-        "tabela_mes_ano",
-    ),
-    (
-        "G1.3 — Sessões por trimestre e ano",
-        "Sessões por Trimestre e Ano",
-        "Barras agrupadas por trimestre (T1–T4) com linha do total no eixo secundário.",
-        g1_3_sessoes_trimestre_ano,
-    ),
-    (
-        "G2.1 — Sessões por relator (Top 10)",
-        "Sessões por Relator — Top 10 (2020–2025)",
-        "Volume de sessões por relator, limitado aos 10 com maior participação.",
-        g2_1_sessoes_relator,
-    ),
-    (
-        "G2.2 — Taxa de conclusão por relator (Top 10)",
-        "Taxa de Conclusão por Relator — Top 10 (2020–2025)",
-        "Percentual de sessões concluídas, ordenado da maior para a menor taxa.",
-        g2_2_taxa_conclusao_relator,
-    ),
-    (
-        "G2.3 — Macro-desfecho por relator (Top 10)",
-        "Macro-Desfecho por Relator — Top 10 (2020–2025)",
-        "Sessões concluídas vs não concluídas para os 10 relatores com maior volume.",
-        g2_3_macro_desfecho_relator,
-    ),
-    (
-        "G2.4 — Sessões por relator e classe (Top 10)",
-        "Sessões por Relator e Classe — Top 10 (2020–2025)",
-        "Distribuição das sessões por classe processual para os 10 maiores relatores.",
-        g2_4_sessoes_relator_classe,
-    ),
     (
         "G3.1 — Distribuição de sessões por processo",
         "Distribuição de Sessões por Processo (2020–2025)",
@@ -167,31 +121,20 @@ _CATALOGO = [
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
-    "Bloco 1 — Sazonalidade (G1.1, G1.2, G1.3)": [
-        "G1.1 — sessões por mês (Jan–Dez)",
-        "G1.2 — sessões por mês e ano (tabela)",
-        "G1.3 — sessões por trimestre e ano",
-    ],
-    "Bloco 2 — Relator (G2.1, G2.2, G2.3, G2.4)": [
-        "G2.1 — sessões por relator (Top 10)",
-        "G2.2 — taxa de conclusão por relator (%)",
-        "G2.3 — macro-desfecho por relator (empilhado)",
-        "G2.4 — sessões por relator e classe (empilhado)",
-    ],
-    "Bloco 3 — Múltiplas sessões (G3.1, G3.2, G3.3, G3.4)": [
+    "Múltiplas sessões (G3.1–G3.4)": [
         "G3.1 — distribuição de sessões por processo",
         "G3.2 — faixa de sessões por classe",
         "G3.3 — taxa de conclusão: 1ª vs posteriores",
         "G3.4 — taxa de conclusão por posição da sessão",
     ],
-    "Bloco 4 — Cruzamentos (G4.1, G4.2, G4.3, G4.4, G4.5)": [
+    "Cruzamentos (G4.1–G4.5)": [
         "G4.1 — classe × tipo de questão (tabela)",
         "G4.2 — sessões por classe e tipo de questão",
         "G4.3 — macro-desfecho por ano e tipo (PR, RC, QI)",
         "G4.4 — macro-desfecho por ano e classe (ADI, ADPF)",
         "G4.5 — taxa de conclusão: classe × tipo (%)",
     ],
-    "Bloco 5 — Duração (G5.1, G5.2, G5.3)": [
+    "Duração (G5.1–G5.3)": [
         "G5.1 — distribuição de duração até conclusão",
         "G5.2 — duração mediana por classe (dias)",
         "G5.3 — duração mediana por tipo de questão (dias)",
@@ -201,10 +144,10 @@ _SUMARIO = {
     ],
 }
 
-_BLOCO5_INDICES = {16, 17, 18}
-_DICT_INDICES = {13, 14}
-_TABLE_ONLY = {1, 11}
-_TABULADOR_IDX = 19
+_BLOCO5_INDICES = {9, 10, 11}
+_DICT_INDICES = {6, 7}
+_TABLE_ONLY = {4}
+_TABULADOR_IDX = 12
 
 
 # ── Helpers de tabela ─────────────────────────────────────────────────────────
@@ -238,19 +181,6 @@ def _build_tabela_pct(df: pd.DataFrame, col_linha: str, col_grupo: str) -> pd.Da
     return pvt
 
 
-def _tabela_mes_ano(df_s: pd.DataFrame) -> pd.DataFrame:
-    """Tabela G1.2: sessões por mês e ano."""
-    tab = df_s.groupby(["ano", "mes"]).size().unstack(fill_value=0)
-    meses = {1:"Jan",2:"Fev",3:"Mar",4:"Abr",5:"Mai",6:"Jun",
-             7:"Jul",8:"Ago",9:"Set",10:"Out",11:"Nov",12:"Dez"}
-    tab = tab.rename(columns=meses)
-    tab["Total"] = tab.sum(axis=1)
-    tab.columns.name = None
-    tab = tab.reset_index()
-    tab["ano"] = tab["ano"].astype(str)
-    return tab
-
-
 def _tabela_classe_tipo(df_s: pd.DataFrame) -> pd.DataFrame:
     """Tabela G4.1: classe × tipo de questão."""
     tab = df_s.groupby(["classe", "tipo_questao"]).size().unstack(fill_value=0)
@@ -263,24 +193,16 @@ def _tabela_classe_tipo(df_s: pd.DataFrame) -> pd.DataFrame:
 
 
 def _render_tabela_comum(df: pd.DataFrame, idx: int) -> None:
-    if idx == 0:
-        tab = _build_tabela(df, ("mes", None))
-        fmt = {c: "{:,.0f}" for c in tab.columns if c != tab.columns[0]}
-    elif idx in _TABLE_ONLY:
+    if idx in _TABLE_ONLY:
         return  # handled by special renderer
-    elif idx == 15:
+    if idx == 8:
         tab = _build_tabela_pct(df, "classe", "tipo_questao")
         fmt = {c: "{:.1f}%" for c in tab.columns if c != tab.columns[0]}
     else:
         specs = {
-            2: ("ano", "trimestre"),
-            3: ("relator", None),
-            4: ("relator", None),
-            5: ("relator", "macro_desfecho"),
-            6: ("relator", "classe"),
-            12: ("classe", "tipo_questao"),
-            13: ("ano", "macro_desfecho"),
-            14: ("ano", "macro_desfecho"),
+            5: ("classe", "tipo_questao"),
+            6: ("ano", "macro_desfecho"),
+            7: ("ano", "macro_desfecho"),
         }
         spec = specs.get(idx)
         if spec is None:
@@ -294,12 +216,12 @@ def _render_tabela_comum(df: pd.DataFrame, idx: int) -> None:
 def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
     """Tabela para gráficos do Bloco 3 (colunas computadas dinamicamente)."""
     spp, df_ord = _prep_sessoes_por_processo(df_s)
-    if idx == 7:
+    if idx == 0:
         tab = spp["faixa"].value_counts().reindex(ORDEM_FAIXA)
         tab = tab.reset_index()
         tab.columns = ["Faixa", "Nº de processos"]
         fmt = {"Nº de processos": "{:,.0f}"}
-    elif idx == 8:
+    elif idx == 1:
         tab = spp.groupby(["classe", "faixa"]).size().reset_index(name="n")
         pvt = tab.pivot_table(index="classe", columns="faixa", values="n", fill_value=0)
         pvt = pvt[ORDEM_FAIXA]
@@ -309,7 +231,7 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
         pvt["classe"] = pvt["classe"].astype(str)
         tab = pvt
         fmt = {c: "{:,.0f}" for c in tab.columns if c not in ("classe",) and tab[c].dtype.kind in "iuf"}
-    elif idx == 9:
+    elif idx == 2:
         df_ord["posicao"] = df_ord["n_sessao"].apply(
             lambda n: "1ª sessão" if n == 1 else "Sessões posteriores"
         )
@@ -318,7 +240,7 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
         ).reindex(["1ª sessão", "Sessões posteriores"]).reset_index()
         tab.columns = ["Posição", "% Concluído"]
         fmt = {"% Concluído": "{:.1f}%"}
-    elif idx == 10:
+    elif idx == 3:
         def _pl(n):
             if n <= 3: return f"{n}ª sessão"
             return "4ª+ sessão"
@@ -336,16 +258,16 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
 
 
 def _render_tabela_bloco5(duracao: pd.DataFrame, idx: int) -> None:
-    if idx == 16:
+    if idx == 9:
         tab = duracao["faixa_dur"].value_counts().reindex(ORDEM_DUR)
         tab = tab.reset_index()
         tab.columns = ["Duração", "Nº de processos"]
         fmt = {"Nº de processos": "{:,.0f}"}
-    elif idx == 17:
+    elif idx == 10:
         tab = duracao.groupby("classe")["dias"].median().round(0).astype(int).reset_index()
         tab.columns = ["Classe", "Dias (mediana)"]
         fmt = {"Dias (mediana)": "{:,.0f}"}
-    elif idx == 18:
+    elif idx == 11:
         tab = duracao.groupby("tipo_questao")["dias"].median().round(0).astype(int).reset_index()
         tab.columns = ["Tipo de questão", "Dias (mediana)"]
         fmt = {"Dias (mediana)": "{:,.0f}"}
@@ -462,12 +384,8 @@ def render_graficos(df_s: pd.DataFrame, df_final: pd.DataFrame) -> None:
 
     # Table-only items
     if idx in _TABLE_ONLY:
-        if idx == 1:
-            tab = _tabela_mes_ano(df_s)
-            fmt = {c: "{:,.0f}" for c in tab.columns if tab[c].dtype.kind in "iuf"}
-        elif idx == 11:
-            tab = _tabela_classe_tipo(df_s)
-            fmt = {c: "{:,.0f}" for c in tab.columns if tab[c].dtype.kind in "iuf"}
+        tab = _tabela_classe_tipo(df_s)
+        fmt = {c: "{:,.0f}" for c in tab.columns if tab[c].dtype.kind in "iuf"}
         with st.expander("📊 Dados da visualização"):
             st.dataframe(tab.style.format(fmt, na_rep="—"), width="stretch", height=280)
         return
@@ -504,7 +422,7 @@ def render_graficos(df_s: pd.DataFrame, df_final: pd.DataFrame) -> None:
         return
 
     # Block 3 charts (need custom table)
-    if idx in {7, 8, 9, 10}:
+    if idx in {0, 1, 2, 3}:
         fig = fn(df_s, show_values=show_values)
         st.plotly_chart(fig, width="stretch")
         _render_tabela_bloco3(df_s, idx)

@@ -18,8 +18,7 @@ COR_LINHA = "#7f7f7f"
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS = ["PR", "RC", "QI"]
 _ANOS = list(range(2020, 2026))
-_MESES = {1:"Jan", 2:"Fev", 3:"Mar", 4:"Abr", 5:"Mai", 6:"Jun",
-          7:"Jul", 8:"Ago", 9:"Set", 10:"Out", 11:"Nov", 12:"Dez"}
+
 
 _LEGEND = dict(
     orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
@@ -40,9 +39,6 @@ _AXIS = dict(
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _top_relatores(df_s: pd.DataFrame, n: int = 10) -> list:
-    return df_s["relator"].value_counts().head(n).index.tolist()
-
 def _faixa_sessoes(n: int) -> str:
     if n == 1: return "1 sessão"
     if n <= 3: return "2–3 sessões"
@@ -50,144 +46,6 @@ def _faixa_sessoes(n: int) -> str:
     return "6+ sessões"
 
 ORDEM_FAIXA = ["1 sessão", "2–3 sessões", "4–5 sessões", "6+ sessões"]
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# BLOCO 1 — Sazonalidade
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def g1_1_sessoes_por_mes(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    tab = df_s["mes"].value_counts().sort_index().reindex(range(1, 13), fill_value=0)
-    fig = go.Figure(go.Bar(
-        x=[_MESES[m] for m in tab.index],
-        y=tab.values,
-        marker_color=COR_SESSAO,
-        text=tab.values if show_values else None,
-        textposition="outside", cliponaxis=False,
-        textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-    ))
-    fig.update_layout(
-        title_text="Sessões virtuais por mês — 2020–2025", **_LAYOUT,
-        xaxis=dict(title="Mês"), yaxis=dict(title="Nº de sessões"),
-    )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
-    return fig
-
-
-def g1_3_sessoes_trimestre_ano(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    tab = df_s.groupby(["ano", "trimestre"]).size().reset_index(name="n")
-    total = df_s.groupby("ano").size().reset_index(name="n")
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    cores_t = {1: "#2563eb", 2: "#f59e0b", 3: "#16a34a", 4: "#ef4444"}
-    for t in [1, 2, 3, 4]:
-        d = tab[tab["trimestre"] == t]
-        fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=f"T{t}",
-            marker_color=cores_t[t],
-            text=d["n"] if show_values else None,
-            textposition="outside", cliponaxis=False,
-            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-        ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total["ano"], y=total["n"], mode="lines+markers",
-        line=dict(color=COR_LINHA, width=2), marker=dict(size=5), name="TOTAL",
-    ), secondary_y=True)
-    fig.update_layout(
-        title_text="Sessões virtuais por trimestre e ano — 2020–2025",
-        barmode="group", **_LAYOUT,
-    )
-    fig.update_xaxes(**_AXIS, dtick=1, title="Ano")
-    fig.update_yaxes(**_AXIS, title="Nº de sessões", secondary_y=False)
-    fig.update_yaxes(**_AXIS, title="Total (Linha)", secondary_y=True)
-    return fig
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# BLOCO 2 — Relator
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def _barras_relator(tab: pd.Series, titulo: str, eixo_y: str,
-                    show_values: bool, fmt: str = "n") -> go.Figure:
-    texto = [f"{v}{'%' if fmt=='pct' else ''}" for v in tab.values] if show_values else None
-    fig = go.Figure(go.Bar(
-        x=tab.index, y=tab.values,
-        marker_color=COR_SESSAO,
-        text=texto,
-        textposition="outside", cliponaxis=False,
-        textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-    ))
-    fig.update_layout(
-        title_text=titulo, **_LAYOUT,
-        xaxis=dict(title="Relator", tickangle=-45),
-        yaxis=dict(title=eixo_y),
-    )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
-    return fig
-
-
-def g2_1_sessoes_relator(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    tab = df_s["relator"].value_counts().head(10)
-    return _barras_relator(
-        tab, "Sessões virtuais por relator — Top 10 (2020–2025)",
-        "Nº de sessões", show_values,
-    )
-
-
-def g2_2_taxa_conclusao_relator(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    top = _top_relatores(df_s)
-    df_top = df_s[df_s["relator"].isin(top)]
-    tab = (
-        df_top.groupby("relator")["macro_desfecho"]
-        .apply(lambda x: round(100 * (x == "Concluído").mean(), 1))
-        .sort_values(ascending=False)
-    )
-    return _barras_relator(
-        tab, "Taxa de conclusão por relator — Top 10 (2020–2025)",
-        "% Concluído", show_values, fmt="pct",
-    )
-
-
-def _barras_empilhadas_relator(df_s: pd.DataFrame, col_grupo: str, cores: dict,
-                                titulo: str, show_values: bool) -> go.Figure:
-    top = _top_relatores(df_s)
-    df_top = df_s[df_s["relator"].isin(top)]
-    tab = df_top.groupby(["relator", col_grupo]).size().reset_index(name="n")
-    fig = go.Figure()
-    for g in list(cores.keys()):
-        d = tab[tab[col_grupo] == g]
-        if d.empty:
-            continue
-        fig.add_trace(go.Bar(
-            x=d["relator"], y=d["n"], name=g if col_grupo == "macro_desfecho" else g.upper(),
-            marker_color=cores[g],
-            text=d["n"] if show_values else None,
-            textposition="inside",
-            textfont=dict(family="Arial, sans-serif", size=16, color="white"),
-        ))
-    fig.update_layout(
-        title_text=titulo, barmode="stack", **_LAYOUT,
-        xaxis=dict(title="Relator", tickangle=-45),
-        yaxis=dict(title="Nº de sessões"),
-    )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
-    return fig
-
-
-def g2_3_macro_desfecho_relator(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _barras_empilhadas_relator(
-        df_s, "macro_desfecho", CORES_MACRO,
-        "Macro-desfecho por relator — Top 10 (2020–2025)", show_values,
-    )
-
-
-def g2_4_sessoes_relator_classe(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _barras_empilhadas_relator(
-        df_s, "classe", CORES_CLASSE,
-        "Sessões por relator e classe — Top 10 (2020–2025)", show_values,
-    )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # BLOCO 3 — Múltiplas sessões por processo

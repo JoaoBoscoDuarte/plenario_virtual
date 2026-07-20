@@ -48,6 +48,41 @@ def _faixa_sessoes(n: int) -> str:
 ORDEM_FAIXA = ["1 sessão", "2–3 sessões", "4–5 sessões", "6+ sessões"]
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# G0 — Sessões vs Inclusões em pauta (PV)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def g0_sessoes_vs_inclusoes(df_s: pd.DataFrame, df_final: pd.DataFrame,
+                              show_values: bool = True) -> go.Figure:
+    """Sessões virtuais vs inclusões em pauta (PV) por ano."""
+    sessoes = df_s.groupby("ano").size().reset_index(name="Sessões virtuais")
+    df_pv = df_final[df_final["ambiente"] == "Plenário Virtual"].copy()
+    if df_pv.empty:
+        df_pv = df_final[df_final["ambiente"] == "Plenário Virtual"]
+    inclusoes = df_pv.groupby("ano").size().reset_index(name="Inclusões em pauta (PV)")
+    tab = sessoes.merge(inclusoes, on="ano", how="outer").fillna(0)
+    tab = tab.set_index("ano").reindex(_ANOS, fill_value=0).reset_index()
+    fig = go.Figure()
+    for col, cor in [("Sessões virtuais", "#2563eb"), ("Inclusões em pauta (PV)", "#16a34a")]:
+        vals = tab[col].astype(int)
+        fig.add_trace(go.Bar(
+            x=tab["ano"], y=vals, name=col,
+            marker_color=cor,
+            text=vals if show_values else None,
+            textposition="outside", cliponaxis=False,
+            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
+        ))
+    fig.update_layout(
+        title_text="Sessões virtuais vs Inclusões em pauta (PV) por ano — 2020–2025",
+        barmode="group", **_LAYOUT,
+        xaxis=dict(dtick=1, title="Ano"),
+        yaxis=dict(title="Quantidade"),
+    )
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
+    return fig
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # BLOCO 3 — Múltiplas sessões por processo
 # ═══════════════════════════════════════════════════════════════════════════════
 

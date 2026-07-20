@@ -4,6 +4,7 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import (
+    g0_sessoes_vs_inclusoes,
     g3_1_distribuicao_sessoes, g3_2_faixa_sessoes_classe,
     g3_3_taxa_conclusao_primeira, g3_4_taxa_conclusao_posicao,
     g4_2_sessoes_classe_tipo, g4_3_macro_ano_tipo,
@@ -37,6 +38,13 @@ _PREDEFINIDOS = [
 _LABELS_PRE = [p[0] for p in _PREDEFINIDOS]
 
 _CATALOGO = [
+    (
+        "G0 — Sessões virtuais vs Inclusões em pauta (PV)",
+        "Sessões Virtuais vs Inclusões em Pauta (PV)",
+        "Comparação anual entre o volume de sessões virtuais iniciadas e o total de "
+        "inclusões em pauta no Plenário Virtual.",
+        g0_sessoes_vs_inclusoes,
+    ),
     (
         "G3.1 — Distribuição de sessões por processo",
         "Distribuição de Sessões por Processo (2020–2025)",
@@ -121,6 +129,9 @@ _CATALOGO = [
 _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
+    "Visão geral (G0)": [
+        "G0 — sessões virtuais vs inclusões em pauta (PV)",
+    ],
     "Múltiplas sessões (G3.1–G3.4)": [
         "G3.1 — distribuição de sessões por processo",
         "G3.2 — faixa de sessões por classe",
@@ -144,10 +155,10 @@ _SUMARIO = {
     ],
 }
 
-_BLOCO5_INDICES = {9, 10, 11}
-_DICT_INDICES = {6, 7}
-_TABLE_ONLY = {4}
-_TABULADOR_IDX = 12
+_BLOCO5_INDICES = {10, 11, 12}
+_DICT_INDICES = {7, 8}
+_TABLE_ONLY = {5}
+_TABULADOR_IDX = 13
 
 
 # ── Helpers de tabela ─────────────────────────────────────────────────────────
@@ -195,14 +206,14 @@ def _tabela_classe_tipo(df_s: pd.DataFrame) -> pd.DataFrame:
 def _render_tabela_comum(df: pd.DataFrame, idx: int) -> None:
     if idx in _TABLE_ONLY:
         return  # handled by special renderer
-    if idx == 8:
+    if idx == 9:
         tab = _build_tabela_pct(df, "classe", "tipo_questao")
         fmt = {c: "{:.1f}%" for c in tab.columns if c != tab.columns[0]}
     else:
         specs = {
-            5: ("classe", "tipo_questao"),
-            6: ("ano", "macro_desfecho"),
+            6: ("classe", "tipo_questao"),
             7: ("ano", "macro_desfecho"),
+            8: ("ano", "macro_desfecho"),
         }
         spec = specs.get(idx)
         if spec is None:
@@ -216,12 +227,12 @@ def _render_tabela_comum(df: pd.DataFrame, idx: int) -> None:
 def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
     """Tabela para gráficos do Bloco 3 (colunas computadas dinamicamente)."""
     spp, df_ord = _prep_sessoes_por_processo(df_s)
-    if idx == 0:
+    if idx == 1:
         tab = spp["faixa"].value_counts().reindex(ORDEM_FAIXA)
         tab = tab.reset_index()
         tab.columns = ["Faixa", "Nº de processos"]
         fmt = {"Nº de processos": "{:,.0f}"}
-    elif idx == 1:
+    elif idx == 2:
         tab = spp.groupby(["classe", "faixa"]).size().reset_index(name="n")
         pvt = tab.pivot_table(index="classe", columns="faixa", values="n", fill_value=0)
         pvt = pvt[ORDEM_FAIXA]
@@ -231,7 +242,7 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
         pvt["classe"] = pvt["classe"].astype(str)
         tab = pvt
         fmt = {c: "{:,.0f}" for c in tab.columns if c not in ("classe",) and tab[c].dtype.kind in "iuf"}
-    elif idx == 2:
+    elif idx == 3:
         df_ord["posicao"] = df_ord["n_sessao"].apply(
             lambda n: "1ª sessão" if n == 1 else "Sessões posteriores"
         )
@@ -240,7 +251,7 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
         ).reindex(["1ª sessão", "Sessões posteriores"]).reset_index()
         tab.columns = ["Posição", "% Concluído"]
         fmt = {"% Concluído": "{:.1f}%"}
-    elif idx == 3:
+    elif idx == 4:
         def _pl(n):
             if n <= 3: return f"{n}ª sessão"
             return "4ª+ sessão"
@@ -258,16 +269,16 @@ def _render_tabela_bloco3(df_s: pd.DataFrame, idx: int) -> None:
 
 
 def _render_tabela_bloco5(duracao: pd.DataFrame, idx: int) -> None:
-    if idx == 9:
+    if idx == 10:
         tab = duracao["faixa_dur"].value_counts().reindex(ORDEM_DUR)
         tab = tab.reset_index()
         tab.columns = ["Duração", "Nº de processos"]
         fmt = {"Nº de processos": "{:,.0f}"}
-    elif idx == 10:
+    elif idx == 11:
         tab = duracao.groupby("classe")["dias"].median().round(0).astype(int).reset_index()
         tab.columns = ["Classe", "Dias (mediana)"]
         fmt = {"Dias (mediana)": "{:,.0f}"}
-    elif idx == 11:
+    elif idx == 12:
         tab = duracao.groupby("tipo_questao")["dias"].median().round(0).astype(int).reset_index()
         tab.columns = ["Tipo de questão", "Dias (mediana)"]
         fmt = {"Dias (mediana)": "{:,.0f}"}
@@ -421,8 +432,26 @@ def render_graficos(df_s: pd.DataFrame, df_final: pd.DataFrame) -> None:
         _render_tabela_comum(df_s, idx)
         return
 
+    # G0 — needs both dataframes
+    if idx == 0:
+        if df_final.empty or "ambiente" not in df_final.columns:
+            st.warning("Dataset de inclusões em pauta não disponível.")
+            return
+        fig = fn(df_s, df_final, show_values=show_values)
+        st.plotly_chart(fig, width="stretch")
+        # build comparison table
+        sessoes = df_s.groupby("ano").size().reset_index(name="Sessões virtuais")
+        df_pv = df_final[df_final["ambiente"] == "Plenário Virtual"]
+        inclusoes = df_pv.groupby("ano").size().reset_index(name="Inclusões em pauta (PV)")
+        tab = sessoes.merge(inclusoes, on="ano", how="outer").fillna(0).astype(int)
+        tab["ano"] = tab["ano"].astype(str)
+        fmt = {c: "{:,.0f}" for c in tab.columns if c != "ano"}
+        with st.expander("📊 Dados da visualização"):
+            st.dataframe(tab.style.format(fmt, na_rep="—"), width="stretch", height=280)
+        return
+
     # Block 3 charts (need custom table)
-    if idx in {0, 1, 2, 3}:
+    if idx in {1, 2, 3, 4}:
         fig = fn(df_s, show_values=show_values)
         st.plotly_chart(fig, width="stretch")
         _render_tabela_bloco3(df_s, idx)

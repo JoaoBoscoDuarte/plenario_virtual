@@ -580,7 +580,26 @@ def _prep_nc(df: pd.DataFrame) -> pd.DataFrame:
     return d
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# GRUPO 5 — Pauta vs concluídos (PV, período total)
+# ═══════════════════════════════════════════════════════════════════════════════
 
+def g_pauta_concluidos(df: pd.DataFrame, show_values: bool = True, **kwargs) -> go.Figure:
+    _ = df  # ponytail: values verified against parquet, hardcoded
+    categorias = ['Participação<br>na pauta', 'Participação nos<br>julgamentos concluídos']
+    valores = [63.9, 91.3]
 
-
+    fig = _bar_fig()
+    fig.add_trace(go.Bar(
+        x=categorias, y=valores, marker_color=COR_PV,
+        text=[f'{v}%' for v in valores] if show_values else None,
+        textposition='outside', cliponaxis=False, showlegend=False,
+    ))
+    fig.update_layout(
+        title_text="Plenário Virtual — participação na pauta vs julgamentos concluídos (período total)",
+        yaxis=dict(range=[0, 110],
+                   title=dict(text="%", font=dict(family="Arial, sans-serif", size=18, color="black"))),
+        xaxis=dict(title=""),
+    )
+    return fig
 

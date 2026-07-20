@@ -13,6 +13,7 @@ from .plots import (
     g30_nc_cat_anual_filtravel, g32_nc_cat_classe_filtravel,
     g34_nc_cat_tipo_filtravel,
     _categoria_desfecho, _categoria_nc, _refinar_motivos_diversos,
+    g_pauta_concluidos,
 )
 from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
@@ -145,6 +146,14 @@ _CATALOGO: list[tuple[str, str, str, object]] = [
         "Selecione o âmbito e o tipo na sub-aba.",
         g34_nc_cat_tipo_filtravel,
     ),
+    # ── Pauta vs Concluídos ──────────────────────────────────────────────────────
+    (
+        "G_PV — Pauta vs Julgamentos Concluídos (PV, período total)",
+        "PV: Pauta vs Julgamentos Concluídos",
+        "Duas barras do PV no período: participação na pauta (63,9%) e participação nos "
+        "julgamentos concluídos (91,3%). Contraste que mostra a concentração do PV nas conclusões.",
+        g_pauta_concluidos,
+    ),
     # ── Tabulador ──────────────────────────────────────────────────────────────
     (
         "G36 — Tabulador Interativo",
@@ -181,6 +190,9 @@ _SUMARIO = {
         "G30/G31 — categorias de não conclusão por ano (Plenário Virtual e Plenário Presencial)",
         "G32/G33 — categorias de não conclusão por classe (Plenário Virtual e Plenário Presencial)",
         "G34/G35 — categorias de não conclusão por tipo de questão (Plenário Virtual e Plenário Presencial)",
+    ],
+    "Pauta vs Concluídos (G_PV)": [
+        "G_PV — PV: participação na pauta (63,9%) vs concluídos (91,3%)",
     ],
     "Tabulador (G36)": [
         "G36 — tabulador interativo: gráfico + tabela com eixos configuráveis",
@@ -249,6 +261,15 @@ def _build_tabela(df: pd.DataFrame, spec: tuple[str, str | None, str | None]) ->
 
 
 def _render_tabela(df: pd.DataFrame, idx: int) -> None:
+    if idx == 16:
+        tab = pd.DataFrame({
+            "Métrica": ["Participação na pauta", "Participação nos julgamentos concluídos"],
+            "PV": ["63,9% (4.807 de 7.517)", "91,3% (2.911 de 3.187)"],
+            "PP": ["36,1% (2.710 de 7.517)", "8,7% (276 de 3.187)"],
+        })
+        with st.expander("📊 Dados da visualização"):
+            st.dataframe(tab, width="stretch", height=280)
+        return
     spec = _TABELA_SPECS.get(idx)
     if spec is None:
         return

@@ -597,9 +597,9 @@ def g_pauta_concluidos(df: pd.DataFrame, show_values: bool = True, **kwargs) -> 
     ))
     fig.update_layout(
         title_text="Plenário Virtual — participação na pauta vs julgamentos concluídos (período total)",
-        yaxis=dict(range=[0, 110],
-                   title=dict(text="%", font=dict(family="Arial, sans-serif", size=18, color="black"))),
-        xaxis=dict(title=""),
+        height=650,
+        yaxis=dict(range=[0, 110]),
+        xaxis=dict(title="", tickangle=0),
     )
     return fig
 

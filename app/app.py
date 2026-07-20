@@ -31,6 +31,9 @@ pg = st.navigation(
         "Visão Geral": [
             st.Page("pages/geral/geral.py", title="Visão Geral", icon="📊"),
         ],
+        "Narrativa": [
+            st.Page("pages/narrativa/narrativa.py", title="Gráficos Narrativa", icon="📈"),
+        ],
     }
 )
 

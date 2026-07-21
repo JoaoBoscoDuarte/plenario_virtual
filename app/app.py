@@ -37,6 +37,11 @@ pg = st.navigation(
         "Narrativa": [
             st.Page("pages/narrativa/narrativa.py", title="Gráficos Narrativa", icon="📈"),
         ],
+        "Blocos Empíricos": [
+            st.Page("pages/bloco1_acervo/bloco1_acervo.py", title="Bloco 1 — Acervo", icon="🗂️"),
+            st.Page("pages/bloco2_inclusoes/bloco2_inclusoes.py", title="Bloco 2 — Inclusões Estendidas", icon="🧮"),
+            st.Page("pages/bloco3_pandemia/bloco3_pandemia.py", title="Bloco 3 — Pós-Pandemia", icon="🦠"),
+        ],
     }
 )
 

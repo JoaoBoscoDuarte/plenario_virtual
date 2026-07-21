@@ -2,40 +2,22 @@
 
 from __future__ import annotations
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
 
-COR_SESSAO = "#2563eb"
+from estilo import aplicar_padrao, add_er_marker, add_espin_shade, AZUL, VERDE
+
+COR_SESSAO = AZUL
 CORES_CLASSE = {
-    "ADI":  "#2563eb",
+    "ADI":  AZUL,
     "ADPF": "#f59e0b",
-    "ADC":  "#16a34a",
+    "ADC":  VERDE,
     "ADO":  "#ef4444",
 }
-CORES_TIPO = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
-CORES_MACRO = {"Concluído": "#16a34a", "Não concluído": "#ef4444"}
-COR_LINHA = "#7f7f7f"
+CORES_TIPO = {"PR": AZUL, "RC": "#f59e0b", "QI": VERDE}
+CORES_MACRO = {"Concluído": VERDE, "Não concluído": "#ef4444"}
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS = ["PR", "RC", "QI"]
 _ANOS = list(range(2020, 2026))
-
-
-_LEGEND = dict(
-    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-_LAYOUT = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-)
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -61,24 +43,28 @@ def g0_sessoes_vs_inclusoes(df_s: pd.DataFrame, df_final: pd.DataFrame,
     inclusoes = df_pv.groupby("ano").size().reset_index(name="Inclusões em pauta (PV)")
     tab = sessoes.merge(inclusoes, on="ano", how="outer").fillna(0)
     tab = tab.set_index("ano").reindex(_ANOS, fill_value=0).reset_index()
+    tab["ano_str"] = tab["ano"].astype(str)
     fig = go.Figure()
-    for col, cor in [("Sessões virtuais", "#2563eb"), ("Inclusões em pauta (PV)", "#16a34a")]:
+    for col, cor in [("Sessões virtuais", AZUL), ("Inclusões em pauta (PV)", VERDE)]:
         vals = tab[col].astype(int)
         fig.add_trace(go.Bar(
-            x=tab["ano"], y=vals, name=col,
+            x=tab["ano_str"], y=vals, name=col,
             marker_color=cor,
             text=vals if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title_text="Sessões virtuais vs Inclusões em pauta (PV) por ano — 2020–2025",
-        barmode="group", **_LAYOUT,
-        xaxis=dict(dtick=1, title="Ano"),
+    aplicar_padrao(
+        fig,
+        "Sessões virtuais vs Inclusões em pauta (PV) por ano",
+        "Comparação anual entre sessões virtuais iniciadas e inclusões em pauta — 2020–2025",
+        barmode="group", showlegend=True,
+        xaxis=dict(title="Ano"),
         yaxis=dict(title="Quantidade"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    ymax = float(tab[["Sessões virtuais", "Inclusões em pauta (PV)"]].to_numpy().max()) * 1.15 + 1
+    add_espin_shade(fig, _ANOS[0], y0=0, y1=ymax, y_label=ymax * 0.97)
+    add_er_marker(fig, _ANOS[0], 53, y0=0, y1=ymax, y_label=ymax * 0.85)
     return fig
 
 
@@ -110,13 +96,13 @@ def g3_1_distribuicao_sessoes(df_s: pd.DataFrame, show_values: bool = True) -> g
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Distribuição de sessões por processo — 2020–2025", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Distribuição de sessões por processo",
+        "Nº de sessões virtuais necessárias por processo — 2020–2025",
         xaxis=dict(title="Nº de sessões por processo"),
         yaxis=dict(title="Nº de processos"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -140,14 +126,14 @@ def g3_2_faixa_sessoes_classe(df_s: pd.DataFrame, show_values: bool = True) -> g
         if d.empty:
             continue
         fig.data[i].marker.color = cores_faixa[faixa]
-    fig.update_layout(
-        title_text="Número de sessões por processo e classe — 2020–2025",
-        barmode="stack", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Número de sessões por processo e classe",
+        "Distribuição por faixa de nº de sessões — 2020–2025",
+        barmode="stack", showlegend=True,
         xaxis=dict(title="Classe"),
         yaxis=dict(title="Nº de processos"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -168,14 +154,13 @@ def g3_3_taxa_conclusao_primeira(df_s: pd.DataFrame, show_values: bool = True) -
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Taxa de conclusão: 1ª sessão vs sessões posteriores — 2020–2025",
-        **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Taxa de conclusão: 1ª sessão vs sessões posteriores",
+        "Percentual de sessões concluídas por posição — 2020–2025",
         xaxis=dict(title=""),
         yaxis=dict(title="% Concluído", range=[0, 105]),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -198,14 +183,13 @@ def g3_4_taxa_conclusao_posicao(df_s: pd.DataFrame, show_values: bool = True) ->
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Taxa de conclusão por posição da sessão no processo — 2020–2025",
-        **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Taxa de conclusão por posição da sessão no processo",
+        "Percentual concluído em cada posição — 2020–2025",
         xaxis=dict(title=""),
         yaxis=dict(title="% Concluído", range=[0, 105]),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -215,8 +199,7 @@ def g3_4_taxa_conclusao_posicao(df_s: pd.DataFrame, show_values: bool = True) ->
 
 def g4_2_sessoes_classe_tipo(df_s: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = df_s.groupby(["classe", "tipo_questao"]).size().reset_index(name="n")
-    total = df_s.groupby("classe").size().reset_index(name="n")
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig = go.Figure()
     for tp in _TIPOS:
         d = tab[tab["tipo_questao"] == tp]
         fig.add_trace(go.Bar(
@@ -225,47 +208,43 @@ def g4_2_sessoes_classe_tipo(df_s: pd.DataFrame, show_values: bool = True) -> go
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-        ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total["classe"], y=total["n"], mode="lines+markers",
-        line=dict(color=COR_LINHA, width=2), marker=dict(size=5), name="TOTAL",
-    ), secondary_y=True)
-    fig.update_layout(
-        title_text="Sessões por classe e tipo de questão — 2020–2025",
-        barmode="group", **_LAYOUT,
+        ))
+    aplicar_padrao(
+        fig,
+        "Sessões por classe e tipo de questão",
+        "Volume de sessões virtuais — 2020–2025",
+        barmode="group", showlegend=True,
         xaxis=dict(title="Classe"),
+        yaxis=dict(title="Nº de sessões"),
     )
-    fig.update_yaxes(**_AXIS, title="Nº de sessões", secondary_y=False)
-    fig.update_yaxes(**_AXIS, title="Total (Linha)", secondary_y=True)
-    fig.update_xaxes(**_AXIS)
     return fig
 
 
 def _barras_macro_ano(df_sub: pd.DataFrame, titulo: str,
                       show_values: bool = True) -> go.Figure:
     tab = df_sub.groupby(["ano", "macro_desfecho"]).size().reset_index(name="n")
-    total = df_sub.groupby("ano").size().reset_index(name="n")
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig = go.Figure()
     for desf in ["Concluído", "Não concluído"]:
         d = tab[tab["macro_desfecho"] == desf]
         fig.add_trace(go.Bar(
-            x=d["ano"], y=d["n"], name=desf,
+            x=d["ano"].astype(str), y=d["n"], name=desf,
             marker_color=CORES_MACRO[desf],
             text=d["n"] if show_values else None,
             textposition="inside",
             textfont=dict(family="Arial, sans-serif", size=16, color="white"),
-        ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total["ano"], y=total["n"], mode="lines+markers",
-        line=dict(color=COR_LINHA, width=2), marker=dict(size=5), name="TOTAL",
-    ), secondary_y=True)
-    fig.update_layout(
-        title_text=titulo, barmode="stack", **_LAYOUT,
-        xaxis=dict(dtick=1, title="Ano"),
+        ))
+    aplicar_padrao(
+        fig, titulo, "Nº de sessões concluídas vs não concluídas por ano",
+        barmode="stack", showlegend=True,
+        xaxis=dict(title="Ano"),
+        yaxis=dict(title="Nº de sessões"),
     )
-    fig.update_yaxes(**_AXIS, title="Nº de sessões", secondary_y=False)
-    fig.update_yaxes(**_AXIS, title="Total (Linha)", secondary_y=True)
-    fig.update_xaxes(**_AXIS)
+    anos_presentes = sorted(df_sub["ano"].dropna().unique().tolist())
+    if anos_presentes:
+        ano_base = int(min(anos_presentes))
+        ymax = float(tab.groupby("ano")["n"].sum().max()) * 1.15 + 1
+        add_espin_shade(fig, ano_base, y0=0, y1=ymax, y_label=ymax * 0.97)
+        add_er_marker(fig, ano_base, 53, y0=0, y1=ymax, y_label=ymax * 0.85)
     return fig
 
 
@@ -301,14 +280,14 @@ def g4_5_taxa_conclusao_classe_tipo(df_s: pd.DataFrame, show_values: bool = True
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title_text="Taxa de conclusão por classe e tipo de questão — Sessões virtuais (2020–2025)",
-        barmode="group", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Taxa de conclusão por classe e tipo de questão",
+        "Sessões virtuais — 2020–2025",
+        barmode="group", showlegend=True,
         xaxis=dict(title="Classe"),
         yaxis=dict(title="% Concluído", range=[0, 105]),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -358,13 +337,13 @@ def g5_1_distribuicao_duracao(duracao: pd.DataFrame, show_values: bool = True) -
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Tempo até conclusão — Processos virtuais (2020–2025)", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Tempo até conclusão",
+        "Processos virtuais — 2020–2025",
         xaxis=dict(title="Duração"),
         yaxis=dict(title="Nº de processos concluídos"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -377,13 +356,13 @@ def g5_2_duracao_mediana_classe(duracao: pd.DataFrame, show_values: bool = True)
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Tempo mediano até conclusão por classe (dias) — 2020–2025", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Tempo mediano até conclusão por classe",
+        "Dias — 2020–2025",
         xaxis=dict(title="Classe"),
         yaxis=dict(title="Dias (mediana)"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -396,11 +375,11 @@ def g5_3_duracao_mediana_tipo(duracao: pd.DataFrame, show_values: bool = True) -
         textposition="outside", cliponaxis=False,
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
     ))
-    fig.update_layout(
-        title_text="Tempo mediano até conclusão por tipo de questão (dias) — 2020–2025", **_LAYOUT,
+    aplicar_padrao(
+        fig,
+        "Tempo mediano até conclusão por tipo de questão",
+        "Dias — 2020–2025",
         xaxis=dict(title="Tipo de questão"),
         yaxis=dict(title="Dias (mediana)"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig

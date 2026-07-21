@@ -95,9 +95,10 @@ def load_evolucao_acervo() -> pd.DataFrame:
 
 
 def load_inclusoes_em_pauta() -> pd.DataFrame:
-    """Carrega o dataset de inclusões em pauta (2020–2025)."""
+    """Carrega o dataset de inclusões em pauta (2016–2025)."""
     df = load_parquet(HF_REPO_ID, HF_FILES["inclusoes_em_pauta"])
     df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
+    df["macro_desfecho"] = df["desfecho"].str.split(" - ").str[0]
     return df
 
 

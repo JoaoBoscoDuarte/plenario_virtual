@@ -7,24 +7,9 @@ ponytail: hardcoded — compute from parquet if underlying data changes.
 from __future__ import annotations
 import plotly.graph_objects as go
 
-COR_PV = '#2563eb'
-COR_PP = '#94a3b8'
-COR_AMBOS = '#93C5FD'
-COR_ESPIN = '#dc2626'
+from estilo import aplicar_padrao, COR_PV, COR_PP, COR_AMBOS, VERMELHO as COR_ESPIN
 
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-
-_LAYOUT_BASE = dict(
-    template="plotly_white", height=650,
-    margin=dict(t=130, b=80, l=60, r=60),
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-    hovermode="x unified",
-)
+_LAYOUT_EXTRA = dict(height=650, margin=dict(t=130, b=80, l=60, r=60), hovermode="x unified")
 
 
 def plot_na(show_values: bool = True) -> go.Figure:
@@ -41,18 +26,18 @@ def plot_na(show_values: bool = True) -> go.Figure:
     fig.add_shape(type="line", x0=2.5, x1=2.5, y0=0, y1=85,
                   line=dict(color=COR_ESPIN, width=2, dash="dash"),
                   xref="x", yref="y")
-    fig.add_annotation(x=2.5, y=80, text="fim da ESPIN (abril de 2022)",
+    fig.add_annotation(x=2.5, y=80, text="ESPIN",
                        showarrow=False, font=dict(color=COR_ESPIN, size=17),
                        xref="x", yref="y")
 
-    fig.update_layout(
-        title="<b>A participação do Plenário Virtual mantém-se entre 59% e 68% ao ano</b><br><sup>Percentual das inclusões em pauta destinadas ao ambiente virtual, 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "A participação do Plenário Virtual mantém-se entre 59% e 68% ao ano",
+        "Percentual das inclusões em pauta destinadas ao ambiente virtual, 2020-2025",
         yaxis=dict(range=[0, 85]),
         xaxis=dict(title="Ano"),
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -67,14 +52,14 @@ def plot_nb(show_values: bool = True) -> go.Figure:
                cliponaxis=False, showlegend=False)
     ])
 
-    fig.update_layout(
-        title="<b>O Plenário Virtual concentra os julgamentos concluídos</b><br><sup>Participação do ambiente virtual na pauta e nos 3.187 julgamentos concluídos, 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "O Plenário Virtual concentra os julgamentos concluídos",
+        "Participação do ambiente virtual na pauta e nos 3.187 julgamentos concluídos, 2020-2025",
         yaxis=dict(range=[0, 110]),
         xaxis=dict(title=""),
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -92,14 +77,14 @@ def plot_nc(show_values: bool = True) -> go.Figure:
                showlegend=False)
     ])
 
-    fig.update_layout(
-        title="<b>Três de cada quatro processos nunca passam pelo Plenário Presencial</b><br><sup>Tramitação em pauta dos 2.834 processos de controle concentrado, 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "Três de cada quatro processos nunca passam pelo Plenário Presencial",
+        "Tramitação em pauta dos 2.834 processos de controle concentrado, 2020-2025",
         xaxis=dict(range=[0, 110], title="%"),
         yaxis=dict(title=""),
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -120,16 +105,16 @@ def plot_nd(show_values: bool = True) -> go.Figure:
         textposition='outside',
     ))
 
-    fig.update_layout(
-        title="<b>A atividade recursal migrou quase integralmente para o ambiente virtual</b><br><sup>Destino das 1.111 inclusões em pauta de recursos (AgR, ED e afins), 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "A atividade recursal migrou quase integralmente para o ambiente virtual",
+        "Destino das 1.111 inclusões em pauta de recursos (AgR, ED e afins), 2020-2025",
         barmode='stack',
         xaxis=dict(title="%"),
         yaxis=dict(title=""),
         showlegend=False,
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -144,14 +129,14 @@ def plot_ne(show_values: bool = True) -> go.Figure:
                textposition='outside', cliponaxis=False, showlegend=False)
     ])
 
-    fig.update_layout(
-        title="<b>Cada julgamento presencial consome mais que o dobro de inclusões em pauta</b><br><sup>Média de inclusões em pauta por processo em cada ambiente, 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "Cada julgamento presencial consome mais que o dobro de inclusões em pauta",
+        "Média de inclusões em pauta por processo em cada ambiente, 2020-2025",
         yaxis=dict(range=[0, 5.5], title="Inclusões por processo"),
         xaxis=dict(title=""),
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig
 
 
@@ -166,12 +151,12 @@ def plot_nf(show_values: bool = True) -> go.Figure:
                textposition='outside', cliponaxis=False, showlegend=False)
     ])
 
-    fig.update_layout(
-        title="<b>Considerado o processo, o ambiente virtual conclui 86% do que pauta</b><br><sup>Percentual de processos pautados que tiveram julgamento concluído, 2020-2025</sup>",
+    aplicar_padrao(
+        fig,
+        "Considerado o processo, o ambiente virtual conclui 86% do que pauta",
+        "Percentual de processos pautados que tiveram julgamento concluído, 2020-2025",
         yaxis=dict(range=[0, 105]),
         xaxis=dict(title=""),
-        **_LAYOUT_BASE,
+        **_LAYOUT_EXTRA,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig

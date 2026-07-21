@@ -4,51 +4,28 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import pandas as pd
 
+from estilo import aplicar_padrao, AZUL, CINZA, VERDE, ROXO, VERMELHO
+
 CORES_CLASSE = {
-    "ADI":  "#2563eb",
+    "ADI":  AZUL,
     "ADPF": "#f59e0b",
-    "ADC":  "#16a34a",
+    "ADC":  VERDE,
     "ADO":  "#ef4444",
 }
 CORES_REAJUSTE = {
-    "Com reajuste de voto": "#dc2626",
-    "Sem reajuste de voto": "#e5e7eb",
+    "Com reajuste de voto": VERMELHO,
+    "Sem reajuste de voto": CINZA,
 }
 CORES_TRAM = {
-    "Ambos os ambientes": "#8b5cf6",
-    "Virtual":            "#2563eb",
+    "Ambos os ambientes": ROXO,
+    "Virtual":            AZUL,
     "Físico":             "#f59e0b",
 }
-CORES_TIPO = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
+CORES_TIPO = {"PR": AZUL, "RC": "#f59e0b", "QI": VERDE}
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _ANOS    = list(range(2020, 2026))
 
-_LEGEND = dict(
-    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-_LAYOUT_BAR = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-    xaxis=dict(dtick=1, title="Ano", tickangle=-45,
-               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-               showline=True, linewidth=2, linecolor="black",
-               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
-    yaxis=dict(title="Inclusões com reajuste de voto",
-               title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-               tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-               showline=True, linewidth=2, linecolor="black",
-               showgrid=True, gridwidth=1, gridcolor="#d0d0d0"),
-)
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-)
+
 def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
     return df_amb["teve_reajuste"].map(
         {True: "Com reajuste de voto", False: "Sem reajuste de voto"}
@@ -77,11 +54,11 @@ def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Fig
             showlegend=True,
             legendgroup="group",
         ), row=1, col=i + 1)
-    fig.update_layout(
-        title_text="Inclusões com reajuste de voto — período total (2020–2025)",
-        template="plotly_white", height=500,
-        margin=dict(t=120, b=120, l=60, r=60),
-        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
+    aplicar_padrao(
+        fig,
+        "Inclusões com reajuste de voto — período total (2020–2025)",
+        "Proporção por ambiente (Plenário Virtual e Plenário Presencial)",
+        height=500, showlegend=True,
         legend=dict(
             orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
             font=dict(family="Arial, sans-serif", size=17, color="black"),
@@ -108,15 +85,17 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
               .reset_index())
     fig = go.Figure(go.Bar(
         x=tab["ano"], y=tab["n"],
-        marker_color="#dc2626",
+        marker_color=VERMELHO,
         text=tab["n"] if show_values else None,
         textposition="outside",
         cliponaxis=False,
         name="COM REAJUSTE",
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_BAR)
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    aplicar_padrao(
+        fig, titulo, "Volume anual de inclusões com reajuste de voto",
+        xaxis=dict(dtick=1, title="Ano", tickangle=-45),
+        yaxis=dict(title="Inclusões com reajuste de voto"),
+    )
     return fig
 # ── G-R5 — Barras anuais por classe por ambiente (selecionável) ────────────────
 
@@ -142,11 +121,10 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
             textposition="outside",
             cliponaxis=False,
         ))
-    fig.update_layout(
-        title_text=titulo,
-        barmode="group",
-        **_LAYOUT_BAR,
+    aplicar_padrao(
+        fig, titulo, "Distribuição por classe processual (ADI, ADPF, ADC, ADO)",
+        barmode="group", showlegend=True,
+        xaxis=dict(dtick=1, title="Ano", tickangle=-45),
+        yaxis=dict(title="Inclusões com reajuste de voto"),
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
     return fig

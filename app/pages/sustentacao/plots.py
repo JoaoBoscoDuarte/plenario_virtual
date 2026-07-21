@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
+
+from estilo import aplicar_padrao, add_er_marker, add_espin_shade, br, AZUL, AZUL_CLARO, CINZA, VERDE, ROXO, VERMELHO
 
 CORES_SUST = {
     "Com sustentação oral": "#0891b2",
@@ -17,41 +18,35 @@ CORES_CLASSE = {
 }
 CORES_TIPO  = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
 CORES_AMB   = {"Plenário Virtual": "#2563eb", "Plenário Presencial": "#94a3b8"}
-COR_LINHA   = "#7f7f7f"
 _CLASSES    = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS      = ["PR", "RC", "QI"]
 _ANOS       = list(range(2020, 2026))
 
-_LEGEND = dict(
-    orientation="h", yanchor="top", y=-0.2,
-    xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
+# Legenda horizontal acima do gráfico (barras com múltiplas séries).
+_LEGEND_BARRAS = dict(
+    orientation="h", yanchor="bottom", y=1.1, xanchor="center", x=0.5,
+    font=dict(family="Arial, sans-serif", size=14, color="black"),
 )
-_LAYOUT = dict(
-    template="plotly_white", height=700,
-    margin=dict(t=130, b=140, l=120, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-)
-_LAYOUT_PIZZA = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=100, l=60, r=60),
-    showlegend=True,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-    legend=dict(
-        orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
-        font=dict(family="Arial, sans-serif", size=17, color="black"),
-    ),
-)
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+# Legenda horizontal abaixo do gráfico (pizzas).
+_LEGEND_PIZZA = dict(
+    orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5,
+    font=dict(family="Arial, sans-serif", size=14, color="black"),
 )
 
 
 # ── helpers ───────────────────────────────────────────────────────────────────
+
+def _marcos_temporais(fig: go.Figure, y_max: float) -> go.Figure:
+    """ER 53 e sombreamento ESPIN — o dataset de sustentação oral cobre 2020–2025,
+    então ER 51/52 (2016/2019) nunca entram no eixo e ficam de fora."""
+    if y_max <= 0:
+        return fig
+    y1 = y_max * 1.15
+    y_label = y_max * 1.22
+    add_er_marker(fig, 0, 53, 0, y1, y_label)
+    add_espin_shade(fig, 0, 0, y1, y_label)
+    return fig
+
 
 def _pizza(serie: pd.Series, titulo: str, cores: list, show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
@@ -64,7 +59,8 @@ def _pizza(serie: pd.Series, titulo: str, cores: list, show_values: bool = True)
         insidetextorientation="radial",
         showlegend=True,
     ))
-    fig.update_layout(title_text=titulo, **_LAYOUT_PIZZA)
+    aplicar_padrao(fig, titulo, height=500, margin=dict(t=110, b=100, l=60, r=60),
+                   showlegend=True, legend=_LEGEND_PIZZA)
     return fig
 
 
@@ -92,29 +88,18 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
         textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         name="COM SUSTENTAÇÃO",
     ))
-    fig.update_layout(
-        title_text=titulo,
-        xaxis=dict(dtick=1, title="Ano", tickangle=-45),
-        yaxis=dict(title="Inclusões com sustentação oral"),
-        **_LAYOUT,
-    )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    aplicar_padrao(fig, titulo, height=700, margin=dict(t=130, b=140, l=120, r=60),
+                   xaxis=dict(dtick=1, title="Ano", tickangle=-45),
+                   yaxis_title="Inclusões com sustentação oral")
+    _marcos_temporais(fig, tab["n"].max())
     return fig
 
 
 def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
                   cores: dict, titulo: str, x_title: str = "Ano",
                   show_values: bool = True) -> go.Figure:
-    tab   = df_sub.groupby(["ano", col_grupo], observed=True).size().reset_index(name="n")
-    total = df_sub.groupby("ano", observed=True).size().reset_index(name="n")
-    fig   = make_subplots(specs=[[{"secondary_y": True}]])
-    fig.update_layout(
-        **_LAYOUT, barmode="group",
-        xaxis=dict(dtick=1, title=x_title, tickangle=-45),
-    )
-    fig.update_yaxes(title_text="Inclusões com sustentação", secondary_y=False)
-    fig.update_yaxes(title_text="Total (Linha)", secondary_y=True)
+    tab = df_sub.groupby(["ano", col_grupo], observed=True).size().reset_index(name="n")
+    fig = go.Figure()
     grupos = [g for g in cores if g in tab[col_grupo].unique()]
     for g in grupos:
         d = tab[tab[col_grupo] == g]
@@ -124,15 +109,13 @@ def _barras_grupo(df_sub: pd.DataFrame, col_grupo: str,
             text=d["n"] if show_values else None,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-        ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total["ano"], y=total["n"], mode="lines+markers",
-        line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
-        name="TOTAL",
-    ), secondary_y=True)
-    fig.update_layout(title_text=titulo)
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+        ))
+    aplicar_padrao(fig, titulo, height=700, margin=dict(t=130, b=140, l=120, r=60),
+                   barmode="group", showlegend=True, legend=_LEGEND_BARRAS,
+                   xaxis=dict(dtick=1, title=x_title, tickangle=-45),
+                   yaxis_title="Inclusões com sustentação")
+    if not tab.empty:
+        _marcos_temporais(fig, tab["n"].max())
     return fig
 
 
@@ -144,7 +127,7 @@ def gs1_sust_filtravel(df: pd.DataFrame, show_values: bool = True,
                        ambiente: str = "Plenário Virtual") -> go.Figure:
     return _pizza_sust(
         df[df["ambiente"] == ambiente],
-        f"Inclusões com sustentação oral — {ambiente} (2020–2025)",
+        f"Sustentação oral — {ambiente} (2020–2025)",
         show_values=show_values,
     )
 
@@ -205,13 +188,12 @@ def gs8_taxa_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title_text="Taxa de sustentação oral por ano e ambiente (%) (2020–2025)",
-        barmode="group",
-        xaxis=dict(dtick=1, title="Ano", tickangle=-45),
-        yaxis=dict(title="% de inclusões com sustentação"),
-        **_LAYOUT,
-    )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    aplicar_padrao(fig, "Taxa de sustentação oral por ano e ambiente",
+                   "% de inclusões com sustentação oral, Plenário Virtual vs Plenário Presencial (2020–2025)",
+                   height=700, margin=dict(t=130, b=140, l=120, r=60),
+                   barmode="group", showlegend=True, legend=_LEGEND_BARRAS,
+                   xaxis=dict(dtick=1, title="Ano", tickangle=-45),
+                   yaxis_title="% de inclusões com sustentação")
+    if not tab.empty:
+        _marcos_temporais(fig, tab["n"].max())
     return fig

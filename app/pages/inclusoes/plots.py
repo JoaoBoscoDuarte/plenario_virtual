@@ -2,8 +2,12 @@
 
 from __future__ import annotations
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
+
+from estilo import (
+    aplicar_padrao, add_er_marker, add_espin_shade, br,
+    AZUL, AZUL_CLARO, CINZA, VERDE, ROXO, VERMELHO, ER_DATAS,
+)
 
 CORES_CLASSE = {
     "ADI":  "#2563eb",
@@ -40,41 +44,21 @@ CORES_REAJUSTE = {
     "Com reajuste de voto": "#dc2626",
     "Sem reajuste de voto": "#e5e7eb",
 }
-COR_LINHA = "#7f7f7f"
 COR_PV    = "#2563eb"
 COR_PP    = "#94a3b8"
 
-_LEGEND = dict(
-    orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-_LAYOUT = dict(
-    template="plotly_white", height=500,
-    margin=dict(t=120, b=80, l=60, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-    xaxis=dict(
-        dtick=1, title="Ano", tickangle=-45,
-        showline=True, linewidth=2, linecolor="black",
-        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-    ),
-    yaxis=dict(
-        showline=True, linewidth=2, linecolor="black",
-        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-    ),
-)
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
 
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
+# Legenda horizontal acima do gráfico (barras com múltiplas séries).
+_LEGEND_BARRAS = dict(
+    orientation="h", yanchor="bottom", y=1.1, xanchor="center", x=0.5,
+    font=dict(family="Arial, sans-serif", size=14, color="black"),
+)
+# Legenda horizontal abaixo do gráfico (pizzas).
+_LEGEND_PIZZA = dict(
+    orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5,
+    font=dict(family="Arial, sans-serif", size=14, color="black"),
 )
 
 
@@ -82,27 +66,22 @@ _AXIS = dict(
 
 def _bar_fig(barmode: str = "group") -> go.Figure:
     fig = go.Figure()
-    fig.update_layout(**_LAYOUT, barmode=barmode)
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_layout(barmode=barmode)
     return fig
 
 
-def _bar_com_linha(label_y: str, label_total: str,
-                   x_title: str = "Ano") -> go.Figure:
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    layout = {**_LAYOUT, "xaxis": dict(
-        dtick=1, title=x_title, tickangle=-45,
-        showline=True, linewidth=2, linecolor="black",
-        showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-        title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-        tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-    )}
-    fig.update_layout(**layout, barmode="group")
-    fig.update_yaxes(title_text=label_y, secondary_y=False)
-    fig.update_yaxes(title_text=label_total, secondary_y=True)
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+def _marcos_temporais(fig: go.Figure, y_max: float, ano_min: int = 2016, ano_max: int = 2025) -> go.Figure:
+    """ER 51/52/53 e sombreamento ESPIN em gráficos anuais, só quando a data cai
+    dentro do intervalo de anos efetivamente plotado (eixo x = ano, ano_base=0)."""
+    if y_max <= 0:
+        return fig
+    y1 = y_max * 1.15
+    y_label = y_max * 1.22
+    for er, (ano, _mes, _dia) in ER_DATAS.items():
+        if ano_min <= ano <= ano_max:
+            add_er_marker(fig, 0, er, 0, y1, y_label)
+    if ano_min <= 2022 and ano_max >= 2020:
+        add_espin_shade(fig, 0, 0, y1, y_label)
     return fig
 
 
@@ -120,15 +99,8 @@ def _pizza(series: pd.Series, titulo: str, buraco: float = 0.4,
         insidetextorientation="radial",
         marker=marker,
     ))
-    fig.update_layout(
-        title_text=titulo, template="plotly_white", height=460,
-        margin=dict(t=80, b=130),
-        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-        legend=dict(
-            orientation="h", yanchor="top", y=-0.3, xanchor="center", x=0.5,
-            font=dict(family="Arial, sans-serif", size=17, color="black"),
-        ),
-    )
+    aplicar_padrao(fig, titulo, height=460, margin=dict(t=110, b=130, l=40, r=40),
+                    showlegend=True, legend=_LEGEND_PIZZA)
     return fig
 
 
@@ -156,23 +128,22 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
                   cores: dict, titulo: str, label_y: str,
                   label_total: str, x_title: str = "Ano",
                   show_values: bool = True, proporcao: bool = False) -> go.Figure:
-    tab   = df_amb.groupby([col_x, col_grupo], observed=True).size().reset_index(name="n")
-    total = df_amb.groupby(col_x, observed=True).size().reset_index(name="n")
+    # label_total: mantido por compatibilidade de assinatura; a linha de total
+    # foi removida (PADRÃO GERAL não permite linha de tendência de total).
+    tab = df_amb.groupby([col_x, col_grupo], observed=True).size().reset_index(name="n")
     grupos = list(cores.keys())
 
     if proporcao:
         totais_x = tab.groupby(col_x)["n"].transform("sum")
         tab["y"] = (tab["n"] / totais_x * 100).round(1)
-        total["y"] = 100.0
         y_label = "% do total"
         texto = tab["y"].apply(lambda v: f"{v:.1f}%") if show_values else None
     else:
         tab["y"] = tab["n"]
-        total["y"] = total["n"]
         y_label = label_y
         texto = tab["y"] if show_values else None
 
-    fig = _bar_com_linha(y_label, label_total, x_title=x_title)
+    fig = _bar_fig()
     for g in grupos:
         d = tab[tab[col_grupo] == g]
         if d.empty:
@@ -182,14 +153,12 @@ def _barras_grupo(df_amb: pd.DataFrame, col_x: str, col_grupo: str,
             marker_color=cores[g],
             text=texto[d.index] if isinstance(texto, pd.Series) else texto,
             textposition="outside", cliponaxis=False,
-        ), secondary_y=False)
-    if not proporcao:
-        fig.add_trace(go.Scatter(
-            x=total[col_x], y=total["y"], mode="lines+markers",
-            line=dict(color=COR_LINHA, width=2), marker=dict(size=5),
-            name=label_total.upper(),
-        ), secondary_y=True)
-    fig.update_layout(title_text=titulo)
+        ))
+    aplicar_padrao(fig, titulo, showlegend=True, legend=_LEGEND_BARRAS,
+                    xaxis=dict(title=x_title, dtick=1, tickangle=-45),
+                    yaxis_title=y_label)
+    if col_x == "ano" and not tab.empty:
+        _marcos_temporais(fig, tab["y"].max(), tab[col_x].min(), tab[col_x].max())
     return fig
 
 
@@ -207,15 +176,13 @@ def g5_anual_ambiente(df: pd.DataFrame, show_values: bool = True, proporcao: boo
             x=d["ano"], y=d["n"], name=amb.upper(), marker_color=cor,
             text=texto, textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(
-        title_text="Inclusões em pauta por ano e ambiente",
-        yaxis=dict(
-            title=dict(
-                text="Inclusões",
-                font=dict(family="Arial, sans-serif", size=18, color="black"),
-            ),
-        ),
-    )
+    aplicar_padrao(fig, "Plenário Virtual concentra a maior parte das inclusões em pauta",
+                   "Inclusões por ano e ambiente (Plenário Virtual vs Plenário Presencial)",
+                   showlegend=True, legend=_LEGEND_BARRAS,
+                   xaxis=dict(title="Ano", dtick=1, tickangle=-45),
+                   yaxis_title="Inclusões")
+    if not tab.empty:
+        _marcos_temporais(fig, tab["n"].max(), tab["ano"].min(), tab["ano"].max())
 
     pizza = df["ambiente"].value_counts()
     cores_pizza = [COR_PV if l == "Plenário Virtual" else COR_PP
@@ -315,15 +282,11 @@ def _macro_anual(df_amb: pd.DataFrame, titulo: str,
             text=texto[d.index] if isinstance(texto, pd.Series) else texto,
             textposition="outside", cliponaxis=False,
         ))
-    fig.update_layout(
-        title_text=titulo,
-        yaxis=dict(
-            title=dict(
-                text=y_title,
-                font=dict(family="Arial, sans-serif", size=18, color="black"),
-            ),
-        ),
-    )
+    aplicar_padrao(fig, titulo, showlegend=True, legend=_LEGEND_BARRAS,
+                   xaxis=dict(title="Ano", dtick=1, tickangle=-45),
+                   yaxis_title=y_title)
+    if not tab.empty:
+        _marcos_temporais(fig, tab["y"].max(), tab["ano"].min(), tab["ano"].max())
     return fig
 
 
@@ -348,7 +311,10 @@ def _concluidos_anual(df_amb: pd.DataFrame, titulo: str,
         marker_color=CORES_MACRO["Concluído"],
         text=texto, textposition="outside", cliponaxis=False,
     ))
-    fig.update_layout(title_text=titulo, yaxis_title=y_title)
+    aplicar_padrao(fig, titulo, xaxis=dict(title="Ano", dtick=1, tickangle=-45),
+                   yaxis_title=y_title)
+    if not tab.empty:
+        _marcos_temporais(fig, tab["y"].max(), tab["ano"].min(), tab["ano"].max())
     return fig
 
 
@@ -478,16 +444,8 @@ def _pizza_categoria(t: str, vc: pd.Series, titulo: str, show_values: bool) -> g
         textfont=dict(size=11), textposition="inside",
         insidetextorientation="radial",
     ))
-    fig.update_layout(
-        title_text=titulo, template="plotly_white", height=400,
-        margin=dict(t=60, b=140, l=20, r=20),
-        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-        legend=dict(
-            orientation="h", yanchor="top", y=-0.35,
-            xanchor="center", x=0.5,
-            font=dict(family="Arial, sans-serif", size=17, color="black"),
-        ),
-    )
+    aplicar_padrao(fig, titulo, height=400, margin=dict(t=100, b=140, l=20, r=20),
+                   showlegend=True, legend=_LEGEND_PIZZA)
     return fig
 
 
@@ -595,11 +553,8 @@ def g_pauta_concluidos(df: pd.DataFrame, show_values: bool = True, **kwargs) -> 
         text=[f'{v}%' for v in valores] if show_values else None,
         textposition='outside', cliponaxis=False, showlegend=False,
     ))
-    fig.update_layout(
-        title_text="Plenário Virtual — participação na pauta vs julgamentos concluídos (período total)",
-        height=650,
-        yaxis=dict(range=[0, 110]),
-        xaxis=dict(title="", tickangle=0),
-    )
+    aplicar_padrao(fig, "Plenário Virtual concentra julgamentos concluídos muito além de sua participação na pauta",
+                   "Participação na pauta (63,9%) vs. participação nos julgamentos concluídos (91,3%) — período total",
+                   height=650, yaxis=dict(range=[0, 110]), xaxis=dict(title="", tickangle=0))
     return fig
 

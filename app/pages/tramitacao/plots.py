@@ -4,14 +4,19 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import pandas as pd
 
+from estilo import (
+    aplicar_padrao, add_er_marker, add_espin_shade, br,
+    AZUL, AZUL_CLARO, CINZA, VERDE, ROXO, VERMELHO,
+)
+
 CORES_TRAM = {
-    "Ambos os ambientes": "#8b5cf6",
-    "Virtual":            "#2563eb",
-    "Físico":             "#f59e0b",
+    "Ambos os ambientes": ROXO,
+    "Virtual":            AZUL,   # PV
+    "Físico":             CINZA,  # PP
 }
 CORES_AMBIENTE = {
-    "Plenário Virtual":   "#2563eb",
-    "Plenário Físico":    "#f59e0b",
+    "Plenário Virtual":   AZUL,   # PV
+    "Plenário Físico":    CINZA,  # PP
 }
 CORES_CLASSE = {
     "ADI":  "#2563eb",
@@ -22,7 +27,7 @@ CORES_CLASSE = {
 CORES_TIPO = {"PR": "#2563eb", "RC": "#f59e0b", "QI": "#16a34a"}
 CORES_MACRO = {
     "Concluído":     "#16a34a",
-    "Não concluído": "#ef4444",
+    "Não concluído": VERMELHO,
 }
 CORES_DESFECHO = {
     "Concluído - decisão unânime":                       "#16a34a",
@@ -37,27 +42,10 @@ _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _TIPOS   = ["PR", "RC", "QI"]
 _TRAMS   = ["Virtual", "Físico", "Ambos os ambientes"]
 
-_LEGEND = dict(
-    orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
-    font=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-_LAYOUT = dict(
-    template="plotly_white", height=700,
-    margin=dict(t=130, b=140, l=120, r=60),
-    legend=_LEGEND,
-    title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-)
-_AXIS = dict(
-    showline=True, linewidth=2, linecolor="black",
-    showgrid=True, gridwidth=1, gridcolor="#d0d0d0",
-    title_font=dict(family="Arial, sans-serif", size=18, color="black"),
-    tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-)
-
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _pizza(serie: pd.Series, titulo: str, cores: list,
+def _pizza(serie: pd.Series, titulo: str, subtitulo: str, cores: list,
            show_values: bool = True) -> go.Figure:
     fig = go.Figure(go.Pie(
         labels=[str(l).upper() for l in serie.index], values=serie.values,
@@ -69,20 +57,17 @@ def _pizza(serie: pd.Series, titulo: str, cores: list,
         insidetextorientation="radial",
         showlegend=True,
     ))
-    fig.update_layout(
-        title_text=titulo, template="plotly_white", height=500,
+    aplicar_padrao(
+        fig, titulo, subtitulo,
+        height=500,
         margin=dict(t=120, b=100, l=60, r=60),
-        title_font=dict(family="Arial, sans-serif", size=26, color="black"),
-        legend=dict(
-            orientation="h", yanchor="top", y=-0.1, xanchor="center", x=0.5,
-            font=dict(family="Arial, sans-serif", size=17, color="black"),
-        ),
+        showlegend=True,
     )
     return fig
 
 
 def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
-                  cores: dict, titulo: str,
+                  cores: dict, titulo: str, subtitulo: str,
                   label_y: str, x_title: str,
                   show_values: bool = True) -> go.Figure:
     fig = go.Figure()
@@ -96,51 +81,21 @@ def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title_text=titulo, barmode="group",
-        xaxis=dict(title=x_title),
-        yaxis=dict(title=label_y),
-        **_LAYOUT,
+    aplicar_padrao(
+        fig, titulo, subtitulo,
+        barmode="group",
+        showlegend=True,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_xaxes(title_text=x_title)
+    fig.update_yaxes(title_text=label_y)
     return fig
 
 
-def _barras_com_total(tab: pd.DataFrame, total: pd.DataFrame,
-                      col_x: str, col_grupo: str,
-                      cores: dict, titulo: str, label_y: str,
-                      show_values: bool = True,
-                      y_max: int | None = None) -> go.Figure:
-    from plotly.subplots import make_subplots
-    fig = make_subplots(specs=[[{"secondary_y": True}]])
-    grupos = [g for g in cores if g in tab[col_grupo].unique()]
-    for g in grupos:
-        d = tab[tab[col_grupo] == g]
-        fig.add_trace(go.Bar(
-            x=d[col_x], y=d["n"], name=g.upper(),
-            marker_color=cores[g],
-            text=d["n"] if show_values else None,
-            textposition="outside", cliponaxis=False,
-            textfont=dict(family="Arial, sans-serif", size=17, color="black"),
-        ), secondary_y=False)
-    fig.add_trace(go.Scatter(
-        x=total[col_x], y=total["n"], name="TOTAL",
-        mode="lines+markers", line=dict(color="#333", width=2),
-        marker=dict(size=6),
-    ), secondary_y=True)
-    fig.update_layout(
-        title_text=titulo, barmode="group",
-        xaxis=dict(title=col_x.capitalize()),
-        yaxis=dict(title=label_y),
-        yaxis2=dict(title="Total", overlaying="y", side="right"),
-        **_LAYOUT,
-    )
-    if y_max:
-        fig.update_yaxes(range=[0, y_max])
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
-    return fig
+def _marcar_periodo_2020_2025(fig: go.Figure, y_max: float) -> None:
+    """Aplica sombreamento ESPIN + marcador ER 53 num eixo x numérico de 'ano' (2020–2025)."""
+    y_top = y_max * 1.2
+    add_espin_shade(fig, ano_base=0, y0=0, y1=y_top, y_label=y_max * 1.12)
+    add_er_marker(fig, ano_base=0, er=53, y0=0, y1=y_top, y_label=y_max * 1.02)
 
 
 def _proc(df: pd.DataFrame) -> pd.DataFrame:
@@ -158,7 +113,8 @@ def gt1_tramitacao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     serie = _proc(df)["tramitacao"].value_counts()
     return _pizza(
         serie,
-        "Tramitação por ambiente — Processos CC (2020–2025)",
+        "Maioria dos processos tramita em apenas um ambiente",
+        "Distribuição de processos distintos por ambiente de tramitação — CC (2020–2025)",
         [CORES_TRAM.get(l, "#999") for l in serie.index],
         show_values=show_values,
     )
@@ -173,7 +129,8 @@ def gt2_tram_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.Figure
     tab = proc.groupby(["classe", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "classe", "tramitacao", CORES_TRAM,
-        "Tramitação por ambiente e classe — Processos CC (2020–2025)",
+        "Tramitação por ambiente varia conforme a classe processual",
+        "Processos CC por classe e ambiente de tramitação (2020–2025)",
         "Processos distintos", "Classe", show_values=show_values,
     )
 
@@ -188,7 +145,8 @@ def gt3_tram_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = proc.groupby(["tipo_questao", "tramitacao"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tipo_questao", "tramitacao", CORES_TRAM,
-        "Tramitação por ambiente e tipo de questão — Processos CC (2020–2025)",
+        "Tramitação por ambiente varia conforme o tipo de questão",
+        "Processos CC por tipo de questão e ambiente de tramitação (2020–2025)",
         "Processos distintos", "Tipo de questão", show_values=show_values,
     )
 
@@ -212,15 +170,15 @@ def gt4_ambos_por_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title_text="Processos em ambos os ambientes por tipo de questão (2020–2025)",
+    aplicar_padrao(
+        fig,
+        "Poucos processos tramitam em ambos os ambientes",
+        "Processos que tramitaram em Plenário Virtual e Físico, por tipo de questão (2020–2025)",
         barmode="group",
-        xaxis=dict(title="Tipo de questão"),
-        yaxis=dict(title="Processos distintos"),
-        **_LAYOUT,
+        showlegend=True,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_xaxes(title_text="Tipo de questão")
+    fig.update_yaxes(title_text="Processos distintos")
     return fig
 
 
@@ -232,6 +190,7 @@ def gt5_macro_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = df.groupby(["tramitacao", "macro_desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "macro_desfecho", CORES_MACRO,
+        "Taxa de conclusão varia entre ambientes de tramitação",
         "Macro-desfecho por ambiente de tramitação — Inclusões (2020–2025)",
         "Inclusões em pauta", "Tramitação", show_values=show_values,
     )
@@ -245,6 +204,7 @@ def gt6_desfecho_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     tab = df.groupby(["tramitacao", "desfecho"], observed=True).size().reset_index(name="n")
     return _barras_grupo(
         tab, "tramitacao", "desfecho", CORES_DESFECHO,
+        "Composição dos desfechos difere por ambiente de tramitação",
         "Desfecho detalhado por ambiente de tramitação — Inclusões (2020–2025)",
         "Inclusões em pauta", "Tramitação", show_values=show_values,
     )
@@ -264,7 +224,8 @@ def gt7_classe_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str,
         serie = sub["classe"].value_counts()
         result[tram] = _pizza(
             serie,
-            f"Distribuição por classe — {tram} (2020–2025)",
+            f"Composição por classe — {tram}",
+            f"Distribuição por classe processual, ambiente: {tram} (2020–2025)",
             [CORES_CLASSE.get(l, "#999") for l in serie.index],
             show_values=show_values,
         )
@@ -286,7 +247,8 @@ def gt8_tipo_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, g
         serie = sub["tipo_questao"].value_counts()
         result[tram] = _pizza(
             serie,
-            f"Distribuição por tipo de questão — {tram} (2020–2025)",
+            f"Composição por tipo de questão — {tram}",
+            f"Distribuição por tipo de questão, ambiente: {tram} (2020–2025)",
             [CORES_TIPO.get(l, "#999") for l in serie.index],
             show_values=show_values,
         )
@@ -307,7 +269,8 @@ def gt9_taxa_conclusao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     tab = tab[tab["n"] > 0]
     return _barras_grupo(
         tab, "tramitacao", "classe", CORES_CLASSE,
-        "Taxa de conclusão (%) por ambiente de tramitação e classe (2020–2025)",
+        "Taxa de conclusão por ambiente de tramitação, por classe",
+        "% de inclusões concluídas por ambiente de tramitação e classe (2020–2025)",
         "% de inclusões concluídas", "Tramitação", show_values=show_values,
     )
 
@@ -342,9 +305,9 @@ _CORES_POR_COLUNA: dict[str, dict] = {
     "tipo_questao":  CORES_TIPO,
     "macro_desfecho": CORES_MACRO,
     "desfecho":      CORES_DESFECHO,
-    "ambiente":      {"Plenário Virtual": "#2563eb", "Plenário Presencial": "#f59e0b"},
-    "teve_reajuste": {"Com reajuste": "#ef4444", "Sem reajuste": "#9ca3af"},
-    "teve_sustentacao": {True: "#2563eb", False: "#9ca3af"},
+    "ambiente":      CORES_AMBIENTE,
+    "teve_reajuste": {"Com reajuste": VERMELHO, "Sem reajuste": CINZA},
+    "teve_sustentacao": {True: AZUL, False: CINZA},
 }
 
 
@@ -362,7 +325,13 @@ def gt10_tabulador(
     barmode: str = "group",
     show_values: bool = True,
 ) -> go.Figure:
-    """Gráfico de barras reconfigurável: eixo X, grupo/cor e métrica livres."""
+    """Gráfico de barras reconfigurável: eixo X, grupo/cor e métrica livres.
+
+    ponytail: eixo X é escolhido livremente pelo usuário (pode ou não ser "ano"),
+    e quando é "ano" o eixo vira categórico (strings). Marcadores ER/ESPIN dependem
+    de posição fracionária num eixo numérico contínuo, então não se aplicam aqui
+    com segurança — sem marcadores neste gráfico dinâmico.
+    """
     d = df.copy()
     d["tipo_questao"] = d["tipo_questao"].replace({"IJ": "QI"})
     if "teve_reajuste" in (eixo_x, grupo):
@@ -405,20 +374,18 @@ def gt10_tabulador(
 
     # rótulos legíveis para título
     inv = {v: k for k, v in DIMENSOES.items()}
-    titulo = (
-        f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)} "
-        f"({'Processos' if metrica == 'processos' else 'Inclusões'}) — 2020–2025"
+    titulo = f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)}"
+    subtitulo = (
+        f"{'Processos' if metrica == 'processos' else 'Inclusões'} — 2020–2025"
     )
 
-    fig.update_layout(
-        title_text=titulo,
+    aplicar_padrao(
+        fig, titulo, subtitulo,
         barmode=bm,
-        xaxis=dict(title=inv.get(eixo_x, eixo_x)),
-        yaxis=dict(title=label_y),
-        **_LAYOUT,
+        showlegend=True,
     )
-    fig.update_xaxes(**_AXIS)
-    fig.update_yaxes(**_AXIS)
+    fig.update_xaxes(title_text=inv.get(eixo_x, eixo_x))
+    fig.update_yaxes(title_text=label_y)
     return fig
 
 
@@ -435,17 +402,15 @@ def gt11_proc_ano_ambiente(df: pd.DataFrame, show_values: bool = True) -> go.Fig
         .groupby(["ano", "ambiente"], observed=True).size()
         .reset_index(name="n")
     )
-    total = (
-        d.drop_duplicates(subset=["incidente", "ano"])
-        .groupby("ano", observed=True).size()
-        .reset_index(name="n")
-    )
-    return _barras_com_total(
-        tab, total, "ano", "ambiente", CORES_AMBIENTE,
+    fig = _barras_grupo(
+        tab, "ano", "ambiente", CORES_AMBIENTE,
+        "Volume de processos por ambiente muda ao longo dos anos",
         "Processos distintos por ano e ambiente (2020–2025)",
-        "Processos (incidentes distintos)",
-        show_values=show_values, y_max=800,
+        "Processos (incidentes distintos)", "Ano", show_values=show_values,
     )
+    fig.update_yaxes(range=[0, 800])
+    _marcar_periodo_2020_2025(fig, y_max=800)
+    return fig
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -475,13 +440,15 @@ def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True
     proc["tramitacao"] = proc["ambientes"].apply(_classificar_tramitacao)
     proc["ano"] = proc["ano_primeira"].dt.year
     tab = proc.groupby(["ano", "tramitacao"], observed=True).size().reset_index(name="n")
-    total = proc.groupby("ano", observed=True).size().reset_index(name="n")
-    return _barras_com_total(
-        tab, total, "ano", "tramitacao", CORES_TRAM,
-        "Processos por tipo de tramitação, por ano sem repetição (2020–2025)",
-        "Processos (incidentes distintos)",
-        show_values=show_values,
+    y_max = float(tab.groupby("ano")["n"].sum().max() or 1)
+    fig = _barras_grupo(
+        tab, "ano", "tramitacao", CORES_TRAM,
+        "Ambiente de primeira inclusão muda ao longo dos anos",
+        "Processos por tipo de tramitação, por ano da primeira inclusão (2020–2025)",
+        "Processos (incidentes distintos)", "Ano", show_values=show_values,
     )
+    _marcar_periodo_2020_2025(fig, y_max=y_max)
+    return fig
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -489,9 +456,9 @@ def gt12_proc_tramitacao_primeiro_ano(df: pd.DataFrame, show_values: bool = True
 # ═══════════════════════════════════════════════════════════════════════════════
 
 CORES_TRAMITACAO = {
-    "Virtual":            "#2563eb",
-    "Presencial":         "#f59e0b",
-    "Ambos os ambientes": "#16a34a",
+    "Virtual":            AZUL,
+    "Presencial":         CINZA,
+    "Ambos os ambientes": VERDE,
 }
 
 
@@ -525,21 +492,15 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
             textposition="outside", cliponaxis=False,
             textfont=dict(family="Arial, sans-serif", size=17, color="black"),
         ))
-    fig.update_layout(
-        title=dict(text="Processos por tipo de tramitação — 2020–2025",
-                   font=dict(family="Arial, sans-serif", size=26, color="black")),
+    aplicar_padrao(
+        fig,
+        "Maioria dos processos tramita em um único ambiente no período",
+        "Processos por tipo de tramitação — 2020–2025",
         barmode="group",
-        xaxis=dict(title=dict(text="Período", font=dict(family="Arial, sans-serif", size=18, color="black")),
-                   tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-                   showline=True, linewidth=2, linecolor="black",
-                   showgrid=True, gridwidth=1, gridcolor="#d0d0d0",),
-        yaxis=dict(title=dict(text="Processos (incidentes distintos)", font=dict(family="Arial, sans-serif", size=18, color="black")),
-                   tickfont=dict(family="Arial, sans-serif", size=17, color="black"),
-                   showline=True, linewidth=2, linecolor="black",
-                   showgrid=True, gridwidth=1, gridcolor="#d0d0d0",),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="center", x=0.5,
-                    font=dict(family="Arial, sans-serif", size=17, color="black")),
-    template="plotly_white", height=600,
+        showlegend=True,
+        height=600,
         margin=dict(t=120, b=80, l=60, r=60),
     )
+    fig.update_xaxes(title_text="Período")
+    fig.update_yaxes(title_text="Processos (incidentes distintos)")
     return fig

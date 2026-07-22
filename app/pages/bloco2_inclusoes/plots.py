@@ -311,13 +311,15 @@ def fig_2j2_recursos_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 # ── 2.k1 / 2.k2 ──────────────────────────────────────────────────────────────
 def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
     sub = df[df["ano"].between(ano_ini, ano_fim) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
-    tab = sub.groupby(["tipo_questao", "ambiente"]).size().unstack(fill_value=0).reindex(index=["PR", "RC", "IJ"], fill_value=0).reindex(columns=["Plenário Virtual", "Plenário Presencial"], fill_value=0)
+    tab = sub.groupby(["tipo_questao", "ambiente"]).size().unstack(fill_value=0).reindex(index=["PR", "RC", "IJ"], fill_value=0)
     tipos = tab.index.tolist()
 
     fig = go.Figure()
-    for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
+    for dados_amb, rotulo, cor in [("Plenário Virtual", "PLENÁRIO VIRTUAL", COR_PV), ("Plenário Físico", "PLENÁRIO PRESENCIAL", COR_PP)]:
+        if dados_amb not in tab.columns:
+            continue
         fig.add_trace(go.Bar(
-            x=tipos, y=tab[amb], name=amb.upper(), marker_color=cor,
+            x=tipos, y=tab[dados_amb], name=rotulo, marker_color=cor,
             text=[br(v) for v in tab[amb]] if show_values else None,
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,

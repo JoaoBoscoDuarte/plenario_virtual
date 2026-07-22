@@ -102,14 +102,17 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         y0_espin = anos_int.index(2022) - 0.5  # linha final (fronteira 2022/2023)
         y1_espin = anos_int.index(2020) + 0.5  # linha inicial (fronteira 2019/2020, coincide com ER 53)
 
+        x_linha_espin = x_linha * 0.90  # linhas do ESPIN um pouco mais curtas, p/ não confundir com ER
+        y1_linha_espin = y1_espin - 0.05  # leve deslocamento p/ não sobrepor a linha do ER 53 (mesma fronteira)
+
         fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#FCE7F3", opacity=0.7,
                       line_width=0, layer="below")
-        fig.add_shape(type="line", x0=0, x1=x_linha, y0=y1_espin, y1=y1_espin,
-                      line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
-        fig.add_shape(type="line", x0=0, x1=x_linha, y0=y0_espin, y1=y0_espin,
+        fig.add_shape(type="line", x0=0, x1=x_linha_espin, y0=y1_linha_espin, y1=y1_linha_espin,
+                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_shape(type="line", x0=0, x1=x_linha_espin, y0=y0_espin, y1=y0_espin,
                       line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
 
-        # Seta dupla (medida), partindo do final da linha vermelha, demarcando o intervalo do ESPIN.
+        # Seta dupla (medida), do início (2020) ao final (2022) do ESPIN.
         fig.add_annotation(x=x_linha, y=y1_espin, ax=x_linha, ay=y0_espin, axref="x", ayref="y",
                            xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
                            arrowwidth=2, arrowcolor=VERMELHO, text="")
@@ -119,7 +122,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
 
         fig.add_annotation(x=x_linha, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
                            showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
-                           xref="x", yref="y", xanchor="left", xshift=10)
+                           xref="x", yref="y", xanchor="right", xshift=-10)
 
     # Marcadores ER: linha na fronteira entre o ano da emenda e o ano anterior.
     for er in (51, 52, 53):

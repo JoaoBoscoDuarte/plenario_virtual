@@ -97,12 +97,14 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
             textposition="outside", textfont=dict(color="black", size=16, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, "O salto das inclusões no ambiente virtual",
         "Inclusões em pauta por ano e ambiente, 2016–2025",
-        xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
+        xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, ticks=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
+    fig.update_yaxes(showline=False)
+    return fig
 
 
 # ── 2.c ──────────────────────────────────────────────────────────────────────

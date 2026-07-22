@@ -379,17 +379,19 @@ def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: s
     fig = go.Figure()
     for cat in cats:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[cat], name=cat, marker_color=_CORES_CATEGORIA[cat],
+            x=anos, y=tab[cat], name=cat.upper(), marker_color=_CORES_CATEGORIA[cat],
             text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=9, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões", range=[0, 600]),
-        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center"),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, tab.values.max() * 1.3]),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
+        margin=dict(t=150, b=70, l=60, r=40),
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 
@@ -416,17 +418,19 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
     fig = go.Figure()
     for cat in cats:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[cat], name=cat, marker_color=_CORES_NC[cat],
+            x=anos, y=tab[cat], name=cat.upper(), marker_color=_CORES_NC[cat],
             text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=9, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões", range=[0, 450]),
-        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, tab.values.max() * 1.3]),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
+        margin=dict(t=150, b=70, l=60, r=40),
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 
@@ -446,19 +450,22 @@ def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go
 def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ano"].between(2020, 2025)]
     medias = sub.groupby("ambiente").apply(lambda d: len(d) / d["incidente"].nunique())
-    categorias = ["Plenário Virtual", "Plenário Presencial"]
+    categorias = ["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"]
     valores = [medias["Plenário Virtual"], medias["Plenário Presencial"]]
 
     fig = go.Figure(go.Bar(
         x=categorias, y=valores, marker_color=[COR_PV, COR_PP],
         text=[br(v, 1) for v in valores] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=14, weight="bold"), cliponaxis=False,
+        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
     ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, "Cada julgamento presencial consome mais que o dobro de inclusões",
         "Média de inclusões em pauta por processo, 2020–2025",
-        xaxis=dict(title=""), yaxis=dict(title="Inclusões por processo", range=[0, 5.5]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, 5.5]),
     )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    return fig
 
 
 def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -468,18 +475,21 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         return 100 * d.groupby("incidente")["desfecho"].apply(lambda s: s.str.startswith("Concluído").any()).mean()
 
     valores = [pct_concl(sub[sub["ambiente"] == "Plenário Virtual"]), pct_concl(sub[sub["ambiente"] == "Plenário Presencial"])]
-    categorias = ["Plenário Virtual", "Plenário Presencial"]
+    categorias = ["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"]
 
     fig = go.Figure(go.Bar(
         x=categorias, y=valores, marker_color=[COR_PV, COR_PP],
         text=[f"{v:.1f}%".replace(".", ",") for v in valores] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=14, weight="bold"), cliponaxis=False,
+        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
     ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, "Considerado o processo, o ambiente virtual conclui 86% do que pauta",
         "Percentual de processos pautados com julgamento concluído, 2020–2025",
-        xaxis=dict(title=""), yaxis=dict(title="%", range=[0, 105]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, 105]),
     )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    return fig
 
 
 # ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────

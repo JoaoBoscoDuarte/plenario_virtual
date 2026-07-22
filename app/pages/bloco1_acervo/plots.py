@@ -108,12 +108,18 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
 
     fig = go.Figure()
     fig.add_trace(go.Bar(x=anos, y=tot["quantidade_distribuidos"], name="Distribuições",
-                          marker_color="#2563EB"))
+                          marker_color="#2563EB",
+                          text=[br(v) for v in tot["quantidade_distribuidos"]] if show_values else None,
+                          textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+                          cliponaxis=False))
     fig.add_trace(go.Bar(x=anos, y=-tot["quantidade_baixas"], name="Baixas",
-                          marker_color=CINZA))
+                          marker_color=CINZA,
+                          text=[br(v) for v in tot["quantidade_baixas"]] if show_values else None,
+                          textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+                          cliponaxis=False))
     fig.update_layout(barmode="relative")
 
-    ymin, ymax = -920, 940
+    ymin, ymax = -1100, 1100
     fig = aplicar_padrao(
         fig,
         "Distribuições superam baixas na maior parte da série histórica",
@@ -121,6 +127,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         xaxis=dict(title="Ano", dtick=1, tickangle=-90),
         yaxis=dict(title="Processos", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        height=650,
     )
     add_er_marker(fig, 0, 51, ymin, ymax, ymax * 0.92)
     add_er_marker(fig, 0, 52, ymin, ymax, ymax * 0.92)

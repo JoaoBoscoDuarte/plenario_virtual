@@ -122,23 +122,23 @@ ESP0=pos_mes(2020,2,3); ESP1=pos_mes(2022,4,22)
 x=np.arange(len(anos))
 
 # ============ 1.c (layout salvo + números 572, 797, 251; pontilhados mais altos) ============
-YMIN,YMAX=-920,940
-fig,ax=base((12,5.6))
+YMIN,YMAX=-1100,1100
+fig,ax=base((12,7.2))
 ax.bar(x,dist,0.8,color=AZUL,zorder=3,label='Distribuição')
 ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
-LT=(800-YMIN)/(YMAX-YMIN)   # pontilhado sobe até 800
+LT=(800-YMIN)/(YMAX-YMIN)
 for pos,num in ER:
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-    ax.text(pos,890,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
-    ax.text(pos,822,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,1050,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,980,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 ax.axvspan(ESP0,ESP1,color="#FCE7F3",alpha=0.55,zorder=0)
 ax.axvline(ESP0,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
 ax.axvline(ESP1,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-ax.text((ESP0+ESP1)/2,740,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
-ax.annotate('',xy=(ESP1,702),xytext=(ESP0,702),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.1),zorder=6)
+ax.text((ESP0+ESP1)/2,870,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.annotate('',xy=(ESP1,820),xytext=(ESP0,820),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.1),zorder=6)
 # números citados no texto: 572 (2021, distto), 797 (2020, baixa), 251 (2025, dist)
 ax.text(idx(2021),dist[idx(2021)]+18,'572',ha='center',va='bottom',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
 ax.text(idx(2020),-baix[idx(2020)]-20,'797',ha='center',va='top',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
@@ -228,14 +228,17 @@ plt.subplots_adjust(top=0.82,bottom=0.13,left=0.03,right=0.98)
 plt.savefig('../FINAL/1a_variacao_acervo_trienal_1988-2025.png',facecolor='white'); plt.close()
 
 # ===== 1.c espelhado — COM marcadores =====
-fig,ax=base((12,5.2))
+fig,ax=base((12,7.2))
 x=np.arange(len(anos))
 ax.bar(x,dist,0.8,color=AZUL,zorder=3,label='Distribuição')
 ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
-ax.set_yticks([]); ax.set_ylim(-880,700); ax.tick_params(colors=PRETO)
-marcadores(ax,640,480,510)
+ax.set_yticks([]); ax.set_ylim(-1100,1100); ax.tick_params(colors=PRETO)
+for i,(d,b) in enumerate(zip(dist,baix)):
+    ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
+    ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
+marcadores(ax,1050,820,870)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

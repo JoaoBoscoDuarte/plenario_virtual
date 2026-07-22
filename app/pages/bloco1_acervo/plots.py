@@ -80,14 +80,14 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
 
     ymax = int(totais.max())
     anos_int = list(piv.index)
-    leg_y = (anos_int.index(1998) + 0.5) / len(anos_int) if 1998 in anos_int else 0.72
+    leg_y = 0.98
     fig = aplicar_padrao(
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, Controle Concentrado, 1988–2025",
         xaxis=dict(title="Processos ativos", range=[0, ymax * 1.32]),
         yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
-        height=1500, showlegend=True, legend=dict(orientation="h", yanchor="middle", y=leg_y, x=0.5, xanchor="center"),
+        height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=leg_y, x=0.5, xanchor="center"),
     )
     if show_values:
         for i, total in enumerate(totais):

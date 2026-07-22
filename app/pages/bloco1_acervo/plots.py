@@ -125,14 +125,14 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         fig,
         "Distribuições superam baixas na maior parte da série histórica",
         "Distribuições e baixas anuais (espelhadas), Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Ano", dtick=1, tickangle=-90),
+        xaxis=dict(title="Ano", tickangle=-90, type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="Processos", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    add_er_marker(fig, 0, 51, ymin, ymax, ymax * 0.92)
-    add_er_marker(fig, 0, 52, ymin, ymax, ymax * 0.92)
-    add_er_marker(fig, 0, 53, ymin, ymax, ymax * 0.92)
+    add_er_marker(fig, ANO_MIN, 51, ymin, ymax, ymax * 0.92)
+    add_er_marker(fig, ANO_MIN, 52, ymin, ymax, ymax * 0.92)
+    add_er_marker(fig, ANO_MIN, 53, ymin, ymax, ymax * 0.92)
     return fig
 
 

@@ -317,16 +317,20 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
     fig = go.Figure()
     for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
         fig.add_trace(go.Bar(
-            x=tipos, y=tab[amb], name=amb, marker_color=cor,
+            x=tipos, y=tab[amb], name=amb.upper(), marker_color=cor,
             text=[br(v) for v in tab[amb]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=12, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Tipo de questão"), yaxis=dict(title="Inclusões"),
-        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        xaxis=dict(title=""), yaxis=dict(title=""),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
+        margin=dict(t=150, b=70, l=60, r=40),
     )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    return fig
 
 
 def fig_2k1_tipo_ambiente_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

@@ -140,9 +140,8 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
 
     d_max = tot["quantidade_distribuidos"].max()
     b_max = tot["quantidade_baixas"].max()
-    pad = 0.15
-    ymin = -int(b_max * (1 + pad))
-    ymax = int(d_max * (1 + pad))
+    ymin = -int(b_max * 1.15)
+    ymax = int(d_max * 1.30)
     fig = aplicar_padrao(
         fig,
         "Distribuições superam baixas na maior parte da série histórica",
@@ -152,10 +151,19 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    add_er_marker(fig, ANO_MIN, 51, ymin, ymax, ymax * 0.92)
-    add_er_marker(fig, ANO_MIN, 52, ymin, ymax, ymax * 0.92)
-    add_er_marker(fig, ANO_MIN, 53, ymin, ymax, ymax * 0.92)
-    add_espin_shade(fig, ANO_MIN, ymin, ymax, ymax * 0.7)
+    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.68]
+    for er, yl in zip([51, 52, 53], er_levels):
+        add_er_marker(fig, ANO_MIN, er, ymin, ymax, yl)
+    idx_2020 = anos.index("2020")
+    idx_2022 = anos.index("2022")
+    x0 = idx_2020 - 0.5
+    x1 = idx_2022 + 0.5
+    fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.55, line_width=0, layer="below")
+    for x in (x0, x1):
+        fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
+                      line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.35, text="<b>ESPIN</b>", showarrow=False,
+                       font=dict(color=VERMELHO, size=12), xref="x", yref="y")
     return fig
 
 

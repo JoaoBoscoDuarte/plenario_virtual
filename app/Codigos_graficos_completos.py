@@ -122,9 +122,8 @@ ESP0=pos_mes(2020,2,3); ESP1=pos_mes(2022,4,22)
 x=np.arange(len(anos))
 
 # ============ 1.c (layout salvo + números 572, 797, 251; pontilhados mais altos) ============
-pad=0.15
-YMIN=-int(max(baix)*(1+pad))
-YMAX=int(max(dist)*(1+pad))
+YMIN=-int(max(baix)*1.15)
+YMAX=int(max(dist)*1.30)
 fig,ax=base((12,7.2))
 ax.bar(x,dist,0.8,color=AZUL,zorder=3,label='Distribuição')
 ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
@@ -132,12 +131,13 @@ ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
 LT=0.95
-er_y=YMAX*0.92
-esp_y=YMAX*0.75
-for pos,num in ER:
+er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.68]
+for (pos,num),yl in zip(ER,er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-    ax.text(pos,er_y+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
-    ax.text(pos,er_y-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,yl+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,yl-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+ESP0=idx(2020)-0.5; ESP1=idx(2022)+0.5
+esp_y=YMIN+0.72*(YMAX-YMIN)
 ax.axvspan(ESP0,ESP1,color="#FCE7F3",alpha=0.55,zorder=0)
 ax.axvline(ESP0,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
 ax.axvline(ESP1,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
@@ -239,14 +239,23 @@ ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.tick_params(colors=PRETO)
-pad=0.15
-ymax_d=int(max(dist)*(1+pad)); ymin_d=-int(max(baix)*(1+pad))
+ymax_d=int(max(dist)*1.30); ymin_d=-int(max(baix)*1.15)
 ax.set_ylim(ymin_d,ymax_d)
 for i,(d,b) in enumerate(zip(dist,baix)):
     ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
     ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
-rng=ymax_d-ymin_d
-marcadores(ax,ymax_d-0.08*rng,ymin_d+0.72*rng,ymin_d+0.76*rng)
+er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.68]
+for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
+    ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
+    ax.text(pos,yl,er,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,yl-0.06*(ymax_d-ymin_d),num,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+x0_esp=anos.index(2020)-0.5; x1_esp=anos.index(2022)+0.5
+ax.axvspan(x0_esp,x1_esp,color="#FCE7F3",alpha=0.55,zorder=0)
+for x in (x0_esp,x1_esp):
+    ax.axvline(x,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5)
+esp_y=ymin_d+0.65*(ymax_d-ymin_d)
+ax.annotate('',xy=(x1_esp,esp_y),xytext=(x0_esp,esp_y),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.0),zorder=6)
+ax.text((x0_esp+x1_esp)/2,esp_y+0.04*(ymax_d-ymin_d),'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

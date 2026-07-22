@@ -108,6 +108,7 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
 
 
@@ -159,6 +160,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
         barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=700,
     )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     if show_values:
         for i, total in enumerate(totais):
             fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
@@ -196,6 +198,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
 
 
@@ -229,11 +232,13 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
             textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="Ano do primeiro processo pautado"), yaxis=dict(title="Processos"),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    return fig
 
 
 def fig_2h_tramitacao_anual_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -357,11 +362,13 @@ def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: s
             textposition="outside", textfont=dict(color="black", size=9, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões", range=[0, 600]),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center"),
     )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    return fig
 
 
 def fig_2m_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -392,11 +399,13 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
             textposition="outside", textfont=dict(color="black", size=9, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões", range=[0, 450]),
-        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center"),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    return fig
 
 
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

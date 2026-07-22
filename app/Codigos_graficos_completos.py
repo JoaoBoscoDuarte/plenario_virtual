@@ -424,7 +424,7 @@ fig,ax=base((9.6,4.8))
 b=ax.bar(range(10),part,0.62,color=AZUL,zorder=3)
 for r,v in zip(b,part):
     ax.text(r.get_x()+r.get_width()/2,v+2,br(v,1)+'%',ha='center',fontsize=14,fontweight='bold',color=PRETO)
-ax.set_xticks(range(10)); ax.set_xticklabels(anos,fontsize=14,color=PRETO,fontweight='bold')
+ax.set_xticks(range(10)); ax.set_xticklabels(anos,fontsize=16,color=PRETO,fontweight='bold')
 ax.set_ylim(0,100); ax.set_yticks([]); ax.tick_params(colors=PRETO)
 xe=6.45
 ax.axvline(xe,color=VERM,ls=(0,(4,3)),lw=1.2,ymax=0.80)
@@ -560,7 +560,7 @@ fig,ax=base((8,4.6))
 b=ax.bar(range(6),part,0.62,color=AZUL,zorder=3)
 for r,v in zip(b,part):
     ax.text(r.get_x()+r.get_width()/2,v+2,br(v,1)+'%',ha='center',fontsize=14,fontweight='bold',color=ESC)
-ax.set_xticks(range(6)); ax.set_xticklabels(anos,fontsize=14); ax.set_ylim(0,100); ax.set_yticks([])
+ax.set_xticks(range(6)); ax.set_xticklabels(anos,fontsize=16); ax.set_ylim(0,100); ax.set_yticks([])
 xe=2+0.5
 ax.axvline(xe,color=VERM,ls=(0,(4,3)),lw=1.3,ymax=0.82)
 ax.text(xe,86,'fim da ESPIN\n(abr/2022)',ha='center',fontsize=9.5,color=VERM,

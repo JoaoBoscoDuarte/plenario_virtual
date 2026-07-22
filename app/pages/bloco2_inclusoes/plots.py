@@ -105,7 +105,7 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
         fig, "O salto das inclusões no ambiente virtual",
         "Inclusões em pauta por ano e ambiente, 2016–2025",
         xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, ticks=""),
-        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

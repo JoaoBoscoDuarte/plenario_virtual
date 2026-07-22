@@ -187,7 +187,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     x0 = idx_2020 - 0.5  # início (coincide com a linha do ER 53)
     x1 = idx_2022 + 0.5  # final
     y_topo_espin = ymax * 0.83  # acima do rótulo da barra mais alta (2021), abaixo da linha dos ER
-    x0_linha_espin = x0 - 0.06  # leve deslocamento p/ não sobrepor a linha do ER 53 (mesma fronteira)
+    x0_linha_espin = x0 + 0.06  # linha do ESPIN fica depois (à direita) da linha do ER 53
 
     fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
     fig.add_shape(type="line", x0=x0_linha_espin, x1=x0_linha_espin, y0=ymin, y1=y_topo_espin,
@@ -195,17 +195,16 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     fig.add_shape(type="line", x0=x1, x1=x1, y0=ymin, y1=y_topo_espin,
                   line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
 
-    # Seta dupla (medida), partindo do final das linhas do ESPIN (não das de ER).
+    # Seta dupla (medida), do início (depois do ER 53) ao final das linhas do ESPIN.
     fig.add_annotation(x=x0_linha_espin, y=y_topo_espin, ax=x1, ay=y_topo_espin, axref="x", ayref="y",
-                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=0.7,
-                       arrowwidth=1, arrowcolor=VERMELHO, text="")
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                       arrowwidth=1.2, arrowcolor=VERMELHO, text="")
     fig.add_annotation(x=x1, y=y_topo_espin, ax=x0_linha_espin, ay=y_topo_espin, axref="x", ayref="y",
-                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=0.7,
-                       arrowwidth=1, arrowcolor=VERMELHO, text="")
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                       arrowwidth=1.2, arrowcolor=VERMELHO, text="")
     fig.add_annotation(x=(x0_linha_espin + x1) / 2, y=y_topo_espin, yanchor="bottom", yshift=6,
                        text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=13, weight="bold"),
-                       bgcolor="white", bordercolor=VERMELHO, borderwidth=1.5, borderpad=2,
                        xref="x", yref="y")
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig

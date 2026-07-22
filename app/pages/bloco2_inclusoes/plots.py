@@ -315,11 +315,9 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
     tipos = tab.index.tolist()
 
     fig = go.Figure()
-    for dados_amb, rotulo, cor in [("Plenário Virtual", "PLENÁRIO VIRTUAL", COR_PV), ("Plenário Físico", "PLENÁRIO PRESENCIAL", COR_PP)]:
-        if dados_amb not in tab.columns:
-            continue
+    for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
         fig.add_trace(go.Bar(
-            x=tipos, y=tab[dados_amb], name=rotulo, marker_color=cor,
+            x=tipos, y=tab[amb], name=amb.upper(), marker_color=cor,
             text=[br(v) for v in tab[amb]] if show_values else None,
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,

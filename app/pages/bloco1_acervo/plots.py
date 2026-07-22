@@ -199,7 +199,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         fig,
         "A variação anual do acervo tornou-se negativa na década de 2020",
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Ano", dtick=1, tickangle=-90), yaxis=dict(title="Variação", range=[ymin, ymax]),
+        xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
     )
     er_y = ymax * 0.90  # todas as linhas ER terminam na mesma altura ("final da linha")
     er_yshift = {51: 0, 52: 16, 53: -16}  # deslocamento em pixels p/ 52/53 não se chocarem (anos adjacentes)
@@ -223,4 +223,5 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.99, yanchor="top", text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=13, weight="bold"), bgcolor="white", borderpad=2,
                        xref="x", yref="y")
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig

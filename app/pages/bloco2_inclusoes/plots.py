@@ -214,15 +214,15 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
 
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _classe_ano(df, "Plenário Virtual", show_values,
-                        "O Plenário Virtual concentra o crescimento das inclusões por classe",
-                        "Inclusões em pauta por classe e ano — Plenário Virtual, 2020–2025",
+                        "Inclusões por classe e ano - Plenário Virtual",
+                        "Controle concentrado de constitucionalidade, 2020 - 2025",
                         show_pct=True)
 
 
 def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _classe_ano(df, "Plenário Presencial", show_values,
-                        "O Plenário Presencial mantém volume estável e menor por classe",
-                        "Inclusões em pauta por classe e ano — Plenário Presencial, 2020–2025",
+                        "Inclusões por classe e ano - Plenário Presencial",
+                        "Controle concentrado de constitucionalidade, 2020 - 2025",
                         show_pct=True)
 
 

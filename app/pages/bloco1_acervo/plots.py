@@ -167,7 +167,6 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    er_y = ymax * 0.90  # todas as linhas ER na mesma altura ("final da linha")
     for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
@@ -177,8 +176,8 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
             x = _frac_ano(ANO_MIN, ano, mes, dia)
         fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        # Sigla e número empilhados (ER\n51) p/ caber sem sobrepor rótulos vizinhos na mesma altura.
-        fig.add_annotation(x=x, y=er_y, text=f"<b>ER<br>{er}</b>", showarrow=False,
+        # Sigla e número empilhados (ER\n51), ancorados no topo da própria linha (y=ymax).
+        fig.add_annotation(x=x, y=ymax, yanchor="bottom", text=f"<b>ER<br>{er}</b>", showarrow=False,
                            font=dict(color="black", size=11), bgcolor="white", borderpad=1,
                            xref="x", yref="y")
 
@@ -186,7 +185,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     idx_2022 = anos.index("2022")
     x0 = idx_2020 - 0.5  # início (coincide com a linha do ER 53)
     x1 = idx_2022 + 0.5  # final
-    y_topo_espin = ymax * 0.83  # acima do rótulo da barra mais alta (2021), abaixo da linha dos ER
+    y_topo_espin = ymax * 0.87  # abaixo do ER, acima do rótulo da barra mais alta (2021)
     x0_linha_espin = x0 + 0.06  # linha do ESPIN fica depois (à direita) da linha do ER 53
 
     fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")

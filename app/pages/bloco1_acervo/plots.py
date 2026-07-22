@@ -61,11 +61,12 @@ def fig_1a_variacao_trienal(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     )
 
 
-def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = False) -> go.Figure:
+def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     """1.b — Acervo ativo por classe, barras horizontais empilhadas, 1988 no topo a 2025 na base."""
     piv = df.pivot_table(index="ano", columns="classe", values="quantidade_ativos", aggfunc="sum").fillna(0)
     piv = piv.reindex(columns=_CLASSES, fill_value=0).sort_index(ascending=False)
     anos = [str(a) for a in piv.index]
+    totais = piv.sum(axis=1)
 
     fig = go.Figure()
     for classe in _CLASSES:
@@ -75,14 +76,18 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = False) -> go.
         ))
     fig.update_layout(barmode="stack")
 
-    ymax = int(piv.sum(axis=1).max())
+    ymax = int(totais.max())
     fig = aplicar_padrao(
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Processos ativos"), yaxis=dict(title="", dtick=1),
-        height=900, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.01, x=0.5, xanchor="center"),
+        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.12]), yaxis=dict(title="", dtick=1),
+        height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.01, x=0.5, xanchor="center"),
     )
+    if show_values:
+        for ano, total in zip(anos, totais):
+            fig.add_annotation(x=total, y=ano, text=f"<b>{br(total)}</b>", showarrow=False,
+                               font=dict(color="black", size=11), xref="x", yref="y", xanchor="left", xshift=6)
     for er in (51, 52, 53):
         ano, mes, _ = ER_DATAS[er]
         idx_from_top = list(piv.index).index(ano) if ano in piv.index else None

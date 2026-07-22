@@ -246,7 +246,7 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano do primeiro processo pautado"), yaxis=dict(title=""),
+        xaxis=dict(title=""), yaxis=dict(title=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

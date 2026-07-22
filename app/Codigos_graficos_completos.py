@@ -131,16 +131,14 @@ ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
 LT=0.95
-er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.68]
+er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.74]
 for (pos,num),yl in zip(ER,er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
     ax.text(pos,yl+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
     ax.text(pos,yl-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 ESP0=idx(2020)-0.5; ESP1=idx(2022)+0.5
-esp_y=YMAX*0.86
 ax.axvspan(ESP0,ESP1,color=VERDE,alpha=0.35,zorder=0)
-ax.axvline(ESP1,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-ax.text((ESP0+ESP1)/2,esp_y,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.text((ESP0+ESP1)/2,YMAX*0.86,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 # números citados no texto: 572 (2021, distto), 797 (2020, baixa), 251 (2025, dist)
 ax.text(idx(2021),dist[idx(2021)]+18,'572',ha='center',va='bottom',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
 ax.text(idx(2020),-baix[idx(2020)]-20,'797',ha='center',va='top',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
@@ -242,16 +240,14 @@ ax.set_ylim(ymin_d,ymax_d)
 for i,(d,b) in enumerate(zip(dist,baix)):
     ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
     ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
-er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.68]
+er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.74]
 for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
     ax.text(pos,yl,er,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
     ax.text(pos,yl-0.06*(ymax_d-ymin_d),num,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 x0_esp=anos.index(2020)-0.5; x1_esp=anos.index(2022)+0.5
 ax.axvspan(x0_esp,x1_esp,color=VERDE,alpha=0.35,zorder=0)
-ax.axvline(x1_esp,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5)
-esp_y=ymax_d*0.86
-ax.text((x0_esp+x1_esp)/2,esp_y,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.text((x0_esp+x1_esp)/2,ymax_d*0.86,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

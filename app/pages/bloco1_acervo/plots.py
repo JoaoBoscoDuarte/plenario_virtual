@@ -151,7 +151,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.68]
+    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.74]
     for er, yl in zip([51, 52, 53], er_levels):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
@@ -168,8 +168,6 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     x0 = idx_2020 - 0.5
     x1 = idx_2022 + 0.5
     fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
-    fig.add_shape(type="line", x0=x1, x1=x1, y0=ymin, y1=ymax,
-                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
     fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.86, text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=12), xref="x", yref="y")
     return fig

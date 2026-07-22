@@ -85,7 +85,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.48]),
+        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.32]),
         yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=leg_y, x=0.5, xanchor="center"),
     )
@@ -99,28 +99,27 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
 
     # Faixa ESPIN: do início de 2020 ao final de 2022 (limites entre linhas de ano).
     if 2020 in anos_int and 2022 in anos_int:
-        y0_espin = anos_int.index(2022) - 0.5
-        y1_espin = anos_int.index(2020) + 0.5
-        x_seta = ymax * 1.25       # seta-medida fica no gradiente, entre os rótulos ER e o texto ESPIN
-        x_espin_label = ymax * 1.34  # texto ESPIN mais recuado que os rótulos ER
+        y0_espin = anos_int.index(2022) - 0.5  # linha final (fronteira 2022/2023)
+        y1_espin = anos_int.index(2020) + 0.5  # linha inicial (fronteira 2019/2020, coincide com ER 53)
 
         fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#FCE7F3", opacity=0.7,
                       line_width=0, layer="below")
-        for y in (y0_espin, y1_espin):
-            fig.add_shape(type="line", x0=0, x1=x_linha, y0=y, y1=y,
-                          line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_shape(type="line", x0=0, x1=x_linha, y0=y1_espin, y1=y1_espin,
+                      line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_shape(type="line", x0=0, x1=x_linha, y0=y0_espin, y1=y0_espin,
+                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
 
-        # Seta dupla (medida) demarcando o intervalo de tempo do ESPIN.
-        fig.add_annotation(x=x_seta, y=y1_espin, ax=x_seta, ay=y0_espin, axref="x", ayref="y",
+        # Seta dupla (medida), partindo do final da linha vermelha, demarcando o intervalo do ESPIN.
+        fig.add_annotation(x=x_linha, y=y1_espin, ax=x_linha, ay=y0_espin, axref="x", ayref="y",
                            xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
                            arrowwidth=2, arrowcolor=VERMELHO, text="")
-        fig.add_annotation(x=x_seta, y=y0_espin, ax=x_seta, ay=y1_espin, axref="x", ayref="y",
+        fig.add_annotation(x=x_linha, y=y0_espin, ax=x_linha, ay=y1_espin, axref="x", ayref="y",
                            xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
                            arrowwidth=2, arrowcolor=VERMELHO, text="")
 
-        fig.add_annotation(x=x_espin_label, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
+        fig.add_annotation(x=x_linha, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
                            showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
-                           xref="x", yref="y", xanchor="left")
+                           xref="x", yref="y", xanchor="left", xshift=10)
 
     # Marcadores ER: linha na fronteira entre o ano da emenda e o ano anterior.
     for er in (51, 52, 53):

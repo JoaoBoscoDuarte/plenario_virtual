@@ -153,7 +153,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
         xaxis=dict(title="Ano", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
         height=650,
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

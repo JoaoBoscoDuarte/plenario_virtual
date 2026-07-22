@@ -239,17 +239,18 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
     fig = go.Figure()
     for cat in tab.columns:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[cat], name=cat, marker_color=cores[cat],
+            x=anos, y=tab[cat], name=cat.upper(), marker_color=cores[cat],
             text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano do primeiro processo pautado"), yaxis=dict(title="Processos"),
+        xaxis=dict(title="Ano do primeiro processo pautado"), yaxis=dict(title=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 

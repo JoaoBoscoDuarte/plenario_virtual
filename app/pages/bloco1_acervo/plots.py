@@ -57,7 +57,7 @@ def fig_1a_variacao_trienal(df: pd.DataFrame, show_values: bool = True) -> go.Fi
         fig,
         "O acervo cresce em praticamente todos os triênios desde 1988",
         "Variação do acervo (distribuições − baixas) por triênio, Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Período"), yaxis=dict(title=""),
+        xaxis=dict(title=""), yaxis=dict(title=""),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig

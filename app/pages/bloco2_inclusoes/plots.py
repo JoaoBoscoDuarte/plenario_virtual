@@ -291,8 +291,8 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     return aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="%"), yaxis=dict(title=""),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.3, x=0.5, xanchor="center"),
-        height=320,
+        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.1, x=0.5, xanchor="center"),
+        height=320, margin=dict(t=160, b=40, l=40, r=40),
     )
 
 

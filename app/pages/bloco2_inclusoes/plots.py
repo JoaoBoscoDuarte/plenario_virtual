@@ -80,7 +80,7 @@ def fig_2a_participacao_ano(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig = aplicar_padrao(
         fig, "De 4% a dois terços da pauta: o degrau da universalização",
         "Participação do Plenário Virtual nas inclusões em pauta, 2016–2025",
-        xaxis=dict(title="Ano"),
+        xaxis=dict(title=""),
         yaxis=dict(title="", range=[0, 90]),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
@@ -104,7 +104,7 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
     fig = aplicar_padrao(
         fig, "O salto das inclusões no ambiente virtual",
         "Inclusões em pauta por ano e ambiente, 2016–2025",
-        xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, ticks=""),
+        xaxis=dict(title=""), yaxis=dict(title="", showticklabels=False, ticks=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
@@ -151,7 +151,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
     fig = aplicar_padrao(
         fig, "Em 2019, o virtual deixa de ser exclusivamente recursal",
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
-        xaxis=dict(title="Ano", type="category", range=[-0.5, len(anos) - 0.5]),
+        xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
         barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
         height=650,
@@ -176,7 +176,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     fig = go.Figure()
     for classe in _CLASSES:
         if show_values and show_pct:
-            textos = [f"<span style='font-size:12px'>({v/totais_ano[ano]*100:.0f}%)</span><br><span style='font-size:20px'>{br(v)}</span>" if totais_ano[ano] > 0 else br(v)
+            textos = [f"<span style='font-size:20px'>{br(v)}</span><br><span style='font-size:12px'>({v/totais_ano[ano]*100:.0f}%)</span>" if totais_ano[ano] > 0 else br(v)
                       for v, ano in zip(tab[classe], tab.index)]
         elif show_values:
             textos = [br(v) for v in tab[classe]]
@@ -191,7 +191,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     yrange = [0, ymax * (1.35 if show_pct else 1.15)]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano"), yaxis=dict(title="", range=yrange),
+        xaxis=dict(title=""), yaxis=dict(title="", range=yrange),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.92, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
@@ -529,14 +529,14 @@ def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Fig
     return _tramitacao_periodo(df, 2016, 2019, show_values,
                                 "Antes da universalização, o caminho ordinário era o presencial",
                                 "Tramitação por ambiente, por período (2016–2019)",
-                                ordem_topo_base=["Somente Virtual", "Ambos", "Somente Presencial"])
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2020, 2025, show_values,
                                 "Depois da universalização, o caminho ordinário é o virtual",
                                 "Tramitação por ambiente, por período (2020–2025)",
-                                ordem_topo_base=["Somente Virtual", "Ambos", "Somente Presencial"])
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
 
 
 fig_2g_tramitacao_periodo_2020 = fig_32_tramitacao_2020  # alias

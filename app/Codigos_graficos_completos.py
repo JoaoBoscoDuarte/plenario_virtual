@@ -122,15 +122,16 @@ ESP0=pos_mes(2020,2,3); ESP1=pos_mes(2022,4,22)
 x=np.arange(len(anos))
 
 # ============ 1.c (layout salvo + números 572, 797, 251; pontilhados mais altos) ============
-max_val=max(max(dist),max(baix))
-YMIN,YMAX=-int(max_val*1.25),int(max_val*1.25)
+pad=0.15
+YMIN=-int(max(baix)*(1+pad))
+YMAX=int(max(dist)*(1+pad))
 fig,ax=base((12,7.2))
 ax.bar(x,dist,0.8,color=AZUL,zorder=3,label='Distribuição')
 ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
-LT=(800-YMIN)/(YMAX-YMIN)
+LT=0.95
 er_y=YMAX*0.92
 esp_y=YMAX*0.75
 for pos,num in ER:
@@ -238,12 +239,14 @@ ax.bar(x,[-b for b in baix],0.8,color=CINZA,zorder=3,label='Baixa')
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.tick_params(colors=PRETO)
-max_val=max(max(dist),max(baix)); ylim=int(max_val*1.25)
-ax.set_ylim(-ylim,ylim)
+pad=0.15
+ymax_d=int(max(dist)*(1+pad)); ymin_d=-int(max(baix)*(1+pad))
+ax.set_ylim(ymin_d,ymax_d)
 for i,(d,b) in enumerate(zip(dist,baix)):
     ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
     ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
-marcadores(ax,ylim*0.88,ylim*0.70,ylim*0.74)
+rng=ymax_d-ymin_d
+marcadores(ax,ymax_d-0.08*rng,ymin_d+0.72*rng,ymin_d+0.76*rng)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

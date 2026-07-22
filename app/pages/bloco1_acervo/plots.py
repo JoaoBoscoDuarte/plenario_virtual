@@ -9,8 +9,8 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from estilo import (
-    aplicar_padrao, add_er_marker, br,
-    CINZA, VERMELHO, VERDE, ER_DATAS,
+    aplicar_padrao, add_er_marker, add_espin_shade, br,
+    CINZA, VERMELHO, ER_DATAS,
 )
 
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
@@ -138,8 +138,11 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
                           cliponaxis=False))
     fig.update_layout(barmode="relative")
 
-    max_val = max(tot["quantidade_distribuidos"].max(), tot["quantidade_baixas"].max())
-    ymin, ymax = -int(max_val * 1.25), int(max_val * 1.25)
+    d_max = tot["quantidade_distribuidos"].max()
+    b_max = tot["quantidade_baixas"].max()
+    pad = 0.15
+    ymin = -int(b_max * (1 + pad))
+    ymax = int(d_max * (1 + pad))
     fig = aplicar_padrao(
         fig,
         "Distribuições superam baixas na maior parte da série histórica",
@@ -152,6 +155,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     add_er_marker(fig, ANO_MIN, 51, ymin, ymax, ymax * 0.92)
     add_er_marker(fig, ANO_MIN, 52, ymin, ymax, ymax * 0.92)
     add_er_marker(fig, ANO_MIN, 53, ymin, ymax, ymax * 0.92)
+    add_espin_shade(fig, ANO_MIN, ymin, ymax, ymax * 0.7)
     return fig
 
 

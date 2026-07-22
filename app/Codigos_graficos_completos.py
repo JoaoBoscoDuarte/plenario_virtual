@@ -86,7 +86,7 @@ ax.barh(y,ADC,left=[ADI[i]+ADPF[i] for i in range(len(anos))],color=ROXO,zorder=
 ax.barh(y,ADO,left=[ADI[i]+ADPF[i]+ADC[i] for i in range(len(anos))],color=CINZA,zorder=3,label='ADO')
 tot=[ADI[i]+ADPF[i]+ADC[i]+ADO[i] for i in range(len(anos))]
 for i,t in enumerate(tot):
-    ax.text(t+28,i,br(t),va='center',ha='left',fontsize=9,color=PRETO,fontweight='bold',zorder=6)
+    ax.text(t+28,i,br(t),va='center',ha='left',fontsize=12,color=PRETO,fontweight='bold',zorder=6)
 ax.set_yticks(y); ax.set_yticklabels(anos,fontsize=9.5,color=PRETO,fontweight='bold')
 ax.invert_yaxis()
 ax.set_xlim(0,2680); ax.set_xticks([])

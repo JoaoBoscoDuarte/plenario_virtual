@@ -278,34 +278,31 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     pv_pct, pp_pct = 100 * pv_n / total, 100 * pp_n / total
 
     def txt(n, pct):
-        return f"<span style='font-size:20px'>{br(n)}</span><br><span style='font-size:12px'>({pct:.1f}%)</span>".replace(".", ",", 1)
+        return f"<span style='font-size:22px'>{br(n)}</span><br><span style='font-size:13px'>({br(pct, 1)}%)</span>"
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pp_pct], name="PLENÁRIO PRESENCIAL", orientation="h",
-        marker_color=COR_PP, text=None,
+        x=["PLENÁRIO VIRTUAL"], y=[pv_n], name="PLENÁRIO VIRTUAL", marker_color=COR_PV,
+        text=[txt(pv_n, pv_pct)] if show_values else None, textposition="outside",
+        textfont=dict(color="black", size=22, weight="bold"), cliponaxis=False,
     ))
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pv_pct], name="PLENÁRIO VIRTUAL", orientation="h",
-        marker_color=COR_PV, text=None,
+        x=["PLENÁRIO PRESENCIAL"], y=[pp_n], name="PLENÁRIO PRESENCIAL", marker_color=COR_PP,
+        text=[txt(pp_n, pp_pct)] if show_values else None, textposition="outside",
+        textfont=dict(color="black", size=22, weight="bold"), cliponaxis=False,
     ))
-    fig.update_layout(barmode="stack")
 
-    if show_values:
-        fig.add_annotation(x=pp_pct / 2, y=0, text=txt(pp_n, pp_pct),
-            showarrow=False, xref="x", yref="y", xanchor="center", yanchor="middle",
-            font=dict(color="black", size=12))
-        fig.add_annotation(x=pp_pct + pv_pct / 2, y=0, text=txt(pv_n, pv_pct),
-            showarrow=False, xref="x", yref="y", xanchor="center", yanchor="middle",
-            font=dict(color="white", size=12))
-
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
-        yaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.92, x=0.5, xanchor="center"),
-        height=320, margin=dict(t=160, b=40, l=40, r=40),
+        yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.3], showticklabels=False, showline=False, ticks=""),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0.5, xanchor="center",
+                                     font=dict(size=15)),
+        height=420, margin=dict(t=170, b=40, l=40, r=40),
     )
+    fig.update_xaxes(showticklabels=False, showline=False, ticks="")
+    fig.update_yaxes(showticklabels=False, showline=False, ticks="")
+    return fig
 
 
 def fig_2j_recursos_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

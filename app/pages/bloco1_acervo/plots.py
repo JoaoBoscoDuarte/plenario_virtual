@@ -9,8 +9,8 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from estilo import (
-    aplicar_padrao, add_er_marker, add_espin_shade, _frac_ano, br,
-    CINZA, VERMELHO, ER_DATAS,
+    aplicar_padrao, add_er_marker, _frac_ano, br,
+    CINZA, VERMELHO, VERDE, ER_DATAS,
 )
 
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
@@ -153,8 +153,9 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     )
     er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.68]
     for er, yl in zip([51, 52, 53], er_levels):
-        if er == 52:
-            x = anos.index("2019") - 0.5
+        if er in (52, 53):
+            ano_er, _, _ = ER_DATAS[er]
+            x = anos.index(str(ano_er)) - 0.5
         else:
             ano, mes, dia = ER_DATAS[er]
             x = _frac_ano(ANO_MIN, ano, mes, dia)
@@ -166,11 +167,10 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     idx_2022 = anos.index("2022")
     x0 = idx_2020 - 0.5
     x1 = idx_2022 + 0.5
-    fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.55, line_width=0, layer="below")
-    for x in (x0, x1):
-        fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
-                      line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.35, text="<b>ESPIN</b>", showarrow=False,
+    fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
+    fig.add_shape(type="line", x0=x1, x1=x1, y0=ymin, y1=ymax,
+                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.86, text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=12), xref="x", yref="y")
     return fig
 

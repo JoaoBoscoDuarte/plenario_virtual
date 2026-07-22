@@ -117,7 +117,7 @@ baix = ac['Total Baixas'].astype(int).tolist()
 var  = [d-b for d,b in zip(dist,baix)]
 def idx(a): return anos.index(a)
 def pos_mes(ano,mes,dia=15): return idx(ano)-0.5+((mes-1)+(dia-1)/30)/12
-ER=[(pos_mes(2016,6,22),'51'),(idx(2019)-0.5,'52'),(pos_mes(2020,3,18),'53')]
+ER=[(pos_mes(2016,6,22),'51'),(idx(2019)-0.5,'52'),(idx(2020)-0.5,'53')]
 ESP0=pos_mes(2020,2,3); ESP1=pos_mes(2022,4,22)
 x=np.arange(len(anos))
 
@@ -137,12 +137,10 @@ for (pos,num),yl in zip(ER,er_ys):
     ax.text(pos,yl+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
     ax.text(pos,yl-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 ESP0=idx(2020)-0.5; ESP1=idx(2022)+0.5
-esp_y=YMIN+0.72*(YMAX-YMIN)
-ax.axvspan(ESP0,ESP1,color="#FCE7F3",alpha=0.55,zorder=0)
-ax.axvline(ESP0,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
+esp_y=YMAX*0.86
+ax.axvspan(ESP0,ESP1,color=VERDE,alpha=0.35,zorder=0)
 ax.axvline(ESP1,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-ax.text((ESP0+ESP1)/2,esp_y+30,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
-ax.annotate('',xy=(ESP1,esp_y),xytext=(ESP0,esp_y),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.1),zorder=6)
+ax.text((ESP0+ESP1)/2,esp_y,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 # números citados no texto: 572 (2021, distto), 797 (2020, baixa), 251 (2025, dist)
 ax.text(idx(2021),dist[idx(2021)]+18,'572',ha='center',va='bottom',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
 ax.text(idx(2020),-baix[idx(2020)]-20,'797',ha='center',va='top',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
@@ -250,12 +248,10 @@ for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],e
     ax.text(pos,yl,er,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
     ax.text(pos,yl-0.06*(ymax_d-ymin_d),num,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 x0_esp=anos.index(2020)-0.5; x1_esp=anos.index(2022)+0.5
-ax.axvspan(x0_esp,x1_esp,color="#FCE7F3",alpha=0.55,zorder=0)
-for x in (x0_esp,x1_esp):
-    ax.axvline(x,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5)
-esp_y=ymin_d+0.65*(ymax_d-ymin_d)
-ax.annotate('',xy=(x1_esp,esp_y),xytext=(x0_esp,esp_y),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.0),zorder=6)
-ax.text((x0_esp+x1_esp)/2,esp_y+0.04*(ymax_d-ymin_d),'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.axvspan(x0_esp,x1_esp,color=VERDE,alpha=0.35,zorder=0)
+ax.axvline(x1_esp,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5)
+esp_y=ymax_d*0.86
+ax.text((x0_esp+x1_esp)/2,esp_y,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

@@ -237,8 +237,8 @@ ax.set_yticks([]); ax.tick_params(colors=PRETO)
 ymax_d=int(max(dist)*1.30); ymin_d=-int(max(baix)*1.15)
 ax.set_ylim(ymin_d,ymax_d)
 for i,(d,b) in enumerate(zip(dist,baix)):
-    ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
-    ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
+    ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=12,fontweight='bold',color=PRETO,zorder=6)
+    ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=12,fontweight='bold',color=PRETO,zorder=6)
 er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.86]
 for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
@@ -268,7 +268,7 @@ ax.set_ylim(ymin,ymax)
 for i,v in enumerate(var):
     if v in (min(var),max(var)):
         ax.text(i,v+(10 if v>=0 else -10),f'{v:+d}'.replace('-','−'),ha='center',
-                va='bottom' if v>=0 else 'top',fontsize=9.5,fontweight='bold',color=PRETO)
+                va='bottom' if v>=0 else 'top',fontsize=12,fontweight='bold',color=PRETO)
 er_ys=[ymax*0.92,ymax*0.80,ymax*0.86]
 for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)

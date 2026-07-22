@@ -129,12 +129,12 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     fig.add_trace(go.Bar(x=anos, y=tot["quantidade_distribuidos"], name="DISTRIBUIÇÕES",
                           marker_color="#2563EB",
                           text=[br(v) for v in tot["quantidade_distribuidos"]] if show_values else None,
-                          textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+                          textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
                           cliponaxis=False))
     fig.add_trace(go.Bar(x=anos, y=-tot["quantidade_baixas"], name="BAIXAS",
                           marker_color=CINZA,
                           text=[br(v) for v in tot["quantidade_baixas"]] if show_values else None,
-                          textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+                          textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
                           cliponaxis=False))
     fig.update_layout(barmode="relative")
 
@@ -183,7 +183,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     fig = go.Figure(go.Bar(
         x=anos, y=tot["variacao"], marker_color=cores,
         text=[f"{'+' if v >= 0 else ''}{br(v)}" for v in tot["variacao"]] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=11, weight="bold"),
+        textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
         cliponaxis=False,
     ))
     v_abs = max(abs(tot["variacao"].max()), abs(tot["variacao"].min()))

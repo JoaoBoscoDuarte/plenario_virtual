@@ -119,7 +119,8 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
                           cliponaxis=False))
     fig.update_layout(barmode="relative")
 
-    ymin, ymax = -1100, 1100
+    max_val = max(tot["quantidade_distribuidos"].max(), tot["quantidade_baixas"].max())
+    ymin, ymax = -int(max_val * 1.25), int(max_val * 1.25)
     fig = aplicar_padrao(
         fig,
         "Distribuições superam baixas na maior parte da série histórica",

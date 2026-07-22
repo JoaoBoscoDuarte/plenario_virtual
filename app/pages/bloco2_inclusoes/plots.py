@@ -76,11 +76,11 @@ def fig_2a_participacao_ano(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig.add_shape(type="line", x0=x_espin, x1=x_espin, y0=0, y1=85,
                   line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
     fig.add_annotation(x=x_espin, y=80, text="<b>Fim da ESPIN</b>", showarrow=False,
-                       font=dict(color=VERMELHO, size=13), xref="x", yref="y")
+                       font=dict(color=VERMELHO, size=13), bgcolor="white", borderpad=4, xref="x", yref="y")
     return aplicar_padrao(
         fig, "De 4% a dois terços da pauta: o degrau da universalização",
         "Participação do Plenário Virtual nas inclusões em pauta, 2016–2025",
-        xaxis=dict(title="Ano"), yaxis=dict(title="% das inclusões", range=[0, 90]),
+        xaxis=dict(title="Ano"), yaxis=dict(title="", range=[0, 90]),
     )
 
 

@@ -426,7 +426,8 @@ ax.set_xticks(range(10)); ax.set_xticklabels(anos,fontsize=10.5,color=PRETO,font
 ax.set_ylim(0,100); ax.set_yticks([]); ax.tick_params(colors=PRETO)
 xe=6.45
 ax.axvline(xe,color=VERM,ls=(0,(4,3)),lw=1.2,ymax=0.80)
-ax.text(xe,84,'fim da ESPIN',ha='center',fontsize=9.5,color=VERM,fontweight='bold')
+ax.text(xe,84,'fim da ESPIN',ha='center',fontsize=9.5,color=VERM,fontweight='bold',
+        bbox=dict(boxstyle='round,pad=0.2',facecolor='white',edgecolor='none'))
 fig.text(0.02,0.955,'De 4% a dois terços da pauta: o degrau da universalização',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')
 fig.text(0.02,0.90,'Percentual das inclusões em pauta destinadas ao ambiente virtual, 2016-2025',
@@ -560,7 +561,8 @@ for r,v in zip(b,part):
 ax.set_xticks(range(6)); ax.set_xticklabels(anos,fontsize=11); ax.set_ylim(0,100); ax.set_yticks([])
 xe=2+0.5
 ax.axvline(xe,color=VERM,ls=(0,(4,3)),lw=1.3,ymax=0.82)
-ax.text(xe,86,'fim da ESPIN\n(abr/2022)',ha='center',fontsize=9.5,color=VERM)
+ax.text(xe,86,'fim da ESPIN\n(abr/2022)',ha='center',fontsize=9.5,color=VERM,
+        bbox=dict(boxstyle='round,pad=0.2',facecolor='white',edgecolor='none'))
 titulo(fig,'A participação do Plenário Virtual mantém-se entre 59% e 68% ao ano',
        'Percentual das inclusões em pauta destinadas ao ambiente virtual, 2020-2025')
 fonte(fig)

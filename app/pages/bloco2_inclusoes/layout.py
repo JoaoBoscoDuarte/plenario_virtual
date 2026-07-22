@@ -8,7 +8,7 @@ from . import plots as p
 _CATALOGO = [
     ("2.a — Participação por ano", "Participação % do PV nas inclusões, 2016–2025.", p.fig_2a_participacao_ano),
     ("2.b — Inclusões por ano e ambiente", "Volume de inclusões por ano e ambiente, 2016–2025.", p.fig_2b_inclusoes_ano_ambiente),
-    ("2.c — Composição do PV por tipo", "Composição do PV por tipo de questão, 2016–2019.", p.fig_2c_composicao_pv_tipo),
+    ("2.c — Composição do PV por tipo", "Inclusões do PV por tipo de questão (PR/RC/QI), 2016–2019.", p.fig_2c_composicao_pv_tipo, p._tabela_2c),
     ("2.e — Classe por ano (PV)", "Inclusões por classe e ano no PV, 2020–2025.", p.fig_2e_classe_ano_pv),
     ("2.f — Classe por ano (PP)", "Inclusões por classe e ano no PP, 2020–2025.", p.fig_2f_classe_ano_pp),
     ("2.h — Tramitação anual (2020–2025)", "Tramitação por ambiente e ano, 2020–2025.", p.fig_2h_tramitacao_anual_2020),
@@ -33,10 +33,22 @@ _LABELS = [item[0] for item in _CATALOGO]
 def render_graficos(df: pd.DataFrame) -> None:
     escolha = st.selectbox("Selecione a visualização", options=_LABELS, index=0, key="bloco2_selectbox")
     idx = _LABELS.index(escolha)
-    _, descricao, fn = _CATALOGO[idx]
+    item = _CATALOGO[idx]
+    _, descricao, fn = item[0], item[1], item[2]
+    dados_fn = item[3] if len(item) > 3 else None
 
     st.caption(descricao)
     show_values = st.checkbox("Exibir valores", value=True, key=f"bloco2_sv_{idx}")
 
     fig = fn(df, show_values=show_values)
     st.plotly_chart(fig, width="stretch")
+
+    if dados_fn is not None:
+        tabela = dados_fn(df)
+        with st.expander("📊 Dado exportado (tabela)"):
+            st.dataframe(tabela, width="stretch")
+            st.download_button(
+                "Baixar CSV", tabela.to_csv(index=False).encode("utf-8"),
+                file_name=f"{_LABELS[idx].split(' — ')[0]}.csv", mime="text/csv",
+                key=f"bloco2_download_{idx}",
+            )

@@ -108,27 +108,45 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
 
 
 # ── 2.c ──────────────────────────────────────────────────────────────────────
+_NOME_TIPO = {"PR": "PR", "RC": "RC", "IJ": "QI"}  # cliente pede rótulo "QI" (a base usa código "IJ")
+
+
+def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
+    """Inclusões do PV por ano e tipo de questão (PR/RC/QI), 2016–2019 — para exportação."""
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "RC", "IJ"], fill_value=0)
+    tab = tab.rename(columns=_NOME_TIPO)
+    tab["Total"] = tab.sum(axis=1)
+    return tab.reset_index().rename(columns={"ano": "Ano"})
+
+
 def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0)
-    tab = tab.reindex(columns=["RC", "PR", "IJ"], fill_value=0)
-    pct = tab.div(tab.sum(axis=1), axis=0) * 100
-    anos = [str(a) for a in pct.index]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "IJ"], fill_value=0)
+    anos = [str(a) for a in tab.index]
+    totais = tab.sum(axis=1)
 
     fig = go.Figure()
     for tipo in ["RC", "PR", "IJ"]:
         fig.add_trace(go.Bar(
-            x=anos, y=pct[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
-            text=[f"{v:.0f}%" for v in pct[tipo]] if show_values else None,
+            x=anos, y=tab[tipo], name=_NOME_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
+            text=[br(v) for v in tab[tipo]] if show_values else None,
             textposition="inside", insidetextanchor="middle",
-            textfont=dict(color="white", size=12, weight="bold"),
+            textfont=dict(color="white", size=13, weight="bold"),
         ))
-    return aplicar_padrao(
-        fig, "Em 2019, o ambiente virtual deixa de ser exclusivamente recursal",
-        "Composição do Plenário Virtual por tipo de questão, 2016–2019",
-        xaxis=dict(title="Ano"), yaxis=dict(title="% das inclusões (PV)", range=[0, 105]),
+    fig = aplicar_padrao(
+        fig, "Em 2019, o virtual deixa de ser exclusivamente recursal",
+        "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
+        xaxis=dict(title="Ano", type="category", range=[-0.5, len(anos) - 0.5]),
+        yaxis=dict(title="Inclusões", range=[0, totais.max() * 1.15]),
         barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
+    if show_values:
+        for i, total in enumerate(totais):
+            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
+                               font=dict(color="black", size=13), xref="x", yref="y",
+                               yanchor="bottom", yshift=4)
+    return fig
 
 
 # ── 2.e / 2.f ────────────────────────────────────────────────────────────────

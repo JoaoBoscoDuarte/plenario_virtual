@@ -154,23 +154,22 @@ plt.subplots_adjust(top=0.86,bottom=0.10,left=0.03,right=0.99)
 plt.savefig('../FINAL/1c_distribuicao_baixa_espelhado_1988-2025.png',facecolor='white'); plt.close()
 
 # ============ 1.d (layout salvo + números -112 e -137; pontilhados mais altos) ============
-YMIN,YMAX=-380,520
+v_abs=max(abs(max(var)),abs(min(var)))
+YMIN,YMAX=-int(v_abs*1.15),int(v_abs*1.4)
 fig,ax=base((12,5.6))
 cores=[CINZA if v>=0 else VERM for v in var]
 ax.bar(x,var,0.8,color=cores,zorder=3)
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
-LT=(390-YMIN)/(YMAX-YMIN)
-for pos,num in ER:
-    ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-    ax.text(pos,462,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
-    ax.text(pos,410,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
-ax.axvspan(ESP0,ESP1,color="#FCE7F3",alpha=0.55,zorder=0)
-ax.axvline(ESP0,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-ax.axvline(ESP1,color=VERM,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
-ax.text((ESP0+ESP1)/2,335,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
-ax.annotate('',xy=(ESP1,300),xytext=(ESP0,300),arrowprops=dict(arrowstyle='<->',color=VERM,lw=1.1),zorder=6)
+er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.86]
+for (pos,num),yl in zip(ER,er_ys):
+    ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
+    ax.text(pos,yl+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,yl-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+ESP0=idx(2020)-0.5; ESP1=idx(2022)+0.5
+ax.axvspan(ESP0,ESP1,color=VERDE,alpha=0.35,zorder=0)
+ax.text((ESP0+ESP1)/2,YMAX*0.92,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 # números: +237, -294 (existentes) e -112, -137 (citados no patamar)
 ax.text(idx(1990),var[idx(1990)]+14,'+237',ha='center',va='bottom',fontsize=11.5,fontweight='bold',color=PRETO)
 ax.text(idx(2020),var[idx(2020)]-14,'−294',ha='center',va='top',fontsize=13,fontweight='bold',color=PRETO)
@@ -262,12 +261,22 @@ cores=[CINZA if v>=0 else VERM for v in var]
 ax.bar(x,var,0.8,color=cores,zorder=3)
 ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
-ax.set_yticks([]); ax.set_ylim(-360,320); ax.tick_params(colors=PRETO)
+ax.set_yticks([]); ax.tick_params(colors=PRETO)
+v_abs=max(abs(max(var)),abs(min(var)))
+ymax=int(v_abs*1.4); ymin=-int(v_abs*1.15)
+ax.set_ylim(ymin,ymax)
 for i,v in enumerate(var):
     if v in (min(var),max(var)):
         ax.text(i,v+(10 if v>=0 else -10),f'{v:+d}'.replace('-','−'),ha='center',
                 va='bottom' if v>=0 else 'top',fontsize=9.5,fontweight='bold',color=PRETO)
-marcadores(ax,285,215,230)
+er_ys=[ymax*0.92,ymax*0.80,ymax*0.86]
+for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
+    ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
+    ax.text(pos,yl,er,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+    ax.text(pos,yl-0.06*(ymax-ymin),num,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
+x0_esp=idx(2020)-0.5; x1_esp=idx(2022)+0.5
+ax.axvspan(x0_esp,x1_esp,color=VERDE,alpha=0.35,zorder=0)
+ax.text((x0_esp+x1_esp)/2,ymax*0.92,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 fig.text(0.02,0.965,'A variação anual revela 2020 como o fundo da retração',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')
 fig.text(0.02,0.915,'Variação anual do acervo de controle concentrado (distribuição menos baixa), 1988-2025',

@@ -186,10 +186,32 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         textposition="outside", textfont=dict(color="black", size=11, weight="bold"),
         cliponaxis=False,
     ))
+    v_abs = max(abs(tot["variacao"].max()), abs(tot["variacao"].min()))
+    ymax = int(v_abs * 1.4)
+    ymin = -int(v_abs * 1.15)
     fig = aplicar_padrao(
         fig,
         "A variação anual do acervo tornou-se negativa na década de 2020",
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Ano", dtick=1, tickangle=-90), yaxis=dict(title="Variação"),
+        xaxis=dict(title="Ano", dtick=1, tickangle=-90), yaxis=dict(title="Variação", range=[ymin, ymax]),
     )
+    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.86]
+    for er, yl in zip([51, 52, 53], er_levels):
+        if er in (52, 53):
+            ano_er, _, _ = ER_DATAS[er]
+            x = anos.index(str(ano_er)) - 0.5
+        else:
+            ano, mes, dia = ER_DATAS[er]
+            x = _frac_ano(ANO_MIN, ano, mes, dia)
+        fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
+                      line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=x, y=yl, text=f"<b>ER {er}</b>", showarrow=False,
+                           font=dict(color="black", size=12), xref="x", yref="y")
+    idx_2020 = anos.index("2020")
+    idx_2022 = anos.index("2022")
+    x0 = idx_2020 - 0.5
+    x1 = idx_2022 + 0.5
+    fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.92, text="<b>ESPIN</b>", showarrow=False,
+                       font=dict(color=VERMELHO, size=12), xref="x", yref="y")
     return fig

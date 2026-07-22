@@ -80,10 +80,11 @@ def fig_2a_participacao_ano(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig = aplicar_padrao(
         fig, "De 4% a dois terços da pauta: o degrau da universalização",
         "Participação do Plenário Virtual nas inclusões em pauta, 2016–2025",
-        xaxis=dict(title=dict(text="Ano", font=dict(size=22)), tickfont=dict(size=22)),
+        xaxis=dict(title=dict(text="Ano", font=dict(size=24))),
         yaxis=dict(title="", range=[0, 90]),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=24))
     return fig
 
 

@@ -101,14 +101,14 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
     if 2020 in anos_int and 2022 in anos_int:
         y0_espin = anos_int.index(2022) - 0.5
         y1_espin = anos_int.index(2020) + 0.5
-        fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#D1FAE5", opacity=0.6,
+        fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#FCE7F3", opacity=0.7,
                       line_width=0, layer="below")
         for y in (y0_espin, y1_espin):
             fig.add_shape(type="line", x0=0, x1=x_linha, y0=y, y1=y,
                           line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
         fig.add_annotation(x=x_label, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
-                           showarrow=False, font=dict(color=VERDE, size=13), xref="x", yref="y",
-                           xanchor="left")
+                           showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
+                           xref="x", yref="y", xanchor="left")
 
     # Marcadores ER: linha na fronteira entre o ano da emenda e o ano anterior.
     for er in (51, 52, 53):
@@ -148,13 +148,14 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         fig,
         "Distribuições superam baixas na maior parte da série histórica",
         "Distribuições e baixas anuais (espelhadas), Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Ano", tickangle=-90, type="category", range=[-0.5, len(anos) - 0.5]),
-        yaxis=dict(title="Processos", range=[ymin, ymax]),
+        xaxis=dict(title="", tickangle=-90, type="category", range=[-0.5, len(anos) - 0.5]),
+        yaxis=dict(title="", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.86]
-    for er, yl in zip([51, 52, 53], er_levels):
+    er_y = ymax * 0.90  # todas as linhas ER terminam na mesma altura ("final da linha")
+    er_yshift = {51: 0, 52: 16, 53: -16}  # deslocamento em pixels p/ 52/53 não se chocarem (anos adjacentes)
+    for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
             x = anos.index(str(ano_er)) - 0.5
@@ -163,15 +164,18 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
             x = _frac_ano(ANO_MIN, ano, mes, dia)
         fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=x, y=yl, text=f"<b>ER {er}</b>", showarrow=False,
-                           font=dict(color="black", size=12), xref="x", yref="y")
+        fig.add_annotation(x=x, y=er_y, yshift=er_yshift[er], text=f"<b>ER {er}</b>", showarrow=False,
+                           font=dict(color="black", size=12), bgcolor="white", borderpad=1,
+                           xref="x", yref="y")
     idx_2020 = anos.index("2020")
     idx_2022 = anos.index("2022")
     x0 = idx_2020 - 0.5
     x1 = idx_2022 + 0.5
-    fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.92, text="<b>ESPIN</b>", showarrow=False,
-                       font=dict(color=VERMELHO, size=12), xref="x", yref="y")
+    fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.99, yanchor="top", text="<b>ESPIN</b>", showarrow=False,
+                       font=dict(color=VERMELHO, size=13, weight="bold"), bgcolor="white", borderpad=2,
+                       xref="x", yref="y")
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 
@@ -197,8 +201,9 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
         xaxis=dict(title="Ano", dtick=1, tickangle=-90), yaxis=dict(title="Variação", range=[ymin, ymax]),
     )
-    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.86]
-    for er, yl in zip([51, 52, 53], er_levels):
+    er_y = ymax * 0.90  # todas as linhas ER terminam na mesma altura ("final da linha")
+    er_yshift = {51: 0, 52: 16, 53: -16}  # deslocamento em pixels p/ 52/53 não se chocarem (anos adjacentes)
+    for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
             x = anos.index(str(ano_er)) - 0.5
@@ -207,13 +212,15 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
             x = _frac_ano(ANO_MIN, ano, mes, dia)
         fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=x, y=yl, text=f"<b>ER {er}</b>", showarrow=False,
-                           font=dict(color="black", size=12), xref="x", yref="y")
+        fig.add_annotation(x=x, y=er_y, yshift=er_yshift[er], text=f"<b>ER {er}</b>", showarrow=False,
+                           font=dict(color="black", size=12), bgcolor="white", borderpad=1,
+                           xref="x", yref="y")
     idx_2020 = anos.index("2020")
     idx_2022 = anos.index("2022")
     x0 = idx_2020 - 0.5
     x1 = idx_2022 + 0.5
-    fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.92, text="<b>ESPIN</b>", showarrow=False,
-                       font=dict(color=VERMELHO, size=12), xref="x", yref="y")
+    fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.99, yanchor="top", text="<b>ESPIN</b>", showarrow=False,
+                       font=dict(color=VERMELHO, size=13, weight="bold"), bgcolor="white", borderpad=2,
+                       xref="x", yref="y")
     return fig

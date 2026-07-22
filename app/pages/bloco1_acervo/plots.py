@@ -131,7 +131,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
                           text=[br(v) for v in tot["quantidade_distribuidos"]] if show_values else None,
                           textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
                           cliponaxis=False))
-    fig.add_trace(go.Bar(x=anos, y=-tot["quantidade_baixas"], name="Baixas",
+    fig.add_trace(go.Bar(x=anos, y=-tot["quantidade_baixas"], name="BAIXAS",
                           marker_color=CINZA,
                           text=[br(v) for v in tot["quantidade_baixas"]] if show_values else None,
                           textposition="outside", textfont=dict(color="black", size=10, weight="bold"),

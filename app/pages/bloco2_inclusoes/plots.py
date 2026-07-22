@@ -516,13 +516,13 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
 
 def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2016, 2019, show_values,
-                                "Antes da universalização, a maioria dos processos era só presencial",
+                                "Antes da universalização, o caminho ordinário era o presencial",
                                 "Tramitação por ambiente, por período (2016–2019)")
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2020, 2025, show_values,
-                                "Três de cada quatro processos nunca passam pelo Plenário Presencial",
+                                "Depois da universalização, o caminho ordinário é o virtual",
                                 "Tramitação por ambiente, por período (2020–2025)")
 
 

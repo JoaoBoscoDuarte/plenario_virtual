@@ -231,8 +231,6 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
         xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
     )
-    er_y = ymax * 0.90  # todas as linhas ER terminam na mesma altura ("final da linha")
-    er_yshift = {51: 0, 52: 16, 53: -16}  # deslocamento em pixels p/ 52/53 não se chocarem (anos adjacentes)
     for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
@@ -242,16 +240,34 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
             x = _frac_ano(ANO_MIN, ano, mes, dia)
         fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=x, y=er_y, yshift=er_yshift[er], text=f"<b>ER {er}</b>", showarrow=False,
-                           font=dict(color="black", size=12), bgcolor="white", borderpad=1,
+        # Sigla e número empilhados (ER\n51), ancorados no topo da própria linha (y=ymax).
+        fig.add_annotation(x=x, y=ymax, yanchor="bottom", text=f"<b>ER<br>{er}</b>", showarrow=False,
+                           font=dict(color="black", size=11), bgcolor="white", borderpad=1,
                            xref="x", yref="y")
+
     idx_2020 = anos.index("2020")
     idx_2022 = anos.index("2022")
-    x0 = idx_2020 - 0.5
-    x1 = idx_2022 + 0.5
+    x0 = idx_2020 - 0.5  # início (coincide com a linha do ER 53)
+    x1 = idx_2022 + 0.5  # final
+    y_topo_espin = ymax * 0.87  # abaixo do ER, acima dos rótulos das barras
+    x0_linha_espin = x0 + 0.06  # linha do ESPIN fica depois (à direita) da linha do ER 53
+
     fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.99, yanchor="top", text="<b>ESPIN</b>", showarrow=False,
-                       font=dict(color=VERMELHO, size=13, weight="bold"), bgcolor="white", borderpad=2,
+    fig.add_shape(type="line", x0=x0_linha_espin, x1=x0_linha_espin, y0=ymin, y1=y_topo_espin,
+                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+    fig.add_shape(type="line", x0=x1, x1=x1, y0=ymin, y1=y_topo_espin,
+                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+
+    # Seta dupla (medida), do início (depois do ER 53) ao final das linhas do ESPIN.
+    fig.add_annotation(x=x0_linha_espin, y=y_topo_espin, ax=x1, ay=y_topo_espin, axref="x", ayref="y",
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                       arrowwidth=1.2, arrowcolor=VERMELHO, text="")
+    fig.add_annotation(x=x1, y=y_topo_espin, ax=x0_linha_espin, ay=y_topo_espin, axref="x", ayref="y",
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                       arrowwidth=1.2, arrowcolor=VERMELHO, text="")
+    fig.add_annotation(x=(x0_linha_espin + x1) / 2, y=y_topo_espin, yanchor="bottom", yshift=6,
+                       text="<b>ESPIN</b>", showarrow=False,
+                       font=dict(color=VERMELHO, size=13, weight="bold"),
                        xref="x", yref="y")
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig

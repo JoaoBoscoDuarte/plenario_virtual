@@ -131,7 +131,7 @@ ax.axhline(0,color=PRETO,lw=1)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=9.5,color=PRETO,rotation=90,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(YMIN,YMAX); ax.tick_params(colors=PRETO)
 LT=0.95
-er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.74]
+er_ys=[YMAX*0.92,YMAX*0.80,YMAX*0.86]
 for (pos,num),yl in zip(ER,er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5,ymax=LT)
     ax.text(pos,yl+20,'ER',fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
@@ -240,7 +240,7 @@ ax.set_ylim(ymin_d,ymax_d)
 for i,(d,b) in enumerate(zip(dist,baix)):
     ax.text(i,d+15,br(d),ha='center',va='bottom',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
     ax.text(i,-b-15,br(b),ha='center',va='top',fontsize=6.5,fontweight='bold',color=PRETO,zorder=6)
-er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.74]
+er_ys=[ymax_d*0.92,ymax_d*0.80,ymax_d*0.86]
 for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],er_ys):
     ax.axvline(pos,color=PRETO,lw=1.0,ls=(0,(4,3)),zorder=5)
     ax.text(pos,yl,er,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)

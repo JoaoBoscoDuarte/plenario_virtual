@@ -151,7 +151,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.74]
+    er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.86]
     for er, yl in zip([51, 52, 53], er_levels):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]

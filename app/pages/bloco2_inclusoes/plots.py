@@ -265,7 +265,7 @@ def fig_2h_tramitacao_anual_2020(df: pd.DataFrame, show_values: bool = True) -> 
 
 def fig_2i_tramitacao_anual_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_anual(df, 2016, 2025, show_values,
-                              "A tramitação só-presencial recua ano a ano desde 2016",
+                              "A tramitação exclusivamente virtual domina desde 2020",
                               "Tramitação por ambiente e ano, 2016–2025")
 
 

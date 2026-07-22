@@ -493,37 +493,49 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 
 
 # ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
-def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
+_CORES_TRAMITACAO = {"Somente Virtual": AZUL, "Ambos": AZUL_CLARO, "Somente Presencial": CINZA}
+
+
+def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool,
+                        titulo: str, subtitulo: str, ordem_topo_base: list[str]) -> go.Figure:
     tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
     vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     total = vc.sum()
     pct = 100 * vc / total
-    cores = [COR_PV if "Virtual" in s else COR_PP if "Presencial" in s else AZUL_CLARO for s in vc.index]
-    fig = go.Figure(go.Bar(
-        y=vc.index, x=vc.values, orientation="h", marker_color=cores,
-        text=[f"{br(n)} ({p:.1f}%)".replace(".", ",", 1) for n, p in zip(vc.values, pct.values)] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
-    ))
+
+    fig = go.Figure()
+    for cat in vc.index:
+        fig.add_trace(go.Bar(
+            y=[cat], x=[vc[cat]], orientation="h", name=cat.upper(), marker_color=_CORES_TRAMITACAO[cat],
+            text=[f"{br(vc[cat])} ({br(pct[cat], 1)}%)"] if show_values else None,
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
+        ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="", range=[0, vc.max() * 1.25]), yaxis=dict(title=""),
-        height=340,
+        xaxis=dict(title="", range=[0, vc.max() * 1.25], showticklabels=False, showline=False, ticks=""),
+        yaxis=dict(title="", showticklabels=False, showline=False, ticks="",
+                   categoryorder="array", categoryarray=ordem_topo_base),
+        height=340, showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center",
+                    font=dict(size=15)),
     )
-    fig.update_xaxes(tickfont=dict(size=20))
-    fig.update_yaxes(tickfont=dict(size=20), categoryorder="total descending")
+    fig.update_xaxes(showticklabels=False, showline=False, ticks="")
+    fig.update_yaxes(showticklabels=False, showline=False, ticks="")
     return fig
 
 
 def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2016, 2019, show_values,
                                 "Antes da universalização, o caminho ordinário era o presencial",
-                                "Tramitação por ambiente, por período (2016–2019)")
+                                "Tramitação por ambiente, por período (2016–2019)",
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2020, 2025, show_values,
                                 "Depois da universalização, o caminho ordinário é o virtual",
-                                "Tramitação por ambiente, por período (2020–2025)")
+                                "Tramitação por ambiente, por período (2020–2025)",
+                                ordem_topo_base=["Somente Virtual", "Ambos", "Somente Presencial"])
 
 
 fig_2g_tramitacao_periodo_2020 = fig_32_tramitacao_2020  # alias

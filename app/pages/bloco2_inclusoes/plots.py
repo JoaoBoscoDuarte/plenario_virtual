@@ -90,17 +90,17 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
     anos = [str(a) for a in tab.index]
 
     fig = go.Figure()
-    for amb, cor in [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]:
+    for amb, cor, nome in [("Plenário Virtual", COR_PV, "PLENÁRIO VIRTUAL"), ("Plenário Presencial", COR_PP, "PLENÁRIO PRESENCIAL")]:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[amb], name=amb, marker_color=cor,
+            x=anos, y=tab[amb], name=nome, marker_color=cor,
             text=[br(v) for v in tab[amb]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=11, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=16, weight="bold"),
             cliponaxis=False,
         ))
     return aplicar_padrao(
         fig, "O salto das inclusões no ambiente virtual",
         "Inclusões em pauta por ano e ambiente, 2016–2025",
-        xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões"),
+        xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
 

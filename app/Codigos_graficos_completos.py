@@ -440,11 +440,11 @@ pv=[int((df[(df.ano==a)&(df.ambiente==PVn)]).shape[0]) for a in anos]
 pp=[int((df[(df.ano==a)&(df.ambiente==PPn)]).shape[0]) for a in anos]
 fig,ax=base((10,4.8))
 x=np.arange(10); w=0.4
-b1=ax.bar(x-w/2,pv,w,color=AZUL,label='Plenário Virtual',zorder=3)
-b2=ax.bar(x+w/2,pp,w,color=CINZA,label='Plenário Presencial',zorder=3)
+b1=ax.bar(x-w/2,pv,w,color=AZUL,label='PLENÁRIO VIRTUAL',zorder=3)
+b2=ax.bar(x+w/2,pp,w,color=CINZA,label='PLENÁRIO PRESENCIAL',zorder=3)
 for bars in (b1,b2):
     for r in bars:
-        ax.text(r.get_x()+r.get_width()/2,r.get_height()+12,br(r.get_height()),ha='center',fontsize=8,fontweight='bold',color=PRETO)
+        ax.text(r.get_x()+r.get_width()/2,r.get_height()+12,br(r.get_height()),ha='center',fontsize=12,fontweight='bold',color=PRETO)
 ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=10.5,color=PRETO,fontweight='bold')
 ax.set_yticks([]); ax.set_ylim(0,1080); ax.tick_params(colors=PRETO)
 ax.legend(frameon=False,fontsize=10.5,loc='upper left',labelcolor=PRETO)

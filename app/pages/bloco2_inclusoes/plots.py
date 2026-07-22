@@ -167,7 +167,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
 
 
 # ── 2.e / 2.f ────────────────────────────────────────────────────────────────
-def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
+def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str, show_pct: bool = False) -> go.Figure:
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)]
     tab = sub.groupby(["ano", "classe"], observed=True).size().unstack(fill_value=0).reindex(columns=_CLASSES, fill_value=0)
     anos = [str(a) for a in tab.index]
@@ -175,7 +175,10 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
 
     fig = go.Figure()
     for classe in _CLASSES:
-        if show_values:
+        if show_values and show_pct:
+            textos = [f"<span style='font-size:16px'>({v/totais_ano[ano]*100:.0f}%)</span><br><span style='font-size:20px'>{br(v)}</span>" if totais_ano[ano] > 0 else br(v)
+                      for v, ano in zip(tab[classe], tab.index)]
+        elif show_values:
             textos = [br(v) for v in tab[classe]]
         else:
             textos = None
@@ -216,7 +219,8 @@ def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figur
 def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _classe_ano(df, "Plenário Presencial", show_values,
                         "O Plenário Presencial mantém volume estável e menor por classe",
-                        "Inclusões em pauta por classe e ano — Plenário Presencial, 2020–2025")
+                        "Inclusões em pauta por classe e ano — Plenário Presencial, 2020–2025",
+                        show_pct=True)
 
 
 # ── 2.h / 2.i ────────────────────────────────────────────────────────────────

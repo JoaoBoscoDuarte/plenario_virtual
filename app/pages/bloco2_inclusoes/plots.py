@@ -55,7 +55,7 @@ def _tramitacao_por_processo(df: pd.DataFrame, ano_ini: int, ano_fim: int) -> pd
         pv, pp = "Plenário Virtual" in s, "Plenário Presencial" in s
         if pv and pp:
             return "Ambos"
-        return "Só Virtual" if pv else "Só Presencial"
+        return "Somente Virtual" if pv else "Somente Presencial"
 
     return amb.apply(classif)
 
@@ -232,9 +232,9 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
     tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
     sub["tramitacao"] = sub["incidente"].map(tram)
     tab = sub.drop_duplicates("incidente").groupby(["ano", "tramitacao"], observed=True).size().unstack(fill_value=0)
-    tab = tab.reindex(columns=["Só Virtual", "Ambos", "Só Presencial"], fill_value=0)
+    tab = tab.reindex(columns=["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     anos = [str(a) for a in tab.index]
-    cores = {"Só Virtual": COR_PV, "Ambos": AZUL_CLARO, "Só Presencial": COR_PP}
+    cores = {"Somente Virtual": COR_PV, "Ambos": AZUL_CLARO, "Somente Presencial": COR_PP}
 
     fig = go.Figure()
     for cat in tab.columns:
@@ -475,7 +475,7 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 # ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
 def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
     tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
-    vc = tram.value_counts().reindex(["Só Virtual", "Ambos", "Só Presencial"], fill_value=0)
+    vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     total = vc.sum()
     pct = 100 * vc / total
     cores = [COR_PV, AZUL_CLARO, COR_PP]
@@ -483,18 +483,14 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
     fig = go.Figure(go.Bar(
         y=vc.index, x=vc.values, orientation="h", marker_color=cores,
         text=[f"{br(n)} ({p:.1f}%)".replace(".", ",", 1) for n, p in zip(vc.values, pct.values)] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=13, weight="bold"), cliponaxis=False,
+        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
     ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Processos", range=[0, vc.max() * 1.25]), yaxis=dict(title=""),
+        xaxis=dict(title="", range=[0, vc.max() * 1.25]), yaxis=dict(title=""),
         height=340,
     )
-    fig.update_yaxes(tickfont=dict(size=14))
-    if show_values:
-        fig.add_annotation(x=vc.max() * 1.22, y=-0.25, text=f"<b>Total: {br(total)}</b>",
-                           showarrow=False, font=dict(color="black", size=11),
-                           xref="x", yref="y", xanchor="right")
+    fig.update_yaxes(tickfont=dict(size=20))
     return fig
 
 

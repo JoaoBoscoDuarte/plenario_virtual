@@ -490,6 +490,7 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
         xaxis=dict(title="", range=[0, vc.max() * 1.25]), yaxis=dict(title=""),
         height=340,
     )
+    fig.update_xaxes(tickfont=dict(size=20))
     fig.update_yaxes(tickfont=dict(size=20))
     return fig
 

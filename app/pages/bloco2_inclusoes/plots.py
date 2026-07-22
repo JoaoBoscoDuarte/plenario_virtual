@@ -125,6 +125,17 @@ def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
     return tab.reset_index().rename(columns={"ano": "Ano"})
 
 
+def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "IJ"], fill_value=0)
+    tab["Total"] = tab.sum(axis=1)
+    for tp in ["RC", "PR", "IJ"]:
+        tab[f"%{tp}"] = (tab[tp] / tab["Total"] * 100).round(1).astype(str) + "%"
+    tab = tab.reset_index()
+    tab.columns = ["Ano", "RC", "PR", "IJ", "Total", "%RC", "%PR", "%IJ"]
+    return tab[["Ano", "RC", "%RC", "PR", "%PR", "IJ", "%IJ", "Total"]]
+
+
 def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
     tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "IJ"], fill_value=0)
@@ -141,33 +152,17 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
         fig, "Em 2019, o virtual deixa de ser exclusivamente recursal",
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
         xaxis=dict(title="Ano", type="category", range=[-0.5, len(anos) - 0.5]),
-        yaxis=dict(title="", range=[0, totais.max() * 1.15]),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
-        height=700,
+        yaxis=dict(title="", range=[0, totais.max() * 1.4]),
+        barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        height=650,
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     if show_values:
-        cab = ["Ano", "RC", "%RC", "PR", "%PR", "IJ", "%IJ", "Total"]
-        linhas = []
-        for ano in tab.index:
-            t = int(totais[ano])
-            ln = [str(ano)]
-            for tp in ["RC", "PR", "IJ"]:
-                v = int(tab.loc[ano, tp])
-                ln.append(str(v))
-                ln.append(f"{v/t*100:.0f}%" if t else "0%")
-            ln.append(br(t))
-            linhas.append(ln)
-        colunas = list(zip(*linhas))
-        fig.add_trace(go.Table(
-            domain=dict(x=[0, 1], y=[0, 0.3]),
-            header=dict(values=cab, font=dict(size=12, color="white"), fill_color="#2563EB",
-                        align="center", line_color="white"),
-            cells=dict(values=colunas, font=dict(size=11, color="black"), fill_color="#EBF4FF",
-                       align="center", line_color="white", height=24),
-        ))
-        fig.update_layout(yaxis=dict(domain=[0.35, 1.0]))
+        for i, total in enumerate(totais):
+            fig.add_annotation(x=i, y=total, text=f"<b>Total: {br(total)}</b>", showarrow=False,
+                               font=dict(color="black", size=14), xref="x", yref="y",
+                               yanchor="bottom", yshift=6)
     return fig
 
 

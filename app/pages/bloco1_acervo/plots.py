@@ -9,7 +9,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from estilo import (
-    aplicar_padrao, add_er_marker, add_espin_shade, br,
+    aplicar_padrao, add_er_marker, add_espin_shade, _frac_ano, br,
     CINZA, VERMELHO, ER_DATAS,
 )
 
@@ -153,7 +153,15 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     )
     er_levels = [ymax * 0.92, ymax * 0.80, ymax * 0.68]
     for er, yl in zip([51, 52, 53], er_levels):
-        add_er_marker(fig, ANO_MIN, er, ymin, ymax, yl)
+        if er == 52:
+            x = anos.index("2019") - 0.5
+        else:
+            ano, mes, dia = ER_DATAS[er]
+            x = _frac_ano(ANO_MIN, ano, mes, dia)
+        fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
+                      line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=x, y=yl, text=f"<b>ER {er}</b>", showarrow=False,
+                           font=dict(color="black", size=12), xref="x", yref="y")
     idx_2020 = anos.index("2020")
     idx_2022 = anos.index("2022")
     x0 = idx_2020 - 0.5

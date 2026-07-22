@@ -117,7 +117,7 @@ baix = ac['Total Baixas'].astype(int).tolist()
 var  = [d-b for d,b in zip(dist,baix)]
 def idx(a): return anos.index(a)
 def pos_mes(ano,mes,dia=15): return idx(ano)-0.5+((mes-1)+(dia-1)/30)/12
-ER=[(pos_mes(2016,6,22),'51'),(pos_mes(2019,6,14),'52'),(pos_mes(2020,3,18),'53')]
+ER=[(pos_mes(2016,6,22),'51'),(idx(2019)-0.5,'52'),(pos_mes(2020,3,18),'53')]
 ESP0=pos_mes(2020,2,3); ESP1=pos_mes(2022,4,22)
 x=np.arange(len(anos))
 

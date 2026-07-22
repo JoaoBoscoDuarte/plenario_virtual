@@ -173,20 +173,26 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)]
     tab = sub.groupby(["ano", "classe"], observed=True).size().unstack(fill_value=0).reindex(columns=_CLASSES, fill_value=0)
     anos = [str(a) for a in tab.index]
+    totais_ano = tab.sum(axis=1)
 
     fig = go.Figure()
     for classe in _CLASSES:
+        if show_values:
+            textos = [f"{br(v)}\n({v/totais_ano[ano]*100:.0f}%)" if totais_ano[ano] > 0 else br(v) for v, ano in zip(tab[classe], tab.index)]
+        else:
+            textos = None
         fig.add_trace(go.Bar(
             x=anos, y=tab[classe], name=classe, marker_color=_CORES_CLASSE[classe],
-            text=[br(v) for v in tab[classe]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=10, weight="bold"),
+            text=textos, textposition="outside", textfont=dict(color="black", size=12, weight="bold"),
             cliponaxis=False,
         ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Ano"), yaxis=dict(title="Inclusões", range=[0, 860]),
+        xaxis=dict(title="Ano"), yaxis=dict(title="", range=[0, 860]),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    return fig
 
 
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

@@ -292,15 +292,17 @@ anos=list(range(2020,2026))
 for amb,arq,tit in [('Plenário Virtual','2e_inclusoes_classe_ano_PV_2020-2025','Plenário Virtual'),
                     ('Plenário Físico','2f_inclusoes_classe_ano_PP_2020-2025','Plenário Presencial')]:
     g=df[df.ambiente==amb].groupby(['ano','classe']).size().unstack(fill_value=0)
+    totais_ano=g.sum(axis=1)
     fig,ax=base((8.6,4.6))
     x=np.arange(6); w=0.2
     for i,(cl,cor) in enumerate([('ADI',AZUL),('ADPF',VERDE),('ADC',ROXO),('ADO',CINZA)]):
         vals=[int(g.loc[a,cl]) if cl in g.columns else 0 for a in anos]
         b=ax.bar(x+(i-1.5)*w,vals,w,color=cor,label=cl,zorder=3)
-        for r in b:
+        for r,a in zip(b,anos):
             h=r.get_height()
             if h>0:
-                ax.text(r.get_x()+r.get_width()/2,h+10,br(h),ha='center',fontsize=8,
+                pct=h/totais_ano.loc[a]*100
+                ax.text(r.get_x()+r.get_width()/2,h+15,f'{br(h)} ({pct:.0f}%)',ha='center',fontsize=12,
                         fontweight='bold',color=PRETO)
     ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=11,color=PRETO,fontweight='bold')
     ax.set_yticks([]); ax.set_ylim(0,860); ax.tick_params(colors=PRETO)
@@ -590,11 +592,17 @@ plt.savefig('../G2b_inclusoes_ano_ambiente.png',facecolor='white'); plt.close()
 # 2.d/2.e classe por ano, cada ambiente, escala 0-800
 for amb,nome,arq,tit in [(PVn,'Plenário Virtual','G2d','Plenário Virtual'),(PPn,'Plenário Presencial','G2e','Plenário Presencial')]:
     g=df[df.ambiente==amb].groupby(['ano','classe']).size().unstack(fill_value=0)
+    totais_ano=g.sum(axis=1)
     fig,ax=base((8,4.4))
     x=np.arange(6); w=0.2
     for i,(cl,cor) in enumerate([('ADI',AZUL),('ADPF',VERDE),('ADC',ROXO),('ADO',CINZA)]):
         vals=[int(g.loc[a,cl]) if cl in g.columns else 0 for a in anos]
-        ax.bar(x+(i-1.5)*w,vals,w,color=cor,label=cl,zorder=3)
+        b=ax.bar(x+(i-1.5)*w,vals,w,color=cor,label=cl,zorder=3)
+        for r,a in zip(b,anos):
+            h=r.get_height()
+            if h>0:
+                pct=h/totais_ano.loc[a]*100
+                ax.text(r.get_x()+r.get_width()/2,h+12,f'{br(h)} ({pct:.0f}%)',ha='center',fontsize=11,fontweight='bold',color=ESC)
     ax.set_xticks(x); ax.set_xticklabels(anos,fontsize=10.5); ax.set_yticks([]); ax.set_ylim(0,800)
     ax.legend(frameon=False,fontsize=9.5,ncol=4,loc='upper right')
     titulo(fig,f'Inclusões por classe e ano — {tit}','Controle concentrado, 2020-2025',fs=12)

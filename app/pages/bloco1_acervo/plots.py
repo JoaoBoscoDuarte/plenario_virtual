@@ -168,7 +168,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     x0 = idx_2020 - 0.5
     x1 = idx_2022 + 0.5
     fig.add_vrect(x0=x0, x1=x1, fillcolor=VERDE, opacity=0.55, line_width=0, layer="below")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.86, text="<b>ESPIN</b>", showarrow=False,
+    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.92, text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=12), xref="x", yref="y")
     return fig
 

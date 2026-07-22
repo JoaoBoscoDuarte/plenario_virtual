@@ -138,7 +138,7 @@ for (pos,num),yl in zip(ER,er_ys):
     ax.text(pos,yl-30,num,fontsize=10,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 ESP0=idx(2020)-0.5; ESP1=idx(2022)+0.5
 ax.axvspan(ESP0,ESP1,color=VERDE,alpha=0.35,zorder=0)
-ax.text((ESP0+ESP1)/2,YMAX*0.86,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.text((ESP0+ESP1)/2,YMAX*0.92,'ESPIN',fontsize=10,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 # números citados no texto: 572 (2021, distto), 797 (2020, baixa), 251 (2025, dist)
 ax.text(idx(2021),dist[idx(2021)]+18,'572',ha='center',va='bottom',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
 ax.text(idx(2020),-baix[idx(2020)]-20,'797',ha='center',va='top',fontsize=11.5,fontweight='bold',color=PRETO,zorder=6)
@@ -247,7 +247,7 @@ for pos,er,num,yl in zip([p for p,_,_ in ER],['ER','ER','ER'],['51','52','53'],e
     ax.text(pos,yl-0.06*(ymax_d-ymin_d),num,fontsize=8.5,color=PRETO,ha='center',va='bottom',fontweight='bold',zorder=6)
 x0_esp=anos.index(2020)-0.5; x1_esp=anos.index(2022)+0.5
 ax.axvspan(x0_esp,x1_esp,color=VERDE,alpha=0.35,zorder=0)
-ax.text((x0_esp+x1_esp)/2,ymax_d*0.86,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
+ax.text((x0_esp+x1_esp)/2,ymax_d*0.92,'ESPIN',fontsize=8.5,color=VERM,ha='center',va='bottom',fontweight='bold',zorder=6)
 ax.legend(frameon=False,fontsize=10.5,loc='lower left',labelcolor=PRETO)
 fig.text(0.02,0.965,'A baixa supera a distribuição a partir de 2018',
          fontsize=13.5,fontweight='bold',color=PRETO,ha='left',va='top')

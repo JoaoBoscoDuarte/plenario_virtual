@@ -176,7 +176,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     fig = go.Figure()
     for classe in _CLASSES:
         if show_values and show_pct:
-            textos = [f"<span style='font-size:16px'>({v/totais_ano[ano]*100:.0f}%)</span><br><span style='font-size:20px'>{br(v)}</span>" if totais_ano[ano] > 0 else br(v)
+            textos = [f"<span style='font-size:12px'>({v/totais_ano[ano]*100:.0f}%)</span><br><span style='font-size:20px'>{br(v)}</span>" if totais_ano[ano] > 0 else br(v)
                       for v, ano in zip(tab[classe], tab.index)]
         elif show_values:
             textos = [br(v) for v in tab[classe]]

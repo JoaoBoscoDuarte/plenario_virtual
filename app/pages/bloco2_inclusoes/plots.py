@@ -279,13 +279,13 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pv_pct], name="Plenário Virtual", orientation="h", marker_color=COR_PV,
-        text=f"PV: {pv_pct:.1f}% ({br(pv_n)})".replace(".", ",", 1) if show_values else None,
+        y=["Recursos"], x=[pv_pct], name="PLENÁRIO VIRTUAL", orientation="h", marker_color=COR_PV,
+        text=f"{pv_pct:.1f}% ({br(pv_n)})".replace(".", ",", 1) if show_values else None,
         textposition="inside", insidetextanchor="middle", textfont=dict(color="white", size=13, weight="bold"),
     ))
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pp_pct], name="Plenário Presencial", orientation="h", marker_color=COR_PP,
-        text=f"PP: {pp_pct:.1f}% ({br(pp_n)})".replace(".", ",", 1) if show_values else None,
+        y=["Recursos"], x=[pp_pct], name="PLENÁRIO PRESENCIAL", orientation="h", marker_color=COR_PP,
+        text=f"{pp_pct:.1f}% ({br(pp_n)})".replace(".", ",", 1) if show_values else None,
         textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
     ))
     return aplicar_padrao(

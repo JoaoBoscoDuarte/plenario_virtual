@@ -529,7 +529,7 @@ def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Fig
     return _tramitacao_periodo(df, 2016, 2019, show_values,
                                 "Antes da universalização, o caminho ordinário era o presencial",
                                 "Tramitação por ambiente, por período (2016–2019)",
-                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
+                                ordem_topo_base=["Somente Virtual", "Ambos", "Somente Presencial"])
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

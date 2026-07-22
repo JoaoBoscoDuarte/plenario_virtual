@@ -69,10 +69,10 @@ def fig_2a_participacao_ano(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig = go.Figure(go.Bar(
         x=anos, y=pct.values, marker_color=COR_PV,
         text=[f"{v:.1f}%".replace(".", ",") for v in pct.values] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
+        textposition="outside", textfont=dict(color="black", size=16, weight="bold"),
         cliponaxis=False,
     ))
-    x_espin = list(pct.index).index(2022) - 1 + (4 / 12)
+    x_espin = list(pct.index).index(2022) + 0.5
     fig.add_shape(type="line", x0=x_espin, x1=x_espin, y0=0, y1=85,
                   line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
     fig.add_annotation(x=x_espin, y=80, text="<b>Fim da ESPIN</b>", showarrow=False,

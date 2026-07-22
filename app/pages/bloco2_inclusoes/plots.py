@@ -485,20 +485,29 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
         text=[f"{br(n)} ({p:.1f}%)".replace(".", ",", 1) for n, p in zip(vc.values, pct.values)] if show_values else None,
         textposition="outside", textfont=dict(color="black", size=13, weight="bold"), cliponaxis=False,
     ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="Processos", range=[0, 2600]), yaxis=dict(title=""),
+        xaxis=dict(title="Processos", range=[0, vc.max() * 1.25]), yaxis=dict(title=""),
         height=340,
     )
+    fig.update_yaxes(tickfont=dict(size=14))
+    if show_values:
+        fig.add_annotation(x=vc.max() * 1.22, y=-0.25, text=f"<b>Total: {br(total)}</b>",
+                           showarrow=False, font=dict(color="black", size=11),
+                           xref="x", yref="y", xanchor="right")
+    return fig
 
 
 def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2016, 2019, show_values,
                                 "Antes da universalização, a maioria dos processos era só presencial",
-                                "Tramitação por ambiente, 2016–2019")
+                                "Tramitação por ambiente, por período (2016–2019)")
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_periodo(df, 2020, 2025, show_values,
                                 "Três de cada quatro processos nunca passam pelo Plenário Presencial",
-                                "Tramitação por ambiente, 2020–2025")
+                                "Tramitação por ambiente, por período (2020–2025)")
+
+
+fig_2g_tramitacao_periodo_2020 = fig_32_tramitacao_2020  # alias

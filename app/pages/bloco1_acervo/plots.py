@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 
 from estilo import (
     aplicar_padrao, add_er_marker, br,
-    CINZA, VERMELHO, ER_DATAS,
+    CINZA, VERMELHO, VERDE, ER_DATAS,
 )
 
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
@@ -88,16 +88,31 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
     if show_values:
         for i, total in enumerate(totais):
             fig.add_annotation(x=total, y=i, text=f"<b>{br(total)}</b>", showarrow=False,
-                               font=dict(color="black", size=11), xref="x", yref="y", xanchor="left", xshift=6)
+                               font=dict(color="black", size=13), xref="x", yref="y", xanchor="left", xshift=6)
+
+    anos_int = list(piv.index)
+
+    # Faixa ESPIN: do início de 2020 ao final de 2022 (limites entre linhas de ano).
+    if 2020 in anos_int and 2022 in anos_int:
+        y0_espin = anos_int.index(2022) - 0.5
+        y1_espin = anos_int.index(2020) + 0.5
+        fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#D1FAE5", opacity=0.6,
+                      line_width=0, layer="below")
+        for y in (y0_espin, y1_espin):
+            fig.add_shape(type="line", x0=0, x1=ymax, y0=y, y1=y,
+                          line=dict(color=VERDE, width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=ymax * 0.5, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
+                           showarrow=False, font=dict(color=VERDE, size=13), xref="x", yref="y")
+
+    # Marcadores ER: linha na fronteira entre o ano da emenda e o ano anterior.
     for er in (51, 52, 53):
-        ano, mes, _ = ER_DATAS[er]
-        idx_from_top = list(piv.index).index(ano) if ano in piv.index else None
-        if idx_from_top is not None:
-            frac = idx_from_top - (mes - 1) / 12
+        ano, _, _ = ER_DATAS[er]
+        if ano in anos_int:
+            frac = anos_int.index(ano) + 0.5
             fig.add_shape(type="line", x0=0, x1=ymax, y0=frac, y1=frac,
                           line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
             fig.add_annotation(x=ymax * 0.97, y=frac, text=f"<b>ER {er}</b>", showarrow=False,
-                               font=dict(color="black", size=11), xref="x", yref="y", yshift=8)
+                               font=dict(color="black", size=13), xref="x", yref="y", yshift=8)
     return fig
 
 

@@ -103,7 +103,7 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
         xaxis=dict(title="Ano"), yaxis=dict(title="", showticklabels=False, ticks=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
-    fig.update_yaxes(showline=False)
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 

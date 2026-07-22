@@ -310,7 +310,9 @@ def fig_2j2_recursos_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 
 # ── 2.k1 / 2.k2 ──────────────────────────────────────────────────────────────
 def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
-    sub = df[df["ano"].between(ano_ini, ano_fim) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
+    sub = df[df["ano"].between(ano_ini, ano_fim)].copy()
+    # "Não identificado" é tratado como Principal (PR), igual ao script de referência da cliente
+    sub["tipo_questao"] = sub["tipo_questao"].replace("Não identificado", "PR")
     tab = sub.groupby(["tipo_questao", "ambiente"]).size().unstack(fill_value=0).reindex(index=["PR", "RC", "IJ"], fill_value=0)
     tipos = tab.index.tolist()
 

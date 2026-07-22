@@ -201,8 +201,10 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
     for c in _CLASSES:
         tab[f"%{c}"] = (tab[c] / tab["Total"] * 100).round(1).astype(str) + "%"
     tab = tab.reset_index()
-    cols = ["Ano"] + [c for pair in zip(_CLASSES, [f"%{c}" for c in _CLASSES]) for c in pair] + ["Total"]
-    return tab[cols]
+    cols = ["ano"] + [c for pair in zip(_CLASSES, [f"%{c}" for c in _CLASSES]) for c in pair] + ["Total"]
+    out = tab[cols].copy()
+    out.columns = ["Ano"] + [c for pair in zip(_CLASSES, [f"%{c}" for c in _CLASSES]) for c in pair] + ["Total"]
+    return out
 
 
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

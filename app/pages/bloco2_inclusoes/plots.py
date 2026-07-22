@@ -181,7 +181,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
             textos = None
         fig.add_trace(go.Bar(
             x=anos, y=tab[classe], name=classe, marker_color=_CORES_CLASSE[classe],
-            text=textos, textposition="outside", textfont=dict(color="black", size=12, weight="bold"),
+            text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
     fig = aplicar_padrao(

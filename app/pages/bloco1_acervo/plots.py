@@ -160,15 +160,14 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     ymax = int(d_max * 1.30)
     fig = aplicar_padrao(
         fig,
-        "Distribuições superam baixas na maior parte da série histórica",
-        "Distribuições e baixas anuais (espelhadas), Controle Concentrado, 1988–2025",
+        "A baixa supera a distribuição a partir de 2018",
+        "Distribuições e baixas anuais (espelhadas), controle concentrado, 1988–2025",
         xaxis=dict(title="", tickangle=-90, type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=650,
     )
-    er_y = ymax * 0.90  # todas as linhas ER terminam na mesma altura ("final da linha")
-    er_yshift = {51: 0, 52: 16, 53: -16}  # deslocamento em pixels p/ 52/53 não se chocarem (anos adjacentes)
+    er_y = ymax * 0.90  # todas as linhas ER na mesma altura ("final da linha")
     for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
@@ -178,15 +177,33 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
             x = _frac_ano(ANO_MIN, ano, mes, dia)
         fig.add_shape(type="line", x0=x, x1=x, y0=ymin, y1=ymax,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=x, y=er_y, yshift=er_yshift[er], text=f"<b>ER {er}</b>", showarrow=False,
-                           font=dict(color="black", size=12), bgcolor="white", borderpad=1,
+        # Sigla e número empilhados (ER\n51) p/ caber sem sobrepor rótulos vizinhos na mesma altura.
+        fig.add_annotation(x=x, y=er_y, text=f"<b>ER<br>{er}</b>", showarrow=False,
+                           font=dict(color="black", size=11), bgcolor="white", borderpad=1,
                            xref="x", yref="y")
+
     idx_2020 = anos.index("2020")
     idx_2022 = anos.index("2022")
-    x0 = idx_2020 - 0.5
-    x1 = idx_2022 + 0.5
+    x0 = idx_2020 - 0.5  # início (coincide com a linha do ER 53)
+    x1 = idx_2022 + 0.5  # final
+    y_topo_espin = ymax * 0.78  # linhas do ESPIN um pouco mais curtas que as de ER, p/ não confundir
+    x0_linha_espin = x0 - 0.06  # leve deslocamento p/ não sobrepor a linha do ER 53 (mesma fronteira)
+
     fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
-    fig.add_annotation(x=(x0 + x1) / 2, y=ymax * 0.99, yanchor="top", text="<b>ESPIN</b>", showarrow=False,
+    fig.add_shape(type="line", x0=x0_linha_espin, x1=x0_linha_espin, y0=ymin, y1=y_topo_espin,
+                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+    fig.add_shape(type="line", x0=x1, x1=x1, y0=ymin, y1=y_topo_espin,
+                  line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+
+    # Seta dupla (medida), partindo do final das linhas do ESPIN (não das de ER).
+    fig.add_annotation(x=x0_linha_espin, y=y_topo_espin, ax=x1, ay=y_topo_espin, axref="x", ayref="y",
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
+                       arrowwidth=2, arrowcolor=VERMELHO, text="")
+    fig.add_annotation(x=x1, y=y_topo_espin, ax=x0_linha_espin, ay=y_topo_espin, axref="x", ayref="y",
+                       xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
+                       arrowwidth=2, arrowcolor=VERMELHO, text="")
+    fig.add_annotation(x=(x0_linha_espin + x1) / 2, y=y_topo_espin, yanchor="bottom", yshift=6,
+                       text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=13, weight="bold"), bgcolor="white", borderpad=2,
                        xref="x", yref="y")
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")

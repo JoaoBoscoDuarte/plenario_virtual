@@ -176,7 +176,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     fig = go.Figure()
     for classe in _CLASSES:
         if show_values:
-            textos = [f"{br(v)}\n({v/totais_ano[ano]*100:.0f}%)" if totais_ano[ano] > 0 else br(v) for v, ano in zip(tab[classe], tab.index)]
+            textos = [br(v) for v in tab[classe]]
         else:
             textos = None
         fig.add_trace(go.Bar(
@@ -192,6 +192,17 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
+
+
+def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2020, 2025)]
+    tab = sub.groupby(["ano", "classe"], observed=True).size().unstack(fill_value=0).reindex(columns=_CLASSES, fill_value=0)
+    tab["Total"] = tab.sum(axis=1)
+    for c in _CLASSES:
+        tab[f"%{c}"] = (tab[c] / tab["Total"] * 100).round(1).astype(str) + "%"
+    tab = tab.reset_index()
+    cols = ["Ano"] + [c for pair in zip(_CLASSES, [f"%{c}" for c in _CLASSES]) for c in pair] + ["Total"]
+    return tab[cols]
 
 
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

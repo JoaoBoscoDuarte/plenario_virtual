@@ -286,7 +286,7 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     fig.add_trace(go.Bar(
         y=["Recursos"], x=[pp_pct], name="PLENÁRIO PRESENCIAL", orientation="h", marker_color=COR_PP,
         text=f"{pp_pct:.1f}% ({br(pp_n)})".replace(".", ",", 1) if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
+        textposition="inside", insidetextanchor="middle", textfont=dict(color="black", size=13, weight="bold"),
     ))
     return aplicar_padrao(
         fig, titulo, subtitulo,

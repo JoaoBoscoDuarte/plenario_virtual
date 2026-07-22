@@ -475,7 +475,7 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 # ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
 def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
     tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
-    vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0).sort_values(ascending=False)
+    vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     total = vc.sum()
     pct = 100 * vc / total
     cores = [COR_PV if "Virtual" in s else COR_PP if "Presencial" in s else AZUL_CLARO for s in vc.index]
@@ -490,7 +490,7 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
         height=340,
     )
     fig.update_xaxes(tickfont=dict(size=20))
-    fig.update_yaxes(tickfont=dict(size=20))
+    fig.update_yaxes(tickfont=dict(size=20), categoryorder="total descending")
     return fig
 
 

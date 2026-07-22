@@ -81,7 +81,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.12]),
+        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.32]),
         yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.01, x=0.5, xanchor="center"),
     )
@@ -92,6 +92,9 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
 
     anos_int = list(piv.index)
 
+    x_linha = ymax * 1.16  # linhas de marcação se estendem além das barras
+    x_label = ymax * 1.19  # rótulos ficam no espaço em branco à direita
+
     # Faixa ESPIN: do início de 2020 ao final de 2022 (limites entre linhas de ano).
     if 2020 in anos_int and 2022 in anos_int:
         y0_espin = anos_int.index(2022) - 0.5
@@ -99,20 +102,21 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig.add_hrect(y0=y0_espin, y1=y1_espin, fillcolor="#D1FAE5", opacity=0.6,
                       line_width=0, layer="below")
         for y in (y0_espin, y1_espin):
-            fig.add_shape(type="line", x0=0, x1=ymax, y0=y, y1=y,
-                          line=dict(color=VERDE, width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=ymax * 0.5, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
-                           showarrow=False, font=dict(color=VERDE, size=13), xref="x", yref="y")
+            fig.add_shape(type="line", x0=0, x1=x_linha, y0=y, y1=y,
+                          line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=x_label, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
+                           showarrow=False, font=dict(color=VERDE, size=13), xref="x", yref="y",
+                           xanchor="left")
 
     # Marcadores ER: linha na fronteira entre o ano da emenda e o ano anterior.
     for er in (51, 52, 53):
         ano, _, _ = ER_DATAS[er]
         if ano in anos_int:
             frac = anos_int.index(ano) + 0.5
-            fig.add_shape(type="line", x0=0, x1=ymax, y0=frac, y1=frac,
-                          line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-            fig.add_annotation(x=ymax * 0.97, y=frac, text=f"<b>ER {er}</b>", showarrow=False,
-                               font=dict(color="black", size=13), xref="x", yref="y", yshift=8)
+            fig.add_shape(type="line", x0=0, x1=x_linha, y0=frac, y1=frac,
+                          line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
+            fig.add_annotation(x=x_label, y=frac, text=f"<b>ER {er}</b>", showarrow=False,
+                               font=dict(color="black", size=13), xref="x", yref="y", xanchor="left")
     return fig
 
 

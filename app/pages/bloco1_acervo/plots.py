@@ -81,12 +81,13 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, Controle Concentrado, 1988–2025",
-        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.12]), yaxis=dict(title="", dtick=1),
+        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.12]),
+        yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.01, x=0.5, xanchor="center"),
     )
     if show_values:
-        for ano, total in zip(anos, totais):
-            fig.add_annotation(x=total, y=ano, text=f"<b>{br(total)}</b>", showarrow=False,
+        for i, total in enumerate(totais):
+            fig.add_annotation(x=total, y=i, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=11), xref="x", yref="y", xanchor="left", xshift=6)
     for er in (51, 52, 53):
         ano, mes, _ = ER_DATAS[er]

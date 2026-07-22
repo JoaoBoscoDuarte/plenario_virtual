@@ -112,15 +112,15 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig.add_shape(type="line", x0=0, x1=x_linha_espin, y0=y0_espin, y1=y0_espin,
                       line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
 
-        # Seta dupla (medida), do início (2020) ao final (2022) do ESPIN.
-        fig.add_annotation(x=x_linha, y=y1_espin, ax=x_linha, ay=y0_espin, axref="x", ayref="y",
+        # Seta dupla (medida), partindo do final das linhas do ESPIN (não das linhas de ER).
+        fig.add_annotation(x=x_linha_espin, y=y1_espin, ax=x_linha_espin, ay=y0_espin, axref="x", ayref="y",
                            xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
                            arrowwidth=2, arrowcolor=VERMELHO, text="")
-        fig.add_annotation(x=x_linha, y=y0_espin, ax=x_linha, ay=y1_espin, axref="x", ayref="y",
+        fig.add_annotation(x=x_linha_espin, y=y0_espin, ax=x_linha_espin, ay=y1_espin, axref="x", ayref="y",
                            xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.2,
                            arrowwidth=2, arrowcolor=VERMELHO, text="")
 
-        fig.add_annotation(x=x_linha, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
+        fig.add_annotation(x=x_linha_espin, y=(y0_espin + y1_espin) / 2, text="<b>ESPIN</b>",
                            showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
                            xref="x", yref="y", xanchor="right", xshift=-10)
 

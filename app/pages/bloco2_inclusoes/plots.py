@@ -131,46 +131,43 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
     anos = [str(a) for a in tab.index]
     totais = tab.sum(axis=1)
 
-    limiar = totais.max() * 0.03  # segmentos abaixo disso não cabem rótulo interno legível
-    cumulativo = pd.Series(0, index=tab.index)
-
     fig = go.Figure()
-    pequenos = []  # (i, y_meio, texto) — rotulados fora da barra, com seta
     for tipo in ["RC", "PR", "IJ"]:
-        vals = tab[tipo]
-        textos = []
-        for v in vals:
-            textos.append(br(v) if (v > 0 and v >= limiar) else "")
         fig.add_trace(go.Bar(
-            x=anos, y=vals, name=_NOME_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
-            text=textos if show_values else None,
-            textposition="inside", insidetextanchor="middle", constraintext="none",
-            textfont=dict(color="white", size=16, weight="bold"),
+            x=anos, y=tab[tipo], name=_NOME_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
+            text=None, cliponaxis=False,
         ))
-        for i, v in enumerate(vals):
-            if 0 < v < limiar:
-                pequenos.append((i, cumulativo.iloc[i] + v / 2, f"{_NOME_TIPO[tipo]}: {br(v)}"))
-        cumulativo = cumulativo + vals
-
     fig = aplicar_padrao(
         fig, "Em 2019, o virtual deixa de ser exclusivamente recursal",
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
         xaxis=dict(title="Ano", type="category", range=[-0.5, len(anos) - 0.5]),
-        yaxis=dict(title="Inclusões", range=[0, totais.max() * 1.15]),
+        yaxis=dict(title="", range=[0, totais.max() * 1.15]),
         barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
         height=700,
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     if show_values:
-        for i, total in enumerate(totais):
-            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
-                               font=dict(color="black", size=16), xref="x", yref="y",
-                               yanchor="bottom", yshift=6)
-        for i, y_meio, texto in pequenos:
-            fig.add_annotation(x=i, y=y_meio, text=f"<b>{texto}</b>", showarrow=True,
-                               arrowhead=2, arrowcolor="black", ax=55, ay=0,
-                               font=dict(color="black", size=14), xref="x", yref="y",
-                               xanchor="left")
+        cab = ["Ano", "RC", "%RC", "PR", "%PR", "IJ", "%IJ", "Total"]
+        linhas = []
+        for ano in tab.index:
+            t = int(totais[ano])
+            ln = [str(ano)]
+            for tp in ["RC", "PR", "IJ"]:
+                v = int(tab.loc[ano, tp])
+                ln.append(str(v))
+                ln.append(f"{v/t*100:.0f}%" if t else "0%")
+            ln.append(br(t))
+            linhas.append(ln)
+        colunas = list(zip(*linhas))
+        fig.add_trace(go.Table(
+            domain=dict(x=[0, 1], y=[0, 0.3]),
+            header=dict(values=cab, font=dict(size=12, color="white"), fill_color="#2563EB",
+                        align="center", line_color="white"),
+            cells=dict(values=colunas, font=dict(size=11, color="black"), fill_color="#EBF4FF",
+                       align="center", line_color="white", height=24),
+        ))
+        fig.update_layout(yaxis=dict(domain=[0.35, 1.0]))
     return fig
 
 

@@ -277,21 +277,33 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     pv_n, pp_n = int(vc.get("Plenário Virtual", 0)), int(vc.get("Plenário Presencial", 0))
     pv_pct, pp_pct = 100 * pv_n / total, 100 * pp_n / total
 
+    def txt(n, pct):
+        return f"<span style='font-size:20px'>{br(n)}</span><br><span style='font-size:12px'>({pct:.1f}%)</span>".replace(".", ",", 1)
+
     fig = go.Figure()
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pv_pct], name="PLENÁRIO VIRTUAL", orientation="h", marker_color=COR_PV,
-        text=f"{pv_pct:.1f}% ({br(pv_n)})".replace(".", ",", 1) if show_values else None,
-        textposition="inside", insidetextanchor="middle", textfont=dict(color="white", size=13, weight="bold"),
+        y=["Recursos"], x=[pp_pct], name="PLENÁRIO PRESENCIAL", orientation="h",
+        marker_color=COR_PP, text=None,
     ))
     fig.add_trace(go.Bar(
-        y=["Recursos"], x=[pp_pct], name="PLENÁRIO PRESENCIAL", orientation="h", marker_color=COR_PP,
-        text=f"{pp_pct:.1f}% ({br(pp_n)})".replace(".", ",", 1) if show_values else None,
-        textposition="inside", insidetextanchor="middle", textfont=dict(color="black", size=13, weight="bold"),
+        y=["Recursos"], x=[pv_pct], name="PLENÁRIO VIRTUAL", orientation="h",
+        marker_color=COR_PV, text=None,
     ))
+    fig.update_layout(barmode="stack")
+
+    if show_values:
+        fig.add_annotation(x=pp_pct / 2, y=0, text=txt(pp_n, pp_pct),
+            showarrow=False, xref="x", yref="y", xanchor="center", yanchor="middle",
+            font=dict(color="black", size=12))
+        fig.add_annotation(x=pp_pct + pv_pct / 2, y=0, text=txt(pv_n, pv_pct),
+            showarrow=False, xref="x", yref="y", xanchor="center", yanchor="middle",
+            font=dict(color="white", size=12))
+
     return aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="%"), yaxis=dict(title=""),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.1, x=0.5, xanchor="center"),
+        xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
+        yaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
+        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.92, x=0.5, xanchor="center"),
         height=320, margin=dict(t=160, b=40, l=40, r=40),
     )
 

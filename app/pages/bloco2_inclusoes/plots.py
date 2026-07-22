@@ -229,9 +229,11 @@ def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figur
 # ── 2.h / 2.i ────────────────────────────────────────────────────────────────
 def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
     sub = df[df["ano"].between(ano_ini, ano_fim)].copy()
-    tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
-    sub["tramitacao"] = sub["incidente"].map(tram)
-    tab = sub.drop_duplicates("incidente").groupby(["ano", "tramitacao"], observed=True).size().unstack(fill_value=0)
+    amb_por_ano = sub.groupby(["incidente", "ano"])["ambiente"].apply(set)
+    tram_por_ano = amb_por_ano.apply(lambda s: "Ambos" if {"Plenário Virtual", "Plenário Presencial"}.issubset(s) else ("Somente Virtual" if "Plenário Virtual" in s else "Somente Presencial"))
+    tram_por_ano = tram_por_ano.reset_index()
+    tram_por_ano.columns = ["incidente", "ano", "tramitacao"]
+    tab = tram_por_ano.groupby(["ano", "tramitacao"]).size().unstack(fill_value=0)
     tab = tab.reindex(columns=["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     anos = [str(a) for a in tab.index]
     cores = {"Somente Virtual": COR_PV, "Ambos": AZUL_CLARO, "Somente Presencial": COR_PP}

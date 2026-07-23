@@ -351,18 +351,20 @@ def fig_2l_pauta_vs_concluidos(df: pd.DataFrame, show_values: bool = True) -> go
     concl = sub[sub["desfecho"].str.startswith("Concluído")]
     pct_concl = 100 * (concl["ambiente"] == "Plenário Virtual").mean()
 
-    categorias = ["Participação<br>na pauta", "Participação nos<br>julgamentos concluídos"]
+    categorias = ["Pautas", "Concluídos"]
     valores = [pct_pauta, pct_concl]
     fig = go.Figure(go.Bar(
         x=categorias, y=valores, marker_color=COR_PV,
         text=[f"{v:.1f}%".replace(".", ",") for v in valores] if show_values else None,
         textposition="outside", textfont=dict(color="black", size=14, weight="bold"), cliponaxis=False,
     ))
-    return aplicar_padrao(
+    fig = aplicar_padrao(
         fig, "O Plenário Virtual concentra os julgamentos concluídos",
         "Participação do PV na pauta e nos julgamentos concluídos, 2020–2025",
-        xaxis=dict(title=""), yaxis=dict(title="%", range=[0, 110]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, 110]),
     )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    return fig
 
 
 # ── 2.m / 2.n ────────────────────────────────────────────────────────────────

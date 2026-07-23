@@ -6,7 +6,10 @@ import pandas as pd
 from .plots import plotar_grafico_stf
 from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
-_DIMS_LABEL = list(DIMENSOES.keys())
+# Só dimensões presentes em inclusoes_em_pauta — "Ambiente de tramitação",
+# "Reajuste de voto" e "Sustentação oral" existem apenas no dataset da página Tramitação.
+_COLS_INCLUSOES = {"classe", "tipo_questao", "ambiente", "macro_desfecho", "desfecho", "ano"}
+_DIMS_LABEL = [k for k, v in DIMENSOES.items() if v in _COLS_INCLUSOES]
 
 _PREDEFINIDOS_ACERVO = [
     ("Ano × Classe (total geral, empilhado)",         "ano", "classe",        "inclusoes", "stack"),
@@ -198,9 +201,9 @@ def render_graficos(df: pd.DataFrame) -> None:
 
         c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
         with c1:
-            eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="acervo_tab_x")
+            eixo_x_lbl = st.selectbox("Eixo X",    _DIMS_LABEL, index=def_x, key="acervo_tab_x_v2")
         with c2:
-            grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="acervo_tab_g")
+            grupo_lbl  = st.selectbox("Cor/Grupo", _DIMS_LABEL, index=def_g, key="acervo_tab_g_v2")
         with c3:
             metrica = st.selectbox(
                 "Métrica", ["inclusoes", "processos"], index=def_m, key="acervo_tab_m",

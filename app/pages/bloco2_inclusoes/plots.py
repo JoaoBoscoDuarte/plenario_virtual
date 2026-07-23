@@ -341,7 +341,7 @@ def fig_2k1_tipo_ambiente_2016(df: pd.DataFrame, show_values: bool = True) -> go
 def fig_2k2_tipo_ambiente_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2020, 2025, show_values,
                            "O presencial dedica-se aos processos principais; o recurso migrou para o virtual",
-                           "Tipo de questão por ambiente, 2020–2025")
+                           "Inclusões em pauta por tipo de questão e ambiente, 2020-2025")
 
 
 # ── 2.l ──────────────────────────────────────────────────────────────────────

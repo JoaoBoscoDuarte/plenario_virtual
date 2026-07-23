@@ -56,7 +56,7 @@ def fig_1a_variacao_trienal(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig = aplicar_padrao(
         fig,
         "Após três décadas de acumulação, o acervo passa a encolher em 2018",
-        "Variação do acervo ativo de controle concentrado por triênio (distribuição menos baixa), 1988 - 2025",
+        "Variação do acervo ativo de controle concentrado por triênio (distribuição menos baixa), 1988–2025",
         xaxis=dict(title=""), yaxis=dict(title=""),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")

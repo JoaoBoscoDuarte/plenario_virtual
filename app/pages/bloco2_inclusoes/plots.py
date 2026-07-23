@@ -1,8 +1,8 @@
 """Figuras Plotly do Bloco 2 — Narrativa Estendida das Inclusões em Pauta (2016–2025).
 
-Gráficos 2.a–2.r e 3.1/3.2 conforme Especificacoes_graficos_Joao.md e COMPLETA GRÁFICOS.docx.
+Gráficos 2.a–2.r e 3.1/3.2 conforme Especificacoes_graficos_Joao.md.
 2.d foi descartado pela cliente ("desisti do gráfico"). 2.j2 (companion 2016-2019 de 2.j)
-foi adicionado a pedido explícito da cliente no docx, sem ID formal no .md.
+foi adicionado a pedido explícito da cliente, sem ID formal no .md.
 Fonte dos dados: inclusoes_em_pauta (2016–2025, já traz tipo_questao/sufixo corrigidos).
 """
 
@@ -153,6 +153,38 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
             if anos[i] == "2019":
                 txt += "<br><sup>(350 PR + 119 RC + 4 QI)</sup>"
             fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
+                               font=dict(color="black", size=20), xref="x", yref="y",
+                               yanchor="bottom", yshift=6)
+    return fig
+
+
+def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    """2.d — Composição do PV por tipo de questão, 2020–2025."""
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2020, 2025) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "QI", "RC"], fill_value=0)
+    anos = [str(a) for a in tab.index]
+    totais = tab.sum(axis=1)
+
+    fig = go.Figure()
+    for tipo in ["PR", "QI", "RC"]:
+        fig.add_trace(go.Bar(
+            x=anos, y=tab[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
+            text=None, cliponaxis=False,
+        ))
+    fig = aplicar_padrao(
+        fig, "O mérito consolida-se como a atividade dominante do virtual",
+        "Inclusões em pauta do Plenário Virtual por tipo de questão, 2020–2025",
+        xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
+        yaxis=dict(title="", range=[0, totais.max() * 1.2]),
+        barmode="stack", showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center", traceorder="normal"),
+        height=650,
+    )
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    if show_values:
+        for i, total in enumerate(totais):
+            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=20), xref="x", yref="y",
                                yanchor="bottom", yshift=6)
     return fig

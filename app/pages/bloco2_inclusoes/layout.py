@@ -8,7 +8,8 @@ from . import plots as p
 _CATALOGO = [
     ("2.a — Participação por ano", "Participação % do PV nas inclusões, 2016–2025.", p.fig_2a_participacao_ano),
     ("2.b — Inclusões por ano e ambiente", "Volume de inclusões por ano e ambiente, 2016–2025.", p.fig_2b_inclusoes_ano_ambiente),
-    ("2.c — Composição do PV por tipo", "Inclusões do PV por tipo de questão (PR/RC/QI), 2016–2019.", p.fig_2c_composicao_pv_tipo, p._tabela_2c),
+    ("2.c — Composição do PV por tipo (2016–2019)", "Inclusões do PV por tipo de questão (PR/RC/QI), 2016–2019.", p.fig_2c_composicao_pv_tipo, p._tabela_2c),
+    ("2.d — Composição do PV por tipo (2020–2025)", "Inclusões do PV por tipo de questão (PR/RC/QI), 2020–2025.", p.fig_2d_composicao_pv_tipo_2020),
     ("2.e — Classe por ano (PV)", "Inclusões por classe e ano no PV, 2020–2025.", p.fig_2e_classe_ano_pv, p._tabela_2e),
     ("2.f — Classe por ano (PP)", "Inclusões por classe e ano no PP, 2020–2025.", p.fig_2f_classe_ano_pp),
     ("2.g — Tramitação por período (2020–2025)", "Tramitação por ambiente, por período, 2020–2025.", p.fig_2g_tramitacao_periodo_2020),

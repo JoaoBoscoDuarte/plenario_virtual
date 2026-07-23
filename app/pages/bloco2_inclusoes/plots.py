@@ -543,13 +543,14 @@ def _tramitacao_periodo_vertical(df: pd.DataFrame, ano_ini: int, ano_fim: int, s
         fig.add_trace(go.Bar(
             x=[""], y=[pct[cat]], name=cat.replace("Somente ", "").upper(),
             marker_color=_CORES_TRAMITACAO[cat],
-            text=[f"{br(vc[cat])} ({br(pct[cat], 1)}%)"] if show_values else None,
+            text=[f"{br(vc[cat])}<br>({br(pct[cat], 1)}%)"] if show_values else None,
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 105]),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
+        margin=dict(t=190, b=70, l=60, r=40),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(showline=True, tickfont=dict(size=22), title_font=dict(size=22), ticklen=0)

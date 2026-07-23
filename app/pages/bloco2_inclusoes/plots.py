@@ -445,7 +445,7 @@ def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go
 def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ano"].between(2020, 2025)]
     medias = sub.groupby("ambiente").apply(lambda d: len(d) / d["incidente"].nunique())
-    pares = [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]
+    pares = [("PLENÁRIO VIRTUAL", COR_PV), ("PLENÁRIO PRESENCIAL", COR_PP)]
 
     fig = go.Figure()
     for nome, cor in pares:

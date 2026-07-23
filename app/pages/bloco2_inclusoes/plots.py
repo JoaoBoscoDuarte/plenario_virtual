@@ -176,7 +176,7 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2020–2025",
         xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
-        barmode="stack", showlegend=True,
+        barmode="stack", bargap=0, showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center", traceorder="normal"),
         height=650,
     )
@@ -187,10 +187,10 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
             pr = int(tab.iloc[i]["PR"])
             qi = int(tab.iloc[i]["QI"])
             rc = int(tab.iloc[i]["RC"])
-            txt = f"<b>{br(total)}</b><br><sup>({br(pr)} PR + {br(rc)} RC + {br(qi)} QI)</sup>"
+            txt = f"<b>{br(total)}</b><br>({br(pr)} PR + {br(rc)} RC + {br(qi)} QI)"
             fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
-                               font=dict(color="black", size=17), xref="x", yref="y",
-                               yanchor="bottom", yshift=6)
+                               font=dict(color="black", size=18), xref="x", yref="y",
+                               yanchor="bottom", yshift=6, bgcolor="white", borderpad=4)
     return fig
 
 

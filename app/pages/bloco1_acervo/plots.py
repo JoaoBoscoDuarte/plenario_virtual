@@ -153,10 +153,6 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
     for classe in _CLASSES:
         fig.add_trace(go.Bar(x=anos, y=piv[classe], name=classe, marker_color=_CORES_CLASSE[classe]))
     fig.update_layout(barmode="stack")
-    if show_values:
-        for i, total in enumerate(totais):
-            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
-                               font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom", yshift=4)
 
     y_er = ymax * 1.1
     y_espin = ymax * 1.1
@@ -207,7 +203,7 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.95, x=0.5, xanchor="center"),
         height=650, margin=dict(t=150, b=70, l=60, r=40),
     )
-    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_yaxes(showline=True)
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
 

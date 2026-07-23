@@ -396,14 +396,12 @@ def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: s
 
 def fig_2m_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Virtual", show_values,
-                           "No virtual, a unanimidade domina o desfecho ano após ano",
-                           "Desfecho por categoria e ano — Plenário Virtual, 2020–2025")
+                           "Desfecho por categoria e ano — Plenário Virtual, 2020–2025", None)
 
 
 def fig_2n_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Presencial", show_values,
-                           "No presencial, o não concluído domina em todos os anos",
-                           "Desfecho por categoria e ano — Plenário Presencial, 2020–2025")
+                           "Desfecho por categoria e ano — Plenário Presencial, 2020–2025", None)
 
 
 # ── 2.o / 2.p ────────────────────────────────────────────────────────────────

@@ -158,7 +158,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
 
 
 # ── 2.e / 2.f ────────────────────────────────────────────────────────────────
-def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str, show_pct: bool = False) -> go.Figure:
+def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str, show_pct: bool = False, ymax_override: float | None = None) -> go.Figure:
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)]
     tab = sub.groupby(["ano", "classe"], observed=True).size().unstack(fill_value=0).reindex(columns=_CLASSES, fill_value=0)
     anos = [str(a) for a in tab.index]
@@ -178,7 +178,7 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
             text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
-    ymax = tab.values.max()
+    ymax = ymax_override if ymax_override is not None else tab.values.max()
     yrange = [0, ymax * (1.35 if show_pct else 1.15)]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
@@ -203,18 +203,26 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _ymax_classes(df: pd.DataFrame) -> float:
+    """Maior valor individual de classe entre PV e PP para mesma escala."""
+    agrp = df[df["ano"].between(2020, 2025)].groupby(["ano", "ambiente", "classe"], observed=True).size()
+    return agrp.max()
+
+
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    ymax = _ymax_classes(df)
     return _classe_ano(df, "Plenário Virtual", show_values,
                         "Inclusões por classe e ano - Plenário Virtual",
                         "Controle concentrado de constitucionalidade, 2020 - 2025",
-                        show_pct=True)
+                        show_pct=True, ymax_override=ymax)
 
 
 def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    ymax = _ymax_classes(df)
     return _classe_ano(df, "Plenário Presencial", show_values,
                         "Inclusões por classe e ano - Plenário Presencial",
                         "Controle concentrado de constitucionalidade, 2020 - 2025",
-                        show_pct=True)
+                        show_pct=True, ymax_override=ymax)
 
 
 # ── 2.h / 2.i ────────────────────────────────────────────────────────────────

@@ -324,9 +324,9 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
         yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.3], showticklabels=False, showline=False, ticks=""),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.82, x=0.5, xanchor="center",
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center",
                                      font=dict(size=15)),
-        height=440, margin=dict(t=200, b=40, l=40, r=40),
+        height=440, margin=dict(t=230, b=40, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")

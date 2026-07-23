@@ -322,13 +322,13 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
 
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
+        xaxis=dict(title="", showticklabels=False, showline=True, ticks=""),
         yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.5], showticklabels=False, showline=False, ticks=""),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center",
                                      font=dict(size=15)),
         height=520, margin=dict(t=150, b=70, l=40, r=40),
     )
-    fig.update_xaxes(showticklabels=False, showline=False, ticks="")
+    fig.update_xaxes(showticklabels=False, showline=True, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")
     return fig
 
@@ -500,7 +500,7 @@ def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
-    fig.update_xaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(showline=True, showticklabels=False, ticks="")
     return fig
 
 
@@ -527,7 +527,7 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
-    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22), ticks="")
     return fig
 
 

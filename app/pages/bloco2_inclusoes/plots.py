@@ -557,10 +557,10 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
         xaxis=dict(title="", range=[0, xmax * 1.25], showticklabels=False, showline=False, ticks=""),
         yaxis=dict(title="", showticklabels=False, showline=False, ticks="",
                    categoryorder="array", categoryarray=ordem_topo_base),
-        height=340, showlegend=True,
-        legend=dict(orientation="h", yanchor="top", y=0.08, x=0.5, xanchor="center",
+        height=420, showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center",
                     font=dict(size=15)),
-        margin=dict(t=150, b=90, l=40, r=40),
+        margin=dict(t=190, b=70, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")

@@ -230,8 +230,8 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     ymin = -int(v_abs * 1.15)
     fig = aplicar_padrao(
         fig,
-        "A variação anual do acervo tornou-se negativa na década de 2020",
-        "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
+        "2018 inicia sequência inédita de 8 anos consecutivos de retração do acervo",
+        "Variação anual do acervo (distribuições − baixas), controle concentrado, 1988–2025",
         xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )

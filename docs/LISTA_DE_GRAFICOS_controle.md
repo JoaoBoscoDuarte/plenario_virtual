@@ -1,6 +1,8 @@
 # Lista de Gráficos — Controle de Implementação
 
-Este documento é o controle oficial de implementação dos gráficos listados em `LISTA DE GRÁFICOS.docx`.
+Este documento é o controle oficial de implementação dos gráficos. Deriva do
+briefing original `LISTA DE GRÁFICOS.docx` (removido do repo — conteúdo
+incorporado nesta tabela).
 
 **Colunas:**
 - # (número original)

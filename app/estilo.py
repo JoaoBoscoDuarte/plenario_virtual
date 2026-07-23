@@ -1,6 +1,6 @@
 """Padrão visual único (PADRÃO GERAL) para todos os gráficos Plotly do dashboard.
 
-Fonte: Especificacoes_graficos_Joao.md + COMPLETA GRÁFICOS.docx (cliente).
+Fonte: Especificacoes_graficos_Joao.md (briefing original da cliente).
 Regras: fonte preta (#000000), sem grade de fundo, sem eixo secundário, sem
 linha de total, sem rodapé de fonte, título afirma o achado, marcadores de
 ER (emendas regimentais) e sombreamento ESPIN idênticos em todos os gráficos

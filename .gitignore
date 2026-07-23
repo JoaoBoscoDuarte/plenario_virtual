@@ -53,4 +53,7 @@ Thumbs.db
 
 # Outros
 *.log
-notebooks/01_etl/pontos_a_serem_abordados.txt  # temporário de pontos; pode ser removido depois
+
+# Config local de ferramentas de IA (não portável entre devs)
+.claude/settings.local.json
+.amazonq/

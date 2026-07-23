@@ -184,8 +184,12 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     if show_values:
         for i, total in enumerate(totais):
-            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
-                               font=dict(color="black", size=20), xref="x", yref="y",
+            pr = int(tab.iloc[i]["PR"])
+            qi = int(tab.iloc[i]["QI"])
+            rc = int(tab.iloc[i]["RC"])
+            txt = f"<b>{br(total)}</b><br><sup>({br(pr)} PR + {br(rc)} RC + {br(qi)} QI)</sup>"
+            fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
+                               font=dict(color="black", size=17), xref="x", yref="y",
                                yanchor="bottom", yshift=6)
     return fig
 

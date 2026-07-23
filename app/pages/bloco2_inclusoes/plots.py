@@ -558,9 +558,9 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
         yaxis=dict(title="", showticklabels=False, showline=False, ticks="",
                    categoryorder="array", categoryarray=ordem_topo_base),
         height=340, showlegend=True,
-        legend=dict(orientation="h", yanchor="top", y=1.12, x=0.5, xanchor="center",
+        legend=dict(orientation="h", yanchor="top", y=0.08, x=0.5, xanchor="center",
                     font=dict(size=15)),
-        margin=dict(t=170, b=40, l=40, r=40),
+        margin=dict(t=150, b=90, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")

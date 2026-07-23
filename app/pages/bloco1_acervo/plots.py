@@ -77,7 +77,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
     for classe in _CLASSES:
         fig.add_trace(go.Bar(
             y=anos, x=piv[classe], name=classe, orientation="h",
-            marker_color=_CORES_CLASSE[classe], opacity=0,
+            marker_color=_CORES_CLASSE[classe],
         ))
     fig.update_layout(barmode="stack")
 

@@ -445,18 +445,19 @@ def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go
 def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ano"].between(2020, 2025)]
     medias = sub.groupby("ambiente").apply(lambda d: len(d) / d["incidente"].nunique())
-    categorias = ["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"]
-    valores = [medias["Plenário Virtual"], medias["Plenário Presencial"]]
+    pares = [("Plenário Virtual", COR_PV), ("Plenário Presencial", COR_PP)]
 
-    fig = go.Figure(go.Bar(
-        x=categorias, y=valores, marker_color=[COR_PV, COR_PP],
-        text=[br(v, 1) for v in valores] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
-    ))
+    fig = go.Figure()
+    for nome, cor in pares:
+        fig.add_trace(go.Bar(
+            x=[""], y=[medias[nome]], name=nome, marker_color=cor,
+            text=[br(medias[nome], 1)] if show_values else None,
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
+        ))
     fig = aplicar_padrao(
-        fig, "Cada julgamento presencial consome mais que o dobro de inclusões",
-        "Média de inclusões em pauta por processo, 2020–2025",
-        xaxis=dict(title=""), yaxis=dict(title="", range=[0, 5.5]),
+        fig, "Média de inclusões em pauta por processo pautado, em cada ambiente, 2020-2025", None,
+        xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 5.5]),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

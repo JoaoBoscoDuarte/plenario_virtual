@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
 
 _here = Path(__file__).resolve()
@@ -10,14 +11,8 @@ _root = _here.parent.parent.parent
 if str(_root) not in sys.path:
     sys.path.insert(0, str(_root))
 
-from pathlib import Path
-import pandas as pd
-from dados.loader import load_inclusoes_em_pauta
+from dados.loader import load_inclusoes_em_pauta, load_dim_decisoes
 from pages.inclusoes.layout import render_graficos
-
-_here = Path(__file__).resolve()
-_root = _here.parent.parent.parent
-_data = _root / "data" / "processed"
 
 try:
     df = load_inclusoes_em_pauta()
@@ -30,7 +25,7 @@ if df.empty:
     st.stop()
 
 try:
-    df_dec = pd.read_parquet(_data / "dim_decisoes.parquet")
+    df_dec = load_dim_decisoes()
 except Exception as e:
     st.warning(f"Não foi possível carregar decisões para refinamento: {e}")
     df_dec = pd.DataFrame()

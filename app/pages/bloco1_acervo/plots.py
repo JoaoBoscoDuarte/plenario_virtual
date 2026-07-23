@@ -88,7 +88,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
-        xaxis=dict(title="Processos ativos", range=[0, ymax * 1.32], showline=False, showticklabels=False, ticks=""),
+        xaxis=dict(title="", range=[0, ymax * 1.32], showline=False, showticklabels=False, ticks="", visible=False),
         yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=leg_y, x=0.5, xanchor="center"),
     )
@@ -136,6 +136,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
                           line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
             fig.add_annotation(x=x_label, y=frac, text=f"<b>ER {er}</b>", showarrow=False,
                                font=dict(color="black", size=13), xref="x", yref="y", xanchor="left")
+    fig.update_xaxes(showline=False)
     return fig
 
 

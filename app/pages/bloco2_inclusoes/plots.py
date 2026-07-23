@@ -148,7 +148,10 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     if show_values:
         for i, total in enumerate(totais):
-            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
+            txt = f"<b>{br(total)}</b>"
+            if anos[i] == "2019":
+                txt += "<br><sup>(350 PR + 119 RC + 4 QI)</sup>"
+            fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
                                font=dict(color="black", size=20), xref="x", yref="y",
                                yanchor="bottom", yshift=6)
     return fig

@@ -141,11 +141,13 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
 
 
 def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    """1.b2 — Acervo ativo por classe, barras verticais empilhadas, 1988 a 2025 (invertida)."""
+    """1.b2 — Acervo ativo por classe, barras verticais empilhadas, 1988 a 2025."""
     piv = df.pivot_table(index="ano", columns="classe", values="quantidade_ativos", aggfunc="sum").fillna(0)
     piv = piv.reindex(columns=_CLASSES, fill_value=0).sort_index()
     anos = [str(a) for a in piv.index]
+    anos_int = list(piv.index)
     totais = piv.sum(axis=1)
+    ymax = int(totais.max())
 
     fig = go.Figure()
     for classe in _CLASSES:
@@ -155,11 +157,38 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         for i, total in enumerate(totais):
             fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom", yshift=4)
+
+    y_linha = ymax * 1.1  # topo das linhas ER
+    y_label = ymax * 1.14  # rótulos ER
+
+    # Faixa ESPIN
+    if 2020 in anos_int and 2022 in anos_int:
+        x0_espin = anos_int.index(2020) - 0.5
+        x1_espin = anos_int.index(2022) + 0.5
+        fig.add_vrect(x0=x0_espin, x1=x1_espin, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
+        fig.add_shape(type="line", x0=x0_espin, x1=x0_espin, y0=0, y1=y_linha,
+                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_shape(type="line", x0=x1_espin, x1=x1_espin, y0=0, y1=y_linha,
+                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=(x0_espin + x1_espin) / 2, y=y_linha, text="<b>ESPIN</b>",
+                           showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
+                           xref="x", yref="y", yanchor="bottom")
+
+    # Marcadores ER
+    for er in (51, 52, 53):
+        ano, _, _ = ER_DATAS[er]
+        if ano in anos_int:
+            frac = anos_int.index(ano) - 0.5
+            fig.add_shape(type="line", x0=frac, x1=frac, y0=0, y1=y_linha,
+                          line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
+            fig.add_annotation(x=frac, y=y_label, text=f"<b>ER {er}</b>", showarrow=False,
+                               font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom")
+
     fig = aplicar_padrao(
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
-        xaxis=dict(title=""), yaxis=dict(title="", range=[0, totais.max() * 1.2]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, ymax * 1.2]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
         height=650,
     )

@@ -154,6 +154,6 @@ def plotar_grafico_stf(
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.95, x=0.5, xanchor="center"),
         height=650, margin=dict(t=150, b=70, l=60, r=40),
     )
-    fig.update_yaxes(showline=True)
+    fig.update_yaxes(showline=True, tickfont=dict(size=22), title_font=dict(size=22))
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig

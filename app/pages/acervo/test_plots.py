@@ -29,6 +29,7 @@ def test_total_usa_azul_e_tem_er_espin():
     assert "ER" in ann_texts and "ESPIN" in ann_texts
     assert fig.layout.legend.y == 0.95
     assert fig.layout.xaxis.tickfont.size == 22
+    assert fig.layout.yaxis.tickfont.size == 22
 
 
 def test_classe_usa_cor_do_bloco1_e_titulo_dinamico():

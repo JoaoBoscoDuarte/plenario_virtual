@@ -271,7 +271,7 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
         fig.add_trace(go.Bar(
             x=anos, y=tab[cat], name=cat.upper(), marker_color=cores[cat],
             text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
+            textposition="outside", textfont=dict(color="black", size=16, weight="bold"),
             cliponaxis=False,
         ))
     fig = aplicar_padrao(
@@ -293,7 +293,7 @@ def fig_2h_tramitacao_anual_2020(df: pd.DataFrame, show_values: bool = True) -> 
 
 def fig_2i_tramitacao_anual_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_anual(df, 2016, 2025, show_values,
-                              "A tramitação exclusivamente virtual domina desde 2020",
+                              "Em 2020, as posições se invertem e o virtual ultrapassa o presencial",
                               "Tramitação por ambiente e ano (2016–2025)")
 
 

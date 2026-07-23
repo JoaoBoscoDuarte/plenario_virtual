@@ -158,23 +158,34 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
             fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom", yshift=4)
 
-    y_linha = ymax * 1.1
-    y_label = ymax * 1.14
+    y_er = ymax * 1.1
+    y_espin = ymax * 1.1
 
-    # ESPIN (igual 1.c)
+    # ESPIN — mesma estrutura do 1.c
     if 2020 in anos_int and 2022 in anos_int:
-        x0 = anos_int.index(2020) - 0.5
-        x1 = anos_int.index(2022) + 0.5
-        fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
-        fig.add_shape(type="line", x0=x0, x1=x0, y0=0, y1=y_linha,
-                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
-        fig.add_shape(type="line", x0=x1, x1=x1, y0=0, y1=y_linha,
-                      line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=(x0 + x1) / 2, y=y_linha, text="<b>ESPIN</b>",
-                           showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
-                           xref="x", yref="y", yanchor="bottom")
+        idx_2020 = anos.index("2020")
+        idx_2022 = anos.index("2022")
+        x0_espin = idx_2020 - 0.5
+        x1_espin = idx_2022 + 0.5
+        x0_linha_espin = x0_espin + 0.06
 
-    # ER (igual 1.c: 51 usa _frac_ano, 52/53 usam fronteira de ano)
+        fig.add_vrect(x0=x0_espin, x1=x1_espin, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
+        fig.add_shape(type="line", x0=x0_linha_espin, x1=x0_linha_espin, y0=0, y1=y_espin,
+                      line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_shape(type="line", x0=x1_espin, x1=x1_espin, y0=0, y1=y_espin,
+                      line=dict(color=VERMELHO, width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=x0_linha_espin, y=y_espin, ax=x1_espin, ay=y_espin, axref="x", ayref="y",
+                           xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                           arrowwidth=1.2, arrowcolor=VERMELHO, text="")
+        fig.add_annotation(x=x1_espin, y=y_espin, ax=x0_linha_espin, ay=y_espin, axref="x", ayref="y",
+                           xref="x", yref="y", showarrow=True, arrowhead=2, arrowsize=1.6,
+                           arrowwidth=1.2, arrowcolor=VERMELHO, text="")
+        fig.add_annotation(x=(x0_linha_espin + x1_espin) / 2, y=y_espin, yanchor="bottom", yshift=6,
+                           text="<b>ESPIN</b>", showarrow=False,
+                           font=dict(color=VERMELHO, size=13, weight="bold"),
+                           xref="x", yref="y")
+
+    # ER — mesma estrutura do 1.c
     for er in (51, 52, 53):
         if er in (52, 53):
             ano_er, _, _ = ER_DATAS[er]
@@ -182,9 +193,9 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         else:
             ano, mes, dia = ER_DATAS[er]
             x = _frac_ano(ANO_MIN, ano, mes, dia)
-        fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=y_linha,
+        fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=y_er,
                       line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=x, y=y_label, yanchor="bottom", text=f"<b>ER<br>{er}</b>", showarrow=False,
+        fig.add_annotation(x=x, y=y_er, yanchor="bottom", text=f"<b>ER<br>{er}</b>", showarrow=False,
                            font=dict(color="black", size=11), bgcolor="white", borderpad=1,
                            xref="x", yref="y")
 
@@ -193,8 +204,8 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         "O acervo ativo é dominado por ADI ao longo de toda a série",
         "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
         xaxis=dict(title=""), yaxis=dict(title="", range=[0, ymax * 1.2]),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
-        height=650,
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.95, x=0.5, xanchor="center"),
+        height=650, margin=dict(t=150, b=70, l=60, r=40),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

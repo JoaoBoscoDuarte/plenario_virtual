@@ -77,7 +77,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
     for classe in _CLASSES:
         fig.add_trace(go.Bar(
             y=anos, x=piv[classe], name=classe, orientation="h",
-            marker_color=_CORES_CLASSE[classe],
+            marker_color=_CORES_CLASSE[classe], opacity=0,
         ))
     fig.update_layout(barmode="stack")
 
@@ -136,6 +136,34 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
                           line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
             fig.add_annotation(x=x_label, y=frac, text=f"<b>ER {er}</b>", showarrow=False,
                                font=dict(color="black", size=13), xref="x", yref="y", xanchor="left")
+    return fig
+
+
+def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    """1.b2 — Acervo ativo por classe, barras verticais empilhadas, 1988 a 2025 (invertida)."""
+    piv = df.pivot_table(index="ano", columns="classe", values="quantidade_ativos", aggfunc="sum").fillna(0)
+    piv = piv.reindex(columns=_CLASSES, fill_value=0).sort_index()
+    anos = [str(a) for a in piv.index]
+    totais = piv.sum(axis=1)
+
+    fig = go.Figure()
+    for classe in _CLASSES:
+        fig.add_trace(go.Bar(x=anos, y=piv[classe], name=classe, marker_color=_CORES_CLASSE[classe]))
+    fig.update_layout(barmode="stack")
+    if show_values:
+        for i, total in enumerate(totais):
+            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
+                               font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom", yshift=4)
+    fig = aplicar_padrao(
+        fig,
+        "O acervo ativo é dominado por ADI ao longo de toda a série",
+        "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, totais.max() * 1.2]),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
+        height=650,
+    )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
 
 

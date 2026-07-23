@@ -25,5 +25,8 @@ Vinte gráficos que estendem a análise das inclusões em pauta à série comple
 cobrindo o período pré-ESPIN (2016–2019) e o período de universalização do Plenário Virtual (2020–2025):
 participação, composição por classe e tipo de questão, tramitação, desfecho e produtividade por ambiente.
 """)
+# Renomeia código legado "IJ" para "QI" na base
+df["tipo_questao"] = df["tipo_questao"].replace({"IJ": "QI"})
+
 st.markdown("---")
 render_graficos(df)

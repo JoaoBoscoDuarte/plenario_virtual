@@ -15,7 +15,7 @@ from estilo import aplicar_padrao, br, AZUL, AZUL_CLARO, CINZA, VERDE, ROXO, VER
 COR_PV, COR_PP = AZUL, CINZA
 _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _CORES_CLASSE = {"ADI": "#2563EB", "ADPF": "#93C5FD", "ADC": "#059669", "ADO": "#7C3AED"}
-_CORES_TIPO = {"PR": AZUL, "RC": "#f59e0b", "IJ": VERDE}
+_CORES_TIPO = {"PR": AZUL, "RC": "#f59e0b", "QI": VERDE}
 _CORES_CATEGORIA = {
     "Unânime": VERDE, "Maioria (relator vencedor)": AZUL,
     "Maioria (relator vencido)": "#f59e0b", "Não concluído": CINZA,
@@ -113,39 +113,27 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
 
 
 # ── 2.c ──────────────────────────────────────────────────────────────────────
-_NOME_TIPO = {"PR": "PR", "RC": "RC", "IJ": "QI"}  # cliente pede rótulo "QI" (a base usa código "IJ")
-
-
 def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
-    """Inclusões do PV por ano e tipo de questão (PR/RC/QI), 2016–2019 — para exportação."""
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "RC", "IJ"], fill_value=0)
-    tab = tab.rename(columns=_NOME_TIPO)
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "QI"], fill_value=0)
     tab["Total"] = tab.sum(axis=1)
-    return tab.reset_index().rename(columns={"ano": "Ano"})
-
-
-def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "IJ"], fill_value=0)
-    tab["Total"] = tab.sum(axis=1)
-    for tp in ["RC", "PR", "IJ"]:
+    for tp in ["RC", "PR", "QI"]:
         tab[f"%{tp}"] = (tab[tp] / tab["Total"] * 100).round(1).astype(str) + "%"
     tab = tab.reset_index()
-    tab.columns = ["Ano", "RC", "PR", "IJ", "Total", "%RC", "%PR", "%IJ"]
-    return tab[["Ano", "RC", "%RC", "PR", "%PR", "IJ", "%IJ", "Total"]]
+    tab.columns = ["Ano", "RC", "PR", "QI", "Total", "%RC", "%PR", "%QI"]
+    return tab[["Ano", "RC", "%RC", "PR", "%PR", "QI", "%QI", "Total"]]
 
 
 def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "IJ"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "IJ"], fill_value=0)
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "QI"], fill_value=0)
     anos = [str(a) for a in tab.index]
     totais = tab.sum(axis=1)
 
     fig = go.Figure()
-    for tipo in ["RC", "PR", "IJ"]:
+    for tipo in ["RC", "PR", "QI"]:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[tipo], name=_NOME_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
+            x=anos, y=tab[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
             text=None, cliponaxis=False,
         ))
     fig = aplicar_padrao(
@@ -322,7 +310,7 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
     sub = df[df["ano"].between(ano_ini, ano_fim)].copy()
     # "Não identificado" é tratado como Principal (PR), igual ao script de referência da cliente
     sub["tipo_questao"] = sub["tipo_questao"].replace("Não identificado", "PR")
-    tab = sub.groupby(["tipo_questao", "ambiente"]).size().unstack(fill_value=0).reindex(index=["PR", "RC", "IJ"], fill_value=0)
+    tab = sub.groupby(["tipo_questao", "ambiente"]).size().unstack(fill_value=0).reindex(index=["PR", "RC", "QI"], fill_value=0)
     tipos = tab.index.tolist()
 
     fig = go.Figure()
@@ -347,7 +335,7 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
 def fig_2k1_tipo_ambiente_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2016, 2019, show_values,
                            "O virtual dedica-se apenas à atividade recursal",
-                           "Tipo de questão por ambiente, 2016–2019")
+                           "Inclusões em pauta por tipo de questão e ambiente, 2016-2019")
 
 
 def fig_2k2_tipo_ambiente_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

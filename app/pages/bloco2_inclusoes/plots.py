@@ -158,7 +158,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
 
 
 # ── 2.e / 2.f ────────────────────────────────────────────────────────────────
-def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str, show_pct: bool = False, ymax_override: float | None = None) -> go.Figure:
+def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str, show_pct: bool = False) -> go.Figure:
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)]
     tab = sub.groupby(["ano", "classe"], observed=True).size().unstack(fill_value=0).reindex(columns=_CLASSES, fill_value=0)
     anos = [str(a) for a in tab.index]
@@ -178,8 +178,13 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
             text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
-    ymax = ymax_override if ymax_override is not None else tab.values.max()
-    yrange = [0, ymax * (1.35 if show_pct else 1.15)]
+    # mesma escala para PV e PP
+    mask = df["ano"].between(2020, 2025)
+    _ymax = 0
+    for _amb in ("Plenário Virtual", "Plenário Presencial"):
+        _t = df[mask & (df["ambiente"] == _amb)].groupby(["ano", "classe"], observed=True).size()
+        _ymax = max(_ymax, _t.max() if len(_t) > 0 else 0)
+    yrange = [0, _ymax * (1.35 if show_pct else 1.15)]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title=""), yaxis=dict(title="", range=yrange),
@@ -203,30 +208,18 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _ymax_classes(df: pd.DataFrame) -> float:
-    """Maior barra individual entre PV e PP — mesma lógica de _classe_ano."""
-    mask = df["ano"].between(2020, 2025)
-    vals = []
-    for amb in ("Plenário Virtual", "Plenário Presencial"):
-        v = df[mask & (df["ambiente"] == amb)].groupby(["ano", "classe"], observed=True).size()
-        vals.append(v.max() if len(v) > 0 else 0)
-    return max(vals)
-
-
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    ymax = _ymax_classes(df)
     return _classe_ano(df, "Plenário Virtual", show_values,
                         "Inclusões por classe e ano - Plenário Virtual",
                         "Controle concentrado de constitucionalidade, 2020 - 2025",
-                        show_pct=True, ymax_override=ymax)
+                        show_pct=True)
 
 
 def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    ymax = _ymax_classes(df)
     return _classe_ano(df, "Plenário Presencial", show_values,
                         "Inclusões por classe e ano - Plenário Presencial",
                         "Controle concentrado de constitucionalidade, 2020 - 2025",
-                        show_pct=True, ymax_override=ymax)
+                        show_pct=True)
 
 
 # ── 2.h / 2.i ────────────────────────────────────────────────────────────────

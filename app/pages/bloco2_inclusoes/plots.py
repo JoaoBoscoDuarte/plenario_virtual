@@ -323,10 +323,10 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
-        yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.3], showticklabels=False, showline=False, ticks=""),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0, x=0.5, xanchor="center",
+        yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.5], showticklabels=False, showline=False, ticks=""),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center",
                                      font=dict(size=15)),
-        height=440, margin=dict(t=190, b=70, l=40, r=40),
+        height=520, margin=dict(t=150, b=70, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")

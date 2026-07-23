@@ -341,13 +341,13 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
 
 def fig_2k1_tipo_ambiente_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2016, 2019, show_values,
-                           "O virtual dedica-se apenas à atividade recursal",
+                           "O quadro anterior à universalização",
                            "Inclusões em pauta por tipo de questão e ambiente, 2016-2019")
 
 
 def fig_2k2_tipo_ambiente_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2020, 2025, show_values,
-                           "O presencial dedica-se aos processos principais; os recursos migraram para o virtual",
+                           "O quadro posterior à universalização",
                            "Inclusões em pauta por tipo de questão e ambiente, 2020-2025")
 
 

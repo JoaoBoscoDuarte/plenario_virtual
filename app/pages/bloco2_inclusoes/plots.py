@@ -536,28 +536,31 @@ _CORES_TRAMITACAO = {"Somente Virtual": AZUL, "Ambos": AZUL_CLARO, "Somente Pres
 
 
 def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool,
-                        titulo: str, subtitulo: str, ordem_topo_base: list[str]) -> go.Figure:
+                        titulo: str, subtitulo: str, ordem_topo_base: list[str],
+                        xrange_max: int | None = None) -> go.Figure:
     tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
     vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
     total = vc.sum()
     pct = 100 * vc / total
+    xmax = xrange_max if xrange_max is not None else vc.max()
 
     fig = go.Figure()
     for cat in vc.index:
         fig.add_trace(go.Bar(
-            y=[cat], x=[vc[cat]], orientation="h", name=cat.upper(), marker_color=_CORES_TRAMITACAO[cat],
+            y=[cat], x=[vc[cat]], orientation="h", name=cat.replace("Somente ", "").upper(),
+            marker_color=_CORES_TRAMITACAO[cat],
             text=[f"{br(vc[cat])} ({br(pct[cat], 1)}%)"] if show_values else None,
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
         ))
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title="", range=[0, vc.max() * 1.25], showticklabels=False, showline=False, ticks=""),
+        xaxis=dict(title="", range=[0, xmax * 1.25], showticklabels=False, showline=False, ticks=""),
         yaxis=dict(title="", showticklabels=False, showline=False, ticks="",
                    categoryorder="array", categoryarray=ordem_topo_base),
         height=340, showlegend=True,
-        legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center",
+        legend=dict(orientation="h", yanchor="top", y=1.12, x=0.5, xanchor="center",
                     font=dict(size=15)),
-        margin=dict(t=150, b=40, l=40, r=40),
+        margin=dict(t=170, b=40, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")
@@ -565,17 +568,25 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
 
 
 def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    vc_16 = _tramitacao_por_processo(df, 2016, 2019).value_counts()
+    vc_20 = _tramitacao_por_processo(df, 2020, 2025).value_counts()
+    xmax = int(max(vc_16.max(), vc_20.max()))
     return _tramitacao_periodo(df, 2016, 2019, show_values,
                                 "Antes da universalização, o caminho ordinário era o presencial",
                                 "Tramitação por ambiente, por período (2016–2019)",
-                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"],
+                                xrange_max=xmax)
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    vc_16 = _tramitacao_por_processo(df, 2016, 2019).value_counts()
+    vc_20 = _tramitacao_por_processo(df, 2020, 2025).value_counts()
+    xmax = int(max(vc_16.max(), vc_20.max()))
     return _tramitacao_periodo(df, 2020, 2025, show_values,
                                 "Depois da universalização, o caminho ordinário é o virtual",
                                 "Tramitação por ambiente, por período (2020–2025)",
-                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"],
+                                xrange_max=xmax)
 
 
 fig_2g_tramitacao_periodo_2020 = fig_32_tramitacao_2020  # alias

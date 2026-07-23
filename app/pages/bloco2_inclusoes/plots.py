@@ -306,7 +306,7 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
     pv_pct, pp_pct = 100 * pv_n / total, 100 * pp_n / total
 
     def txt(n, pct):
-        return f"<span style='font-size:22px'>{br(n)}</span><br><span style='font-size:13px'>({br(pct, 1)}%)</span>"
+        return f"<span style='font-size:22px'>{br(n)}</span><br><span style='font-size:16px'>({br(pct, 1)}%)</span>"
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
@@ -324,9 +324,9 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
         yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.3], showticklabels=False, showline=False, ticks=""),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center",
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.82, x=0.5, xanchor="center",
                                      font=dict(size=15)),
-        height=440, margin=dict(t=190, b=40, l=40, r=40),
+        height=440, margin=dict(t=200, b=40, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")
@@ -341,7 +341,7 @@ def fig_2j_recursos_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figur
 
 def fig_2j2_recursos_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _recursos(df, 2016, 2019, show_values,
-                      "Em 2016-2019, os recursos concentravam-se no ambiente virtual",
+                      "Antes da universalização, os recursos já se concentravam no virtual",
                       "Destino das inclusões em pauta de recursos, 2016–2019")
 
 

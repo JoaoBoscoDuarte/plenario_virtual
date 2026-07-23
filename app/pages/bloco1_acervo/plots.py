@@ -233,7 +233,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         "A variação anual do acervo tornou-se negativa na década de 2020",
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
         xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     for er in (51, 52, 53):
         if er in (52, 53):

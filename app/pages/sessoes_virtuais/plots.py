@@ -57,7 +57,7 @@ def g0_sessoes_vs_inclusoes(df_s: pd.DataFrame, df_final: pd.DataFrame,
     aplicar_padrao(
         fig,
         "Sessões virtuais vs Inclusões em pauta (PV) por ano",
-        "Comparação anual entre sessões virtuais iniciadas e inclusões em pauta — 2020–2025",
+        "Comparação anual entre sessões virtuais iniciadas e inclusões em pauta (2020–2025)",
         barmode="group", showlegend=True,
         xaxis=dict(title="Ano"),
         yaxis=dict(title="Quantidade"),
@@ -99,7 +99,7 @@ def g3_1_distribuicao_sessoes(df_s: pd.DataFrame, show_values: bool = True) -> g
     aplicar_padrao(
         fig,
         "Distribuição de sessões por processo",
-        "Nº de sessões virtuais necessárias por processo — 2020–2025",
+        "Nº de sessões virtuais necessárias por processo (2020–2025)",
         xaxis=dict(title="Nº de sessões por processo"),
         yaxis=dict(title="Nº de processos"),
     )
@@ -129,7 +129,7 @@ def g3_2_faixa_sessoes_classe(df_s: pd.DataFrame, show_values: bool = True) -> g
     aplicar_padrao(
         fig,
         "Número de sessões por processo e classe",
-        "Distribuição por faixa de nº de sessões — 2020–2025",
+        "Distribuição por faixa de nº de sessões (2020–2025)",
         barmode="stack", showlegend=True,
         xaxis=dict(title="Classe"),
         yaxis=dict(title="Nº de processos"),
@@ -157,7 +157,7 @@ def g3_3_taxa_conclusao_primeira(df_s: pd.DataFrame, show_values: bool = True) -
     aplicar_padrao(
         fig,
         "Taxa de conclusão: 1ª sessão vs sessões posteriores",
-        "Percentual de sessões concluídas por posição — 2020–2025",
+        "Percentual de sessões concluídas por posição (2020–2025)",
         xaxis=dict(title=""),
         yaxis=dict(title="% Concluído", range=[0, 105]),
     )
@@ -186,7 +186,7 @@ def g3_4_taxa_conclusao_posicao(df_s: pd.DataFrame, show_values: bool = True) ->
     aplicar_padrao(
         fig,
         "Taxa de conclusão por posição da sessão no processo",
-        "Percentual concluído em cada posição — 2020–2025",
+        "Percentual concluído em cada posição (2020–2025)",
         xaxis=dict(title=""),
         yaxis=dict(title="% Concluído", range=[0, 105]),
     )
@@ -212,7 +212,7 @@ def g4_2_sessoes_classe_tipo(df_s: pd.DataFrame, show_values: bool = True) -> go
     aplicar_padrao(
         fig,
         "Sessões por classe e tipo de questão",
-        "Volume de sessões virtuais — 2020–2025",
+        "Volume de sessões virtuais (2020–2025)",
         barmode="group", showlegend=True,
         xaxis=dict(title="Classe"),
         yaxis=dict(title="Nº de sessões"),
@@ -283,7 +283,7 @@ def g4_5_taxa_conclusao_classe_tipo(df_s: pd.DataFrame, show_values: bool = True
     aplicar_padrao(
         fig,
         "Taxa de conclusão por classe e tipo de questão",
-        "Sessões virtuais — 2020–2025",
+        "Sessões virtuais (2020–2025)",
         barmode="group", showlegend=True,
         xaxis=dict(title="Classe"),
         yaxis=dict(title="% Concluído", range=[0, 105]),
@@ -340,7 +340,7 @@ def g5_1_distribuicao_duracao(duracao: pd.DataFrame, show_values: bool = True) -
     aplicar_padrao(
         fig,
         "Tempo até conclusão",
-        "Processos virtuais — 2020–2025",
+        "Processos virtuais (2020–2025)",
         xaxis=dict(title="Duração"),
         yaxis=dict(title="Nº de processos concluídos"),
     )
@@ -359,7 +359,7 @@ def g5_2_duracao_mediana_classe(duracao: pd.DataFrame, show_values: bool = True)
     aplicar_padrao(
         fig,
         "Tempo mediano até conclusão por classe",
-        "Dias — 2020–2025",
+        "Dias (2020–2025)",
         xaxis=dict(title="Classe"),
         yaxis=dict(title="Dias (mediana)"),
     )
@@ -378,7 +378,7 @@ def g5_3_duracao_mediana_tipo(duracao: pd.DataFrame, show_values: bool = True) -
     aplicar_padrao(
         fig,
         "Tempo mediano até conclusão por tipo de questão",
-        "Dias — 2020–2025",
+        "Dias (2020–2025)",
         xaxis=dict(title="Tipo de questão"),
         yaxis=dict(title="Dias (mediana)"),
     )

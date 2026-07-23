@@ -79,7 +79,7 @@ def fig_2a_participacao_ano(df: pd.DataFrame, show_values: bool = True) -> go.Fi
                        font=dict(color=VERMELHO, size=13), bgcolor="white", borderpad=4, xref="x", yref="y")
     fig = aplicar_padrao(
         fig, "De 4% a dois terços da pauta: o degrau da universalização",
-        "Participação do Plenário Virtual nas inclusões em pauta, 2016–2025",
+        "Participação do Plenário Virtual nas inclusões em pauta (2016–2025)",
         xaxis=dict(title=""),
         yaxis=dict(title="", range=[0, 90]),
     )
@@ -103,7 +103,7 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
         ))
     fig = aplicar_padrao(
         fig, "O salto das inclusões no ambiente virtual",
-        "Inclusões em pauta por ano e ambiente, 2016–2025",
+        "Inclusões em pauta por ano e ambiente (2016–2025)",
         xaxis=dict(title=""), yaxis=dict(title="", showticklabels=False, ticks=""),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
     )
@@ -138,7 +138,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
         ))
     fig = aplicar_padrao(
         fig, "Em 2019, o virtual deixa de ser exclusivamente recursal",
-        "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
+        "Inclusões em pauta do Plenário Virtual por tipo de questão (2016–2019)",
         xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
         barmode="stack", showlegend=True,
@@ -159,7 +159,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
 
 
 def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    """2.d — Composição do PV por tipo de questão, 2020–2025."""
+    """2.d — Composição do PV por tipo de questão (2020–2025)."""
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2020, 2025) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
     tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "QI", "RC"], fill_value=0)
     anos = [str(a) for a in tab.index]
@@ -173,7 +173,7 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
         ))
     fig = aplicar_padrao(
         fig, "O mérito consolida-se como a atividade dominante do virtual",
-        "Inclusões em pauta do Plenário Virtual por tipo de questão, 2020–2025",
+        "Inclusões em pauta do Plenário Virtual por tipo de questão (2020–2025)",
         xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
         barmode="stack", showlegend=True,
@@ -243,14 +243,14 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _classe_ano(df, "Plenário Virtual", show_values,
                         "Inclusões por classe e ano - Plenário Virtual",
-                        "Controle concentrado de constitucionalidade, 2020 - 2025",
+                        "Controle concentrado de constitucionalidade (2020–2025)",
                         show_pct=True)
 
 
 def fig_2f_classe_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _classe_ano(df, "Plenário Presencial", show_values,
                         "Inclusões por classe e ano - Plenário Presencial",
-                        "Controle concentrado de constitucionalidade, 2020 - 2025",
+                        "Controle concentrado de constitucionalidade (2020–2025)",
                         show_pct=True)
 
 
@@ -288,13 +288,13 @@ def _tramitacao_anual(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values:
 def fig_2h_tramitacao_anual_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_anual(df, 2020, 2025, show_values,
                               "A tramitação exclusivamente virtual domina desde 2020",
-                              "Tramitação por ambiente e ano, 2020–2025")
+                              "Tramitação por ambiente e ano (2020–2025)")
 
 
 def fig_2i_tramitacao_anual_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tramitacao_anual(df, 2016, 2025, show_values,
                               "A tramitação exclusivamente virtual domina desde 2020",
-                              "Tramitação por ambiente e ano, 2016–2025")
+                              "Tramitação por ambiente e ano (2016–2025)")
 
 
 # ── 2.j / 2.j2 ───────────────────────────────────────────────────────────────
@@ -336,13 +336,13 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
 def fig_2j_recursos_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _recursos(df, 2020, 2025, show_values,
                       "A atividade recursal migrou quase integralmente para o ambiente virtual",
-                      "Destino das inclusões em pauta de recursos, 2020–2025")
+                      "Destino das inclusões em pauta de recursos (2020–2025)")
 
 
 def fig_2j2_recursos_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _recursos(df, 2016, 2019, show_values,
                       "Antes da universalização, os recursos já se concentravam no virtual",
-                      "Destino das inclusões em pauta de recursos, 2016–2019")
+                      "Destino das inclusões em pauta de recursos (2016–2019)")
 
 
 # ── 2.k1 / 2.k2 ──────────────────────────────────────────────────────────────
@@ -375,13 +375,13 @@ def _tipo_ambiente(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bo
 def fig_2k1_tipo_ambiente_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2016, 2019, show_values,
                            "O quadro anterior à universalização",
-                           "Inclusões em pauta por tipo de questão e ambiente, 2016-2019")
+                           "Inclusões em pauta por tipo de questão e ambiente (2016–2019)")
 
 
 def fig_2k2_tipo_ambiente_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _tipo_ambiente(df, 2020, 2025, show_values,
                            "O quadro posterior à universalização",
-                           "Inclusões em pauta por tipo de questão e ambiente, 2020-2025")
+                           "Inclusões em pauta por tipo de questão e ambiente (2020–2025)")
 
 
 # ── 2.l ──────────────────────────────────────────────────────────────────────
@@ -400,7 +400,7 @@ def fig_2l_pauta_vs_concluidos(df: pd.DataFrame, show_values: bool = True) -> go
     ))
     fig = aplicar_padrao(
         fig, "O Plenário Virtual concentra os julgamentos concluídos",
-        "Participação do PV na pauta e nos julgamentos concluídos, 2020–2025",
+        "Participação do PV na pauta e nos julgamentos concluídos (2020–2025)",
         xaxis=dict(title=""), yaxis=dict(title="", range=[0, 110]),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
@@ -436,12 +436,12 @@ def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: s
 
 def fig_2m_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Virtual", show_values,
-                           "Desfecho por categoria e ano — Plenário Virtual, 2020–2025", None)
+                           "Desfecho por categoria e ano — Plenário Virtual (2020–2025)", None)
 
 
 def fig_2n_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Presencial", show_values,
-                           "Desfecho por categoria e ano — Plenário Presencial, 2020–2025", None)
+                           "Desfecho por categoria e ano — Plenário Presencial (2020–2025)", None)
 
 
 # ── 2.o / 2.p ────────────────────────────────────────────────────────────────
@@ -473,12 +473,12 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
 
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Virtual", show_values,
-                              "Não concluídos por categoria e ano — Plenário Virtual, 2020–2025", None)
+                              "Não concluídos por categoria e ano — Plenário Virtual (2020–2025)", None)
 
 
 def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Presencial", show_values,
-                              "Não concluídos por categoria e ano — Plenário Presencial, 2020–2025", None)
+                              "Não concluídos por categoria e ano — Plenário Presencial (2020–2025)", None)
 
 
 # ── 2.q / 2.r ────────────────────────────────────────────────────────────────
@@ -495,7 +495,7 @@ def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
         ))
     fig = aplicar_padrao(
-        fig, "Média de inclusões em pauta por processo pautado, em cada ambiente, 2020-2025", None,
+        fig, "Média de inclusões em pauta por processo pautado, em cada ambiente (2020–2025)", None,
         xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 5.5]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
@@ -522,7 +522,7 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         ))
     fig = aplicar_padrao(
         fig, "Considerado o processo, o ambiente virtual conclui 86% do que pauta",
-        "Percentual de processos pautados com julgamento concluído, 2020–2025",
+        "Percentual de processos pautados com julgamento concluído (2020–2025)",
         xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 105]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )

@@ -33,7 +33,7 @@ def plot_na(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "A participação do Plenário Virtual mantém-se entre 59% e 68% ao ano",
-        "Percentual das inclusões em pauta destinadas ao ambiente virtual, 2020-2025",
+        "Percentual das inclusões em pauta destinadas ao ambiente virtual (2020–2025)",
         yaxis=dict(range=[0, 85]),
         xaxis=dict(title="Ano"),
         **_LAYOUT_EXTRA,
@@ -55,7 +55,7 @@ def plot_nb(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "O Plenário Virtual concentra os julgamentos concluídos",
-        "Participação do ambiente virtual na pauta e nos 3.187 julgamentos concluídos, 2020-2025",
+        "Participação do ambiente virtual na pauta e nos 3.187 julgamentos concluídos (2020–2025)",
         yaxis=dict(range=[0, 110]),
         xaxis=dict(title=""),
         **_LAYOUT_EXTRA,
@@ -80,7 +80,7 @@ def plot_nc(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "Três de cada quatro processos nunca passam pelo Plenário Presencial",
-        "Tramitação em pauta dos 2.834 processos de controle concentrado, 2020-2025",
+        "Tramitação em pauta dos 2.834 processos de controle concentrado (2020–2025)",
         xaxis=dict(range=[0, 110], title="%"),
         yaxis=dict(title=""),
         **_LAYOUT_EXTRA,
@@ -108,7 +108,7 @@ def plot_nd(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "A atividade recursal migrou quase integralmente para o ambiente virtual",
-        "Destino das 1.111 inclusões em pauta de recursos (AgR, ED e afins), 2020-2025",
+        "Destino das 1.111 inclusões em pauta de recursos (AgR, ED e afins) (2020–2025)",
         barmode='stack',
         xaxis=dict(title="%"),
         yaxis=dict(title=""),
@@ -132,7 +132,7 @@ def plot_ne(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "Cada julgamento presencial consome mais que o dobro de inclusões em pauta",
-        "Média de inclusões em pauta por processo em cada ambiente, 2020-2025",
+        "Média de inclusões em pauta por processo em cada ambiente (2020–2025)",
         yaxis=dict(range=[0, 5.5], title="Inclusões por processo"),
         xaxis=dict(title=""),
         **_LAYOUT_EXTRA,
@@ -154,7 +154,7 @@ def plot_nf(show_values: bool = True) -> go.Figure:
     aplicar_padrao(
         fig,
         "Considerado o processo, o ambiente virtual conclui 86% do que pauta",
-        "Percentual de processos pautados que tiveram julgamento concluído, 2020-2025",
+        "Percentual de processos pautados que tiveram julgamento concluído (2020–2025)",
         yaxis=dict(range=[0, 105]),
         xaxis=dict(title=""),
         **_LAYOUT_EXTRA,

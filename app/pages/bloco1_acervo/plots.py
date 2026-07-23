@@ -59,7 +59,7 @@ def fig_1a_variacao_trienal(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     fig = aplicar_padrao(
         fig,
         "Após três décadas de acumulação, o acervo passa a encolher em 2018",
-        "Variação do acervo ativo de controle concentrado por triênio (distribuição menos baixa), 1988–2025",
+        "Variação do acervo ativo de controle concentrado (baixa – distribuição), por triênio (1988–2025)",
         xaxis=dict(title=""), yaxis=dict(title=""),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="", visible=False)
@@ -87,7 +87,7 @@ def fig_1b_acervo_por_classe(df: pd.DataFrame, show_values: bool = True) -> go.F
     fig = aplicar_padrao(
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
-        "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
+        "Acervo ativo por classe processual e ano, controle concentrado (1988–2025)",
         xaxis=dict(title="", range=[0, ymax * 1.32], showline=False, showticklabels=False, ticks="", visible=False),
         yaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         height=1500, showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=leg_y, x=0.5, xanchor="center"),
@@ -198,7 +198,7 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
     fig = aplicar_padrao(
         fig,
         "O acervo ativo é dominado por ADI ao longo de toda a série",
-        "Acervo ativo por classe processual e ano, controle concentrado, 1988–2025",
+        "Acervo ativo por classe processual e ano, controle concentrado (1988–2025)",
         xaxis=dict(title=""), yaxis=dict(title="", range=[0, ymax * 1.2]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.95, x=0.5, xanchor="center"),
         height=650, margin=dict(t=150, b=70, l=60, r=40),
@@ -233,7 +233,7 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
     fig = aplicar_padrao(
         fig,
         "A baixa supera a distribuição a partir de 2018",
-        "Distribuições e baixas anuais (espelhadas), controle concentrado, 1988–2025",
+        "Distribuições e baixas anuais (espelhadas), controle concentrado (1988–2025)",
         xaxis=dict(title="", tickangle=-90, type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
@@ -302,7 +302,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     fig = aplicar_padrao(
         fig,
         "2018 inicia sequência inédita de 8 anos de retração do acervo",
-        "Variação anual do acervo (distribuições − baixas), controle concentrado, 1988–2025",
+        "Variação anual do acervo (distribuições − baixas), controle concentrado (1988–2025)",
         xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )

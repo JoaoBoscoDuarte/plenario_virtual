@@ -376,7 +376,7 @@ def gt10_tabulador(
     inv = {v: k for k, v in DIMENSOES.items()}
     titulo = f"{inv.get(eixo_x, eixo_x)} × {inv.get(grupo, grupo)}"
     subtitulo = (
-        f"{'Processos' if metrica == 'processos' else 'Inclusões'} — 2020–2025"
+        f"{'Processos' if metrica == 'processos' else 'Inclusões'} (2020–2025)"
     )
 
     aplicar_padrao(
@@ -495,7 +495,7 @@ def gt13_tramitacao_periodo(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     aplicar_padrao(
         fig,
         "Maioria dos processos tramita em um único ambiente no período",
-        "Processos por tipo de tramitação — 2020–2025",
+        "Processos por tipo de tramitação (2020–2025)",
         barmode="group",
         showlegend=True,
         height=600,

@@ -214,14 +214,17 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     tot = _totais_por_ano(df).sort_values("ano")
     tot["variacao"] = tot["quantidade_distribuidos"] - tot["quantidade_baixas"]
     anos = [str(a) for a in tot["ano"]]
-    cores = [CINZA if v >= 0 else VERMELHO for v in tot["variacao"]]
 
-    fig = go.Figure(go.Bar(
-        x=anos, y=tot["variacao"], marker_color=cores,
-        text=[f"{'+' if v >= 0 else ''}{br(v)}" for v in tot["variacao"]] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
-        cliponaxis=False,
-    ))
+    fig = go.Figure()
+    pos = tot[tot["variacao"] >= 0]
+    neg = tot[tot["variacao"] < 0]
+    for nome, sub, cor in [("ACRÉSCIMO", pos, CINZA), ("DECRÉSCIMO", neg, VERMELHO)]:
+        fig.add_trace(go.Bar(
+            x=[str(a) for a in sub["ano"]], y=sub["variacao"], name=nome, marker_color=cor,
+            text=[f"{'+' if v >= 0 else ''}{br(v)}" for v in sub["variacao"]] if show_values else None,
+            textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
+            cliponaxis=False,
+        ))
     v_abs = max(abs(tot["variacao"].max()), abs(tot["variacao"].min()))
     ymax = int(v_abs * 1.4)
     ymin = -int(v_abs * 1.15)
@@ -230,6 +233,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         "A variação anual do acervo tornou-se negativa na década de 2020",
         "Variação anual do acervo (distribuições − baixas), Controle Concentrado, 1988–2025",
         xaxis=dict(title="", dtick=1, tickangle=-90), yaxis=dict(title="", range=[ymin, ymax]),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0.5, xanchor="center"),
     )
     for er in (51, 52, 53):
         if er in (52, 53):

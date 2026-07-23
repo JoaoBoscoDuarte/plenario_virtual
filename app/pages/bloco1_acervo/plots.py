@@ -37,7 +37,10 @@ def fig_1a_variacao_trienal(df: pd.DataFrame, show_values: bool = True) -> go.Fi
     while a <= ano_max:
         fim = min(a + 2, ano_max)
         grupos.append((a, fim))
-        rotulos.append(f"{a}<br>{fim}" if a != fim else str(a))
+        rot = f"{a}<br>{fim}" if a != fim else str(a)
+        if a == 2024 and fim == 2025:
+            rot += "*"
+        rotulos.append(rot)
         a = fim + 1
 
     valores = []

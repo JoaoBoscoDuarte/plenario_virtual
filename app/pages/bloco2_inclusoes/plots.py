@@ -531,6 +531,38 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     return fig
 
 
+def _tramitacao_periodo_vertical(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool,
+                                  titulo: str, subtitulo: str) -> go.Figure:
+    tram = _tramitacao_por_processo(df, ano_ini, ano_fim)
+    vc = tram.value_counts().reindex(["Somente Virtual", "Ambos", "Somente Presencial"], fill_value=0)
+    total = vc.sum()
+    pct = 100 * vc / total
+
+    fig = go.Figure()
+    for cat in vc.index:
+        fig.add_trace(go.Bar(
+            x=[""], y=[pct[cat]], name=cat.replace("Somente ", "").upper(),
+            marker_color=_CORES_TRAMITACAO[cat],
+            text=[f"{br(vc[cat])} ({br(pct[cat], 1)}%)"] if show_values else None,
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
+        ))
+    fig = aplicar_padrao(
+        fig, titulo, subtitulo,
+        xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 105]),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
+    )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    fig.update_xaxes(showline=True, tickfont=dict(size=22), title_font=dict(size=22), ticklen=0)
+    return fig
+
+
+def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    return _tramitacao_periodo(df, 2016, 2019, show_values,
+                                "Antes da universalização, o caminho ordinário era o presencial",
+                                "Tramitação por ambiente, por período (2016–2019)",
+                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
+
+
 # ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
 _CORES_TRAMITACAO = {"Somente Virtual": AZUL, "Ambos": AZUL_CLARO, "Somente Presencial": CINZA}
 
@@ -580,3 +612,15 @@ def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Fig
 
 
 fig_2g_tramitacao_periodo_2020 = fig_32_tramitacao_2020  # alias
+
+
+def fig_31_tramitacao_alt(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    return _tramitacao_periodo_vertical(df, 2016, 2019, show_values,
+                                         "Antes da universalização, o caminho ordinário era o presencial",
+                                         "Tramitação por ambiente, por período (2016–2019)")
+
+
+def fig_32_tramitacao_alt(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    return _tramitacao_periodo_vertical(df, 2020, 2025, show_values,
+                                         "Depois da universalização, o caminho ordinário é o virtual",
+                                         "Tramitação por ambiente, por período (2020–2025)")

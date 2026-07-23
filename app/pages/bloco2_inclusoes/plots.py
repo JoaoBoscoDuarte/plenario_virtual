@@ -126,12 +126,12 @@ def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
 
 def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "QI"], fill_value=0)
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "QI", "RC"], fill_value=0)
     anos = [str(a) for a in tab.index]
     totais = tab.sum(axis=1)
 
     fig = go.Figure()
-    for tipo in ["RC", "PR", "QI"]:
+    for tipo in ["PR", "QI", "RC"]:
         fig.add_trace(go.Bar(
             x=anos, y=tab[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
             text=None, cliponaxis=False,
@@ -141,7 +141,8 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2016–2019",
         xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
-        barmode="stack", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
+        barmode="stack", showlegend=True,
+        legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center", traceorder="normal"),
         height=650,
     )
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

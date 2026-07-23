@@ -158,31 +158,35 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
             fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom", yshift=4)
 
-    y_linha = ymax * 1.1  # topo das linhas ER
-    y_label = ymax * 1.14  # rótulos ER
+    y_linha = ymax * 1.1
+    y_label = ymax * 1.14
 
-    # Faixa ESPIN
+    # ESPIN (igual 1.c)
     if 2020 in anos_int and 2022 in anos_int:
-        x0_espin = anos_int.index(2020) - 0.5
-        x1_espin = anos_int.index(2022) + 0.5
-        fig.add_vrect(x0=x0_espin, x1=x1_espin, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
-        fig.add_shape(type="line", x0=x0_espin, x1=x0_espin, y0=0, y1=y_linha,
+        x0 = anos_int.index(2020) - 0.5
+        x1 = anos_int.index(2022) + 0.5
+        fig.add_vrect(x0=x0, x1=x1, fillcolor="#FCE7F3", opacity=0.7, line_width=0, layer="below")
+        fig.add_shape(type="line", x0=x0, x1=x0, y0=0, y1=y_linha,
                       line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
-        fig.add_shape(type="line", x0=x1_espin, x1=x1_espin, y0=0, y1=y_linha,
+        fig.add_shape(type="line", x0=x1, x1=x1, y0=0, y1=y_linha,
                       line=dict(color=VERMELHO, width=2.5, dash="dash"), xref="x", yref="y")
-        fig.add_annotation(x=(x0_espin + x1_espin) / 2, y=y_linha, text="<b>ESPIN</b>",
+        fig.add_annotation(x=(x0 + x1) / 2, y=y_linha, text="<b>ESPIN</b>",
                            showarrow=False, font=dict(color=VERMELHO, size=13, weight="bold"),
                            xref="x", yref="y", yanchor="bottom")
 
-    # Marcadores ER
+    # ER (igual 1.c: 51 usa _frac_ano, 52/53 usam fronteira de ano)
     for er in (51, 52, 53):
-        ano, _, _ = ER_DATAS[er]
-        if ano in anos_int:
-            frac = anos_int.index(ano) - 0.5
-            fig.add_shape(type="line", x0=frac, x1=frac, y0=0, y1=y_linha,
-                          line=dict(color="black", width=2.5, dash="dash"), xref="x", yref="y")
-            fig.add_annotation(x=frac, y=y_label, text=f"<b>ER {er}</b>", showarrow=False,
-                               font=dict(color="black", size=13), xref="x", yref="y", yanchor="bottom")
+        if er in (52, 53):
+            ano_er, _, _ = ER_DATAS[er]
+            x = anos.index(str(ano_er)) - 0.5
+        else:
+            ano, mes, dia = ER_DATAS[er]
+            x = _frac_ano(ANO_MIN, ano, mes, dia)
+        fig.add_shape(type="line", x0=x, x1=x, y0=0, y1=y_linha,
+                      line=dict(color="black", width=1.5, dash="dash"), xref="x", yref="y")
+        fig.add_annotation(x=x, y=y_label, yanchor="bottom", text=f"<b>ER<br>{er}</b>", showarrow=False,
+                           font=dict(color="black", size=11), bgcolor="white", borderpad=1,
+                           xref="x", yref="y")
 
     fig = aplicar_padrao(
         fig,

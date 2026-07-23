@@ -433,14 +433,12 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
 
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Virtual", show_values,
-                              "Pedido de vista é o principal motivo de não conclusão no virtual",
-                              "Não concluídos por categoria e ano — Plenário Virtual, 2020–2025")
+                              "Não concluídos por categoria e ano — Plenário Virtual, 2020–2025", None)
 
 
 def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Presencial", show_values,
-                              "Motivos diversos dominam a não conclusão no presencial",
-                              "Não concluídos por categoria e ano — Plenário Presencial, 2020–2025")
+                              "Não concluídos por categoria e ano — Plenário Presencial, 2020–2025", None)
 
 
 # ── 2.q / 2.r ────────────────────────────────────────────────────────────────

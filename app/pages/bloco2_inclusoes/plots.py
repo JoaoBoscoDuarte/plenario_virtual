@@ -301,7 +301,7 @@ def fig_2j_recursos_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figur
 
 def fig_2j2_recursos_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _recursos(df, 2016, 2019, show_values,
-                      "Já em 2016-2019, os recursos concentravam-se no ambiente virtual",
+                      "Em 2016-2019, os recursos concentravam-se no ambiente virtual",
                       "Destino das inclusões em pauta de recursos, 2016–2019")
 
 

@@ -408,24 +408,43 @@ def fig_2l_pauta_vs_concluidos(df: pd.DataFrame, show_values: bool = True) -> go
 
 
 # ── 2.m / 2.n ────────────────────────────────────────────────────────────────
-def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
+def _categoria_tab(df: pd.DataFrame, ambiente: str) -> pd.DataFrame:
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)].copy()
-    sub["categoria"] = sub["desfecho"].apply(_categoria)
+    sub["cat"] = sub["desfecho"].apply(_categoria)
     cats = ["Unânime", "Maioria (relator vencedor)", "Maioria (relator vencido)", "Não concluído"]
-    tab = sub.groupby(["ano", "categoria"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+    return sub.groupby(["ano", "cat"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+
+
+def _cat_max(df: pd.DataFrame) -> float:
+    tab_pv = _categoria_tab(df, "Plenário Virtual")
+    tab_pp = _categoria_tab(df, "Plenário Presencial")
+    return max(tab_pv.values.max(), tab_pp.values.max(), 1)
+
+
+def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str,
+                   ymax: float | None = None) -> go.Figure:
+    cats = ["Unânime", "Maioria (relator vencedor)", "Maioria (relator vencido)", "Não concluído"]
+    tab = _categoria_tab(df, ambiente)
     anos = [str(a) for a in tab.index]
+    total_ano = tab.sum(axis=1)
+    pct_tab = tab.div(total_ano, axis=0).fillna(0) * 100
 
     fig = go.Figure()
     for cat in cats:
+        if show_values:
+            textos = [f"<span style='font-size:20px'>{br(v)}</span><br><span style='font-size:12px'>({pct_tab.loc[ano, cat]:.0f}%)</span>" if total_ano[ano] > 0 else br(v)
+                      for v, ano in zip(tab[cat], tab.index)]
+        else:
+            textos = None
         fig.add_trace(go.Bar(
             x=anos, y=tab[cat], name=cat.upper(), marker_color=_CORES_CATEGORIA[cat],
-            text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
+            text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
+    yr = [0, (ymax if ymax is not None else tab.values.max()) * 1.3]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title=""), yaxis=dict(title="", range=[0, tab.values.max() * 1.3]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=yr),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
         margin=dict(t=150, b=70, l=60, r=40),
     )
@@ -436,33 +455,57 @@ def _categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: s
 
 def fig_2m_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Virtual", show_values,
-                           "Desfecho por categoria e ano — Plenário Virtual (2020–2025)", None)
+                           "Desfecho por categoria e ano — Plenário Virtual (2020–2025)", None,
+                           ymax=_cat_max(df))
 
 
 def fig_2n_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _categoria_ano(df, "Plenário Presencial", show_values,
-                           "Desfecho por categoria e ano — Plenário Presencial (2020–2025)", None)
+                           "Desfecho por categoria e ano — Plenário Presencial (2020–2025)", None,
+                           ymax=_cat_max(df))
 
 
 # ── 2.o / 2.p ────────────────────────────────────────────────────────────────
-def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str) -> go.Figure:
+def _nc_categoria_tab(df: pd.DataFrame, ambiente: str) -> pd.DataFrame:
     sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025) & df["desfecho"].str.startswith("Não concluído")].copy()
-    sub["categoria_nc"] = sub["desfecho"].apply(_categoria_nc)
+    sub["cat_nc"] = sub["desfecho"].apply(_categoria_nc)
     cats = ["Pedido de vista", "Destaque", "Retirado de pauta", "Motivos diversos"]
-    tab = sub.groupby(["ano", "categoria_nc"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+    return sub.groupby(["ano", "cat_nc"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+
+
+def _nc_max(df: pd.DataFrame) -> float:
+    tab_pv = _nc_categoria_tab(df, "Plenário Virtual")
+    tab_pp = _nc_categoria_tab(df, "Plenário Presencial")
+    return max(tab_pv.values.max(), tab_pp.values.max(), 1)
+
+
+def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str, subtitulo: str,
+                       ymax: float | None = None) -> go.Figure:
+    sub = df[(df["ambiente"] == ambiente) & df["ano"].between(2020, 2025)].copy()
+    sub_nc = sub[sub["desfecho"].str.startswith("Não concluído")].copy()
+    sub_nc["categoria_nc"] = sub_nc["desfecho"].apply(_categoria_nc)
+    cats = ["Pedido de vista", "Destaque", "Retirado de pauta", "Motivos diversos"]
+    tab = sub_nc.groupby(["ano", "categoria_nc"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
     anos = [str(a) for a in tab.index]
+    total_ano = sub.groupby("ano").size()
+    pct_tab = tab.div(total_ano, axis=0).fillna(0) * 100
 
     fig = go.Figure()
     for cat in cats:
+        if show_values:
+            textos = [f"<span style='font-size:20px'>{br(v)}</span><br><span style='font-size:12px'>({pct_tab.loc[ano, cat]:.0f}%)</span>" if total_ano[ano] > 0 else br(v)
+                      for v, ano in zip(tab[cat], tab.index)]
+        else:
+            textos = None
         fig.add_trace(go.Bar(
             x=anos, y=tab[cat], name=cat.upper(), marker_color=_CORES_NC[cat],
-            text=[br(v) for v in tab[cat]] if show_values else None,
-            textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
+            text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
+    yr = [0, (ymax if ymax is not None else tab.values.max()) * 1.3]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
-        xaxis=dict(title=""), yaxis=dict(title="", range=[0, tab.values.max() * 1.3]),
+        xaxis=dict(title=""), yaxis=dict(title="", range=yr),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.96, x=0.5, xanchor="center"),
         margin=dict(t=150, b=70, l=60, r=40),
     )
@@ -471,14 +514,25 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
     return fig
 
 
+def _nc_max(df: pd.DataFrame) -> float:
+    sub_pv = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2020, 2025) & df["desfecho"].str.startswith("Não concluído")]
+    sub_pp = df[(df["ambiente"] == "Plenário Presencial") & df["ano"].between(2020, 2025) & df["desfecho"].str.startswith("Não concluído")]
+    cats = ["Pedido de vista", "Destaque", "Retirado de pauta", "Motivos diversos"]
+    tab_pv = sub_pv.groupby(["ano", "desfecho"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+    tab_pp = sub_pp.groupby(["ano", "desfecho"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
+    return max(max(tab_pv.values.max(), tab_pp.values.max()), 1)
+
+
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Virtual", show_values,
-                              "Não concluídos por categoria e ano — Plenário Virtual (2020–2025)", None)
+                              "Não concluídos por categoria e ano — Plenário Virtual (2020–2025)", None,
+                              ymax=_nc_max(df))
 
 
 def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Presencial", show_values,
-                              "Não concluídos por categoria e ano — Plenário Presencial (2020–2025)", None)
+                              "Não concluídos por categoria e ano — Plenário Presencial (2020–2025)", None,
+                              ymax=_nc_max(df))
 
 
 # ── 2.q / 2.r ────────────────────────────────────────────────────────────────

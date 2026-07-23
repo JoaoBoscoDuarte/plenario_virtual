@@ -514,13 +514,6 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
     return fig
 
 
-def _nc_max(df: pd.DataFrame) -> float:
-    sub_pv = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2020, 2025) & df["desfecho"].str.startswith("Não concluído")]
-    sub_pp = df[(df["ambiente"] == "Plenário Presencial") & df["ano"].between(2020, 2025) & df["desfecho"].str.startswith("Não concluído")]
-    cats = ["Pedido de vista", "Destaque", "Retirado de pauta", "Motivos diversos"]
-    tab_pv = sub_pv.groupby(["ano", "desfecho"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
-    tab_pp = sub_pp.groupby(["ano", "desfecho"]).size().unstack(fill_value=0).reindex(columns=cats, fill_value=0)
-    return max(max(tab_pv.values.max(), tab_pp.values.max()), 1)
 
 
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
@@ -618,8 +611,10 @@ def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Fig
                                 ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
 
 
-# ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
 _CORES_TRAMITACAO = {"Somente Virtual": AZUL, "Ambos": AZUL_CLARO, "Somente Presencial": CINZA}
+
+
+# ── 3.1 / 3.2 ────────────────────────────────────────────────────────────────
 
 
 def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool,
@@ -652,11 +647,6 @@ def _tramitacao_periodo(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_value
     return fig
 
 
-def fig_31_tramitacao_2016(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    return _tramitacao_periodo(df, 2016, 2019, show_values,
-                                "Antes da universalização, o caminho ordinário era o presencial",
-                                "Tramitação por ambiente, por período (2016–2019)",
-                                ordem_topo_base=["Somente Presencial", "Ambos", "Somente Virtual"])
 
 
 def fig_32_tramitacao_2020(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

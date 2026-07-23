@@ -470,18 +470,21 @@ def fig_2r_pct_concluidos(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     def pct_concl(d):
         return 100 * d.groupby("incidente")["desfecho"].apply(lambda s: s.str.startswith("Concluído").any()).mean()
 
-    valores = [pct_concl(sub[sub["ambiente"] == "Plenário Virtual"]), pct_concl(sub[sub["ambiente"] == "Plenário Presencial"])]
-    categorias = ["PLENÁRIO VIRTUAL", "PLENÁRIO PRESENCIAL"]
+    pares = [("PLENÁRIO VIRTUAL", "Plenário Virtual", COR_PV), ("PLENÁRIO PRESENCIAL", "Plenário Presencial", COR_PP)]
 
-    fig = go.Figure(go.Bar(
-        x=categorias, y=valores, marker_color=[COR_PV, COR_PP],
-        text=[f"{v:.1f}%".replace(".", ",") for v in valores] if show_values else None,
-        textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
-    ))
+    fig = go.Figure()
+    for leg, chave, cor in pares:
+        v = pct_concl(sub[sub["ambiente"] == chave])
+        fig.add_trace(go.Bar(
+            x=[""], y=[v], name=leg, marker_color=cor,
+            text=[f"{v:.1f}%".replace(".", ",")] if show_values else None,
+            textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
+        ))
     fig = aplicar_padrao(
         fig, "Considerado o processo, o ambiente virtual conclui 86% do que pauta",
         "Percentual de processos pautados com julgamento concluído, 2020–2025",
-        xaxis=dict(title=""), yaxis=dict(title="", range=[0, 105]),
+        xaxis=dict(title="", showticklabels=False), yaxis=dict(title="", range=[0, 105]),
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))

@@ -204,9 +204,13 @@ def _tabela_2e(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _ymax_classes(df: pd.DataFrame) -> float:
-    """Maior valor individual de classe entre PV e PP para mesma escala."""
-    agrp = df[df["ano"].between(2020, 2025)].groupby(["ano", "ambiente", "classe"], observed=True).size()
-    return agrp.max()
+    """Maior barra individual entre PV e PP — mesma lógica de _classe_ano."""
+    mask = df["ano"].between(2020, 2025)
+    vals = []
+    for amb in ("Plenário Virtual", "Plenário Presencial"):
+        v = df[mask & (df["ambiente"] == amb)].groupby(["ano", "classe"], observed=True).size()
+        vals.append(v.max() if len(v) > 0 else 0)
+    return max(vals)
 
 
 def fig_2e_classe_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:

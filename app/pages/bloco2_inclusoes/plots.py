@@ -114,28 +114,26 @@ def fig_2b_inclusoes_ano_ambiente(df: pd.DataFrame, show_values: bool = True) ->
 
 # ── 2.c ──────────────────────────────────────────────────────────────────────
 def _tabela_2c(df: pd.DataFrame) -> pd.DataFrame:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "QI", "RC"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "QI", "RC"], fill_value=0)
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "QI"], fill_value=0)
     tab["Total"] = tab.sum(axis=1)
-    for tp in ["PR", "QI", "RC"]:
+    for tp in ["RC", "PR", "QI"]:
         tab[f"%{tp}"] = (tab[tp] / tab["Total"] * 100).round(1).astype(str) + "%"
     tab = tab.reset_index()
-    tab.columns = ["Ano", "PR", "QI", "RC", "Total", "%PR", "%QI", "%RC"]
-    return tab[["Ano", "PR", "%PR", "QI", "%QI", "RC", "%RC", "Total"]]
+    tab.columns = ["Ano", "RC", "PR", "QI", "Total", "%RC", "%PR", "%QI"]
+    return tab[["Ano", "RC", "%RC", "PR", "%PR", "QI", "%QI", "Total"]]
 
 
 def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "QI", "RC"])]
-    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["PR", "QI", "RC"], fill_value=0)
+    sub = df[(df["ambiente"] == "Plenário Virtual") & df["ano"].between(2016, 2019) & df["tipo_questao"].isin(["PR", "RC", "QI"])]
+    tab = sub.groupby(["ano", "tipo_questao"]).size().unstack(fill_value=0).reindex(columns=["RC", "PR", "QI"], fill_value=0)
     anos = [str(a) for a in tab.index]
     totais = tab.sum(axis=1)
 
-    # 2019 counts embutidos na legenda
-    LEG_TIPO = {"PR": "PR (350)", "QI": "QI (4)", "RC": "RC (119)"}
     fig = go.Figure()
-    for tipo in ["PR", "QI", "RC"]:
+    for tipo in ["RC", "PR", "QI"]:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[tipo], name=LEG_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
+            x=anos, y=tab[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
             text=None, cliponaxis=False,
         ))
     fig = aplicar_padrao(

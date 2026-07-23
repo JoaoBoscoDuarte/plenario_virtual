@@ -188,13 +188,13 @@ def render_graficos(df: pd.DataFrame) -> None:
             )
 
         if pre_escolha.startswith("—"):
-            def_x, def_g, def_m, def_bm = 0, 1, 0, 0
+            _, px, pg, pm, pbm = _PREDEFINIDOS_ACERVO[0]
         else:
             _, px, pg, pm, pbm = next(p for p in _PREDEFINIDOS_ACERVO if p[0] == pre_escolha)
-            def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
-            def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
-            def_m  = ["inclusoes", "processos"].index(pm)
-            def_bm = ["group", "stack", "100%"].index(pbm)
+        def_x  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == px))
+        def_g  = _DIMS_LABEL.index(next(k for k, v in DIMENSOES.items() if v == pg))
+        def_m  = ["inclusoes", "processos"].index(pm)
+        def_bm = ["group", "stack", "100%"].index(pbm)
 
         c1, c2, c3, c4, c5 = st.columns([2, 2, 2, 2, 1])
         with c1:

@@ -45,27 +45,6 @@ _TRAMS   = ["Virtual", "Físico", "Ambos os ambientes"]
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _pizza(serie: pd.Series, titulo: str, subtitulo: str, cores: list,
-           show_values: bool = True) -> go.Figure:
-    fig = go.Figure(go.Pie(
-        labels=[str(l).upper() for l in serie.index], values=serie.values,
-        hole=0.4,
-        marker=dict(colors=cores, line=dict(color="white", width=2)),
-        textinfo="percent" if show_values else "none",
-        textfont=dict(family="Arial, sans-serif", size=14, color="black"),
-        textposition="inside",
-        insidetextorientation="radial",
-        showlegend=True,
-    ))
-    aplicar_padrao(
-        fig, titulo, subtitulo,
-        height=500,
-        margin=dict(t=120, b=100, l=60, r=60),
-        showlegend=True,
-    )
-    return fig
-
-
 def _barras_grupo(tab: pd.DataFrame, col_x: str, col_grupo: str,
                   cores: dict, titulo: str, subtitulo: str,
                   label_y: str, x_title: str,
@@ -111,13 +90,21 @@ def _proc(df: pd.DataFrame) -> pd.DataFrame:
 
 def gt1_tramitacao(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     serie = _proc(df)["tramitacao"].value_counts()
-    return _pizza(
-        serie,
+    ordem = [c for c in _TRAMS if c in serie.index]
+    fig = go.Figure(go.Bar(
+        x=[c.upper() for c in ordem], y=[serie[c] for c in ordem],
+        marker_color=[CORES_TRAM[c] for c in ordem],
+        text=[br(serie[c]) for c in ordem] if show_values else None,
+        textposition="outside", cliponaxis=False,
+        textfont=dict(family="Arial, sans-serif", size=20, color="black", weight="bold"),
+    ))
+    aplicar_padrao(
+        fig,
         "Maioria dos processos tramita em apenas um ambiente",
         "Distribuição de processos distintos por ambiente de tramitação — CC (2020–2025)",
-        [CORES_TRAM.get(l, "#999") for l in serie.index],
-        show_values=show_values,
+        xaxis=dict(title=""), yaxis=dict(title="Processos distintos"),
     )
+    return fig
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -214,45 +201,69 @@ def gt6_desfecho_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figu
 # T7 — Classe por ambiente de tramitação — pizza por ambiente (dict de figuras)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gt7_classe_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, go.Figure]:
+def gt7_classe_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     proc = _proc(df)
-    result = {}
-    for tram in _TRAMS:
-        sub = proc[proc["tramitacao"] == tram]
-        if sub.empty:
+    tab = proc.groupby(["tramitacao", "classe"], observed=True).size().reset_index(name="n")
+    totais = tab.groupby("tramitacao")["n"].transform("sum")
+    tab["pct"] = (tab["n"] / totais * 100).round(1)
+    ordem = [t for t in _TRAMS if t in tab["tramitacao"].unique()]
+    fig = go.Figure()
+    for cls in _CLASSES:
+        d = tab[tab["classe"] == cls]
+        if d.empty:
             continue
-        serie = sub["classe"].value_counts()
-        result[tram] = _pizza(
-            serie,
-            f"Composição por classe — {tram}",
-            f"Distribuição por classe processual, ambiente: {tram} (2020–2025)",
-            [CORES_CLASSE.get(l, "#999") for l in serie.index],
-            show_values=show_values,
-        )
-    return result
+        fig.add_trace(go.Bar(
+            x=d["tramitacao"].str.upper(), y=d["pct"], name=cls.upper(),
+            marker_color=CORES_CLASSE[cls],
+            text=[f"{v:.0f}%" for v in d["pct"]] if show_values else None,
+            textposition="inside",
+            textfont=dict(family="Arial, sans-serif", size=14, color="white", weight="bold"),
+            cliponaxis=False,
+        ))
+    aplicar_padrao(
+        fig,
+        "Composição por classe varia conforme o ambiente de tramitação",
+        "Distribuição por classe processual, dentro de cada ambiente de tramitação (2020–2025)",
+        barmode="stack", showlegend=True,
+        xaxis=dict(title="", categoryorder="array", categoryarray=[t.upper() for t in ordem]),
+        yaxis=dict(title="% de processos", range=[0, 100]),
+    )
+    return fig
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # T8 — Tipo de questão por ambiente de tramitação (dict de figuras)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def gt8_tipo_por_tram(df: pd.DataFrame, show_values: bool = True) -> dict[str, go.Figure]:
+def gt8_tipo_por_tram(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     proc = _proc(df)
     proc = proc[proc["tipo_questao"].isin(_TIPOS)]
-    result = {}
-    for tram in _TRAMS:
-        sub = proc[proc["tramitacao"] == tram]
-        if sub.empty:
+    tab = proc.groupby(["tramitacao", "tipo_questao"], observed=True).size().reset_index(name="n")
+    totais = tab.groupby("tramitacao")["n"].transform("sum")
+    tab["pct"] = (tab["n"] / totais * 100).round(1)
+    ordem = [t for t in _TRAMS if t in tab["tramitacao"].unique()]
+    fig = go.Figure()
+    for tipo in _TIPOS:
+        d = tab[tab["tipo_questao"] == tipo]
+        if d.empty:
             continue
-        serie = sub["tipo_questao"].value_counts()
-        result[tram] = _pizza(
-            serie,
-            f"Composição por tipo de questão — {tram}",
-            f"Distribuição por tipo de questão, ambiente: {tram} (2020–2025)",
-            [CORES_TIPO.get(l, "#999") for l in serie.index],
-            show_values=show_values,
-        )
-    return result
+        fig.add_trace(go.Bar(
+            x=d["tramitacao"].str.upper(), y=d["pct"], name=tipo.upper(),
+            marker_color=CORES_TIPO[tipo],
+            text=[f"{v:.0f}%" for v in d["pct"]] if show_values else None,
+            textposition="inside",
+            textfont=dict(family="Arial, sans-serif", size=14, color="white", weight="bold"),
+            cliponaxis=False,
+        ))
+    aplicar_padrao(
+        fig,
+        "Composição por tipo de questão varia conforme o ambiente de tramitação",
+        "Distribuição por tipo de questão, dentro de cada ambiente de tramitação (2020–2025)",
+        barmode="stack", showlegend=True,
+        xaxis=dict(title="", categoryorder="array", categoryarray=[t.upper() for t in ordem]),
+        yaxis=dict(title="% de processos", range=[0, 100]),
+    )
+    return fig
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

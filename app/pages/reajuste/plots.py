@@ -4,17 +4,13 @@ from __future__ import annotations
 import plotly.graph_objects as go
 import pandas as pd
 
-from estilo import aplicar_padrao, AZUL, CINZA, VERDE, ROXO, VERMELHO
+from estilo import aplicar_padrao, add_er_marker, add_espin_shade, AZUL, CINZA, VERDE, ROXO, VERMELHO
 
 CORES_CLASSE = {
     "ADI":  AZUL,
     "ADPF": "#f59e0b",
     "ADC":  VERDE,
     "ADO":  "#ef4444",
-}
-CORES_REAJUSTE = {
-    "Com reajuste de voto": VERMELHO,
-    "Sem reajuste de voto": CINZA,
 }
 CORES_TRAM = {
     "Ambos os ambientes": ROXO,
@@ -26,47 +22,26 @@ _CLASSES = ["ADI", "ADPF", "ADC", "ADO"]
 _ANOS    = list(range(2020, 2026))
 
 
-def _serie_reajuste(df_amb: pd.DataFrame) -> pd.Series:
-    return df_amb["teve_reajuste"].map(
-        {True: "Com reajuste de voto", False: "Sem reajuste de voto"}
-    ).value_counts()
-# ── G-R1 — Pizza reajuste por ambiente (lado a lado) ───────────────────────────
+# ── G-R1 — % de inclusões com reajuste de voto, por ambiente ───────────────────
 
-def gr1_reajuste_filtravel(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
-    from plotly.subplots import make_subplots
-    fig = make_subplots(
-        rows=1, cols=2,
-        specs=[[{'type': 'pie'}, {'type': 'pie'}]],
-        subplot_titles=["Plenário Virtual", "Plenário Presencial"],
-    )
-    for i, amb in enumerate(["Plenário Virtual", "Plenário Presencial"]):
-        d = df[df["ambiente"] == amb]
-        serie = _serie_reajuste(d)
-        cores = [CORES_REAJUSTE.get(l, "#999") for l in serie.index]
-        fig.add_trace(go.Pie(
-            labels=[str(l).upper() for l in serie.index], values=serie.values,
-            hole=0.4,
-            marker=dict(colors=cores, line=dict(color="white", width=2)),
-            textinfo="percent" if show_values else "none",
-            textfont=dict(family="Arial, sans-serif", size=14, color="black"),
-            textposition="inside",
-            insidetextorientation="radial",
-            showlegend=True,
-            legendgroup="group",
-        ), row=1, col=i + 1)
+def gr1_reajuste_pct(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
+    ambientes = ["Plenário Virtual", "Plenário Presencial"]
+    pcts = [100 * df[df["ambiente"] == a]["teve_reajuste"].mean() for a in ambientes]
+    maior = "Plenário Presencial" if pcts[1] > pcts[0] else "Plenário Virtual"
+    fig = go.Figure(go.Bar(
+        x=[a.upper() for a in ambientes], y=pcts,
+        marker_color=VERMELHO,
+        text=[f"{v:.1f}%".replace(".", ",") for v in pcts] if show_values else None,
+        textposition="outside", textfont=dict(family="Arial, sans-serif", size=20, color="black", weight="bold"),
+        cliponaxis=False,
+    ))
     aplicar_padrao(
         fig,
-        "Inclusões com reajuste de voto — período total (2020–2025)",
-        "Proporção por ambiente (Plenário Virtual e Plenário Presencial)",
-        height=500, showlegend=True,
-        legend=dict(
-            orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5,
-            font=dict(family="Arial, sans-serif", size=17, color="black"),
-        ),
+        f"Reajuste de voto é mais comum no {maior}",
+        "% de inclusões com ao menos um reajuste de voto, por ambiente (2020–2025)",
+        xaxis=dict(title=""), yaxis=dict(title="", range=[0, max(pcts) * 1.3]),
     )
-    fig.update_annotations(
-        font=dict(family="Arial, sans-serif", size=18, color="black"),
-    )
+    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 # ── G-R3 — Barras anuais por ambiente (selecionável) ───────────────────────────
 
@@ -83,19 +58,23 @@ def _barras_anuais(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
     tab = (tab.set_index("ano")
               .reindex(_ANOS, fill_value=0)
               .reset_index())
+    y_max = float(tab["n"].max() or 1)
     fig = go.Figure(go.Bar(
         x=tab["ano"], y=tab["n"],
         marker_color=VERMELHO,
         text=tab["n"] if show_values else None,
         textposition="outside",
+        textfont=dict(family="Arial, sans-serif", size=17, color="black", weight="bold"),
         cliponaxis=False,
         name="COM REAJUSTE",
     ))
     aplicar_padrao(
         fig, titulo, "Volume anual de inclusões com reajuste de voto",
         xaxis=dict(dtick=1, title="Ano", tickangle=-45),
-        yaxis=dict(title="Inclusões com reajuste de voto"),
+        yaxis=dict(title="Inclusões com reajuste de voto", range=[0, y_max * 1.3]),
     )
+    add_espin_shade(fig, ano_base=0, y0=0, y1=y_max * 1.25, y_label=y_max * 1.18)
+    add_er_marker(fig, ano_base=0, er=53, y0=0, y1=y_max * 1.25, y_label=y_max * 1.05)
     return fig
 # ── G-R5 — Barras anuais por classe por ambiente (selecionável) ────────────────
 
@@ -109,6 +88,7 @@ def gr5_classe_filtravel(df: pd.DataFrame, show_values: bool = True, proporcao: 
 def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) -> go.Figure:
     sub = df_amb[df_amb["teve_reajuste"]]
     tab = sub.groupby(["ano", "classe"], observed=True).size().reset_index(name="n")
+    y_max = float(tab["n"].max() or 1)
     fig = go.Figure()
     for cls in _CLASSES:
         d = tab[tab["classe"] == cls]
@@ -119,12 +99,15 @@ def _barras_classe(df_amb: pd.DataFrame, titulo: str, show_values: bool = True) 
             marker_color=CORES_CLASSE[cls],
             text=d["n"] if show_values else None,
             textposition="outside",
+            textfont=dict(family="Arial, sans-serif", size=17, color="black", weight="bold"),
             cliponaxis=False,
         ))
     aplicar_padrao(
         fig, titulo, "Distribuição por classe processual (ADI, ADPF, ADC, ADO)",
         barmode="group", showlegend=True,
         xaxis=dict(dtick=1, title="Ano", tickangle=-45),
-        yaxis=dict(title="Inclusões com reajuste de voto"),
+        yaxis=dict(title="Inclusões com reajuste de voto", range=[0, y_max * 1.3]),
     )
+    add_espin_shade(fig, ano_base=0, y0=0, y1=y_max * 1.25, y_label=y_max * 1.18)
+    add_er_marker(fig, ano_base=0, er=53, y0=0, y1=y_max * 1.25, y_label=y_max * 1.05)
     return fig

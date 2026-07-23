@@ -4,7 +4,7 @@ from __future__ import annotations
 import streamlit as st
 import pandas as pd
 from .plots import (
-    gr1_reajuste_filtravel, gr3_anual_filtravel, gr5_classe_filtravel,
+    gr1_reajuste_pct, gr3_anual_filtravel, gr5_classe_filtravel,
 )
 from pages.tramitacao.plots import gt10_tabulador, DIMENSOES
 
@@ -61,11 +61,10 @@ def _gr_desfecho_vs_reajuste(df: pd.DataFrame, show_values: bool = True, proporc
 
 _CATALOGO = [
     (
-        "R1/R2 — Proporção com/sem reajuste (Plenário Virtual e Plenário Presencial)",
+        "R1/R2 — % com reajuste (Plenário Virtual e Plenário Presencial)",
         "Reajuste de Voto — período total",
-        "Pizza com a proporção de inclusões que tiveram ao menos um reajuste de voto. "
-        "Selecione o âmbito.",
-        gr1_reajuste_filtravel,
+        "Percentual de inclusões que tiveram ao menos um reajuste de voto, por ambiente.",
+        gr1_reajuste_pct,
     ),
     (
         "R3/R4 — Reajustes por Ano (Plenário Virtual e Plenário Presencial)",

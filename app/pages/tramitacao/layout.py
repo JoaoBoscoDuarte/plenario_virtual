@@ -23,9 +23,9 @@ from .plots import (
 # ── Catálogo T1–T9 ────────────────────────────────────────────────────────────
 _CATALOGO = [
     (
-        "T1 — Tramitação por Ambiente (pizza geral)",
+        "T1 — Tramitação por Ambiente (geral)",
         "Tramitação por Ambiente — Processos CC (2020–2025)",
-        "Pizza com a distribuição dos processos distintos por ambiente: "
+        "Distribuição dos processos distintos por ambiente: "
         "só PV, só PP ou ambos.",
         gt1_tramitacao,
     ),
@@ -67,15 +67,15 @@ _CATALOGO = [
     (
         "T7 — Distribuição por Classe dentro de cada Ambiente",
         "Distribuição por Classe — por Ambiente de Tramitação (2020–2025)",
-        "Uma pizza por ambiente (só PV / só PP / ambos) mostrando a composição "
-        "por classe processual.",
+        "Barras 100% empilhadas mostrando a composição por classe processual "
+        "dentro de cada ambiente (só PV / só PP / ambos).",
         gt7_classe_por_tram,
     ),
     (
         "T8 — Distribuição por Tipo de Questão dentro de cada Ambiente",
         "Distribuição por Tipo de Questão — por Ambiente de Tramitação (2020–2025)",
-        "Uma pizza por ambiente (só PV / só PP / ambos) mostrando a composição "
-        "por tipo de questão.",
+        "Barras 100% empilhadas mostrando a composição por tipo de questão "
+        "dentro de cada ambiente (só PV / só PP / ambos).",
         gt8_tipo_por_tram,
     ),
     (
@@ -118,7 +118,7 @@ _LABELS = [item[0] for item in _CATALOGO]
 
 _SUMARIO = {
     "Visão geral (T1–T4, T13)": [
-        "T1 — tramitação por ambiente (pizza)",
+        "T1 — tramitação por ambiente",
         "T2 — tramitação por ambiente e classe",
         "T3 — tramitação por ambiente e tipo de questão",
         "T4 — processos em ambos os ambientes por tipo",
@@ -202,16 +202,7 @@ def _render_fig(fn, df: pd.DataFrame, show_values: bool) -> None:
         result = fn(df, show_values=show_values)
     except TypeError:
         result = fn(df)
-    if isinstance(result, dict):
-        if not result:
-            st.info("Sem dados para exibir.")
-            return
-        subtabs = st.tabs(list(result.keys()))
-        for tab, fig in zip(subtabs, result.values()):
-            with tab:
-                st.plotly_chart(fig, width="stretch")
-    else:
-        st.plotly_chart(result, width="stretch")
+    st.plotly_chart(result, width="stretch")
 
 
 def _render_tabulador(df: pd.DataFrame, key_suffix: str) -> None:

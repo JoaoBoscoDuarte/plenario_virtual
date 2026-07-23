@@ -130,10 +130,12 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
     anos = [str(a) for a in tab.index]
     totais = tab.sum(axis=1)
 
+    # 2019 counts embutidos na legenda
+    LEG_TIPO = {"PR": "PR (350)", "QI": "QI (4)", "RC": "RC (119)"}
     fig = go.Figure()
     for tipo in ["PR", "QI", "RC"]:
         fig.add_trace(go.Bar(
-            x=anos, y=tab[tipo], name=tipo, marker_color=_CORES_TIPO[tipo],
+            x=anos, y=tab[tipo], name=LEG_TIPO[tipo], marker_color=_CORES_TIPO[tipo],
             text=None, cliponaxis=False,
         ))
     fig = aplicar_padrao(
@@ -148,10 +150,7 @@ def fig_2c_composicao_pv_tipo(df: pd.DataFrame, show_values: bool = True) -> go.
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     if show_values:
         for i, total in enumerate(totais):
-            txt = f"<b>{br(total)}</b>"
-            if anos[i] == "2019":
-                txt += "<br><sup>(350 PR + 119 RC + 4 QI)</sup>"
-            fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
+            fig.add_annotation(x=i, y=total, text=f"<b>{br(total)}</b>", showarrow=False,
                                font=dict(color="black", size=20), xref="x", yref="y",
                                yanchor="bottom", yshift=6)
     return fig

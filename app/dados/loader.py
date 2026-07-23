@@ -94,6 +94,16 @@ def load_evolucao_acervo() -> pd.DataFrame:
     return load_parquet(HF_REPO_ID, HF_FILES["evolucao_acervo"])
 
 
+def load_arquivos_concatenados() -> pd.DataFrame:
+    """Carrega a tabela fato de processos (Visão Geral)."""
+    return load_parquet(HF_REPO_ID, HF_FILES["arquivos_concatenados"])
+
+
+def load_dim_decisoes() -> pd.DataFrame:
+    """Carrega a dimensão de decisões (usada para refinar Inclusões em Pauta)."""
+    return load_parquet(HF_REPO_ID, HF_FILES["dim_decisoes"])
+
+
 def _corrigir_tipo_questao_2016_2019(df: pd.DataFrame) -> pd.DataFrame:
     """Reclassifica PR->RC para 72 inclusões do PV (2016-2019) cujo sufixo recursal
     (ex: "ADI-ED", "ADPF-AgR") está no texto do andamento mas não foi extraído pelo
@@ -137,11 +147,6 @@ def load_tramitacoes() -> pd.DataFrame:
     df["ambiente"] = df["ambiente"].replace("Plenário Físico", "Plenário Presencial")
     df["tramitacao"] = df["tramitacao"].replace({"Só Virtual": "Virtual", "Só Físico": "Físico"})
     return df
-
-
-def load_reajustes_de_voto() -> pd.DataFrame:
-    """Carrega os andamentos de reajuste de voto (nível evento)."""
-    return load_parquet(HF_REPO_ID, HF_FILES["reajustes_de_voto"])
 
 
 def load_sessoes_virtuais() -> pd.DataFrame:

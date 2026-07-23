@@ -445,13 +445,13 @@ def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go
 def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     sub = df[df["ano"].between(2020, 2025)]
     medias = sub.groupby("ambiente").apply(lambda d: len(d) / d["incidente"].nunique())
-    pares = [("PLENÁRIO VIRTUAL", COR_PV), ("PLENÁRIO PRESENCIAL", COR_PP)]
+    pares = [("PLENÁRIO VIRTUAL", "Plenário Virtual", COR_PV), ("PLENÁRIO PRESENCIAL", "Plenário Presencial", COR_PP)]
 
     fig = go.Figure()
-    for nome, cor in pares:
+    for leg, chave, cor in pares:
         fig.add_trace(go.Bar(
-            x=[""], y=[medias[nome]], name=nome, marker_color=cor,
-            text=[br(medias[nome], 1)] if show_values else None,
+            x=[""], y=[medias[chave]], name=leg, marker_color=cor,
+            text=[br(medias[chave], 1)] if show_values else None,
             textposition="outside", textfont=dict(color="black", size=20, weight="bold"), cliponaxis=False,
         ))
     fig = aplicar_padrao(

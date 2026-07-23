@@ -6,11 +6,11 @@ import pandas as pd
 from .plots import fig_1a_variacao_trienal, fig_1b_acervo_por_classe, fig_1b2_acervo_por_classe_vertical, fig_1c_distribuicao_baixa, fig_1d_variacao_anual
 
 _CATALOGO = [
-    ("1.a — Variação trienal", "Variação trienal do acervo (distribuições − baixas), 1988–2025.", fig_1a_variacao_trienal),
-    ("1.b — Acervo por classe", "Acervo ativo por classe processual e ano (apenas totais), 1988–2025.", fig_1b_acervo_por_classe),
-    ("1.b2 — Acervo por classe (vertical)", "Acervo ativo por classe processual e ano (barras verticais empilhadas), 1988–2025.", fig_1b2_acervo_por_classe_vertical),
-    ("1.c — Distribuição e baixa espelhada", "Distribuições e baixas anuais, escala espelhada, 1988–2025.", fig_1c_distribuicao_baixa),
-    ("1.d — Variação anual", "Variação anual do acervo (distribuições − baixas), 1988–2025.", fig_1d_variacao_anual),
+    ("1.a — Variação trienal", "Variação trienal do acervo (distribuições − baixas) (1988–2025).", fig_1a_variacao_trienal),
+    ("1.b — Acervo por classe", "Acervo ativo por classe processual e ano (apenas totais) (1988–2025).", fig_1b_acervo_por_classe),
+    ("1.b2 — Acervo por classe (vertical)", "Acervo ativo por classe processual e ano (barras verticais empilhadas) (1988–2025).", fig_1b2_acervo_por_classe_vertical),
+    ("1.c — Distribuição e baixa espelhada", "Distribuições e baixas anuais, escala espelhada (1988–2025).", fig_1c_distribuicao_baixa),
+    ("1.d — Variação anual", "Variação anual do acervo (distribuições − baixas) (1988–2025).", fig_1d_variacao_anual),
 ]
 _LABELS = [item[0] for item in _CATALOGO]
 

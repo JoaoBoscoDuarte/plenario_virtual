@@ -460,7 +460,7 @@ def fig_2q_media_por_processo(df: pd.DataFrame, show_values: bool = True) -> go.
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center"),
     )
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
-    fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
+    fig.update_xaxes(showline=False, showticklabels=False, ticks="")
     return fig
 
 

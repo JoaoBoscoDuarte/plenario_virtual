@@ -176,7 +176,7 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
         "Inclusões em pauta do Plenário Virtual por tipo de questão, 2020–2025",
         xaxis=dict(title="", type="category", range=[-0.5, len(anos) - 0.5]),
         yaxis=dict(title="", range=[0, totais.max() * 1.2]),
-        barmode="stack", bargap=0, showlegend=True,
+        barmode="stack", showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=0.98, x=0.5, xanchor="center", traceorder="normal"),
         height=650,
     )
@@ -187,10 +187,10 @@ def fig_2d_composicao_pv_tipo_2020(df: pd.DataFrame, show_values: bool = True) -
             pr = int(tab.iloc[i]["PR"])
             qi = int(tab.iloc[i]["QI"])
             rc = int(tab.iloc[i]["RC"])
-            txt = f"<b>{br(total)}</b><br>({br(pr)} PR + {br(rc)} RC + {br(qi)} QI)"
+            txt = f"<b>{br(total)}</b><br><sup>({br(pr)} PR + {br(rc)} RC + {br(qi)} QI)</sup>"
             fig.add_annotation(x=i, y=total, text=txt, showarrow=False,
-                               font=dict(color="black", size=18), xref="x", yref="y",
-                               yanchor="bottom", yshift=6, bgcolor="white", borderpad=4)
+                               font=dict(color="black", size=17), xref="x", yref="y",
+                               yanchor="bottom", yshift=6)
     return fig
 
 
@@ -324,9 +324,9 @@ def _recursos(df: pd.DataFrame, ano_ini: int, ano_fim: int, show_values: bool, t
         fig, titulo, subtitulo,
         xaxis=dict(title="", showticklabels=False, showline=False, ticks=""),
         yaxis=dict(title="", range=[0, max(pv_n, pp_n) * 1.3], showticklabels=False, showline=False, ticks=""),
-        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.05, x=0.5, xanchor="center",
+        showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=1.15, x=0.5, xanchor="center",
                                      font=dict(size=15)),
-        height=440, margin=dict(t=230, b=40, l=40, r=40),
+        height=440, margin=dict(t=280, b=40, l=40, r=40),
     )
     fig.update_xaxes(showticklabels=False, showline=False, ticks="")
     fig.update_yaxes(showticklabels=False, showline=False, ticks="")

@@ -502,7 +502,7 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
             text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
-    yr = [0, (ymax if ymax is not None else tab.values.max()) * 1.3]
+    yr = [0, ymax if ymax is not None else tab.values.max()]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title=""), yaxis=dict(title="", range=yr),
@@ -514,18 +514,16 @@ def _nc_categoria_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo
     return fig
 
 
-
-
 def fig_2o_nc_categoria_ano_pv(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Virtual", show_values,
                               "Não concluídos por categoria e ano — Plenário Virtual (2020–2025)", None,
-                              ymax=_nc_max(df))
+                              ymax=450)
 
 
 def fig_2p_nc_categoria_ano_pp(df: pd.DataFrame, show_values: bool = True) -> go.Figure:
     return _nc_categoria_ano(df, "Plenário Presencial", show_values,
                               "Não concluídos por categoria e ano — Plenário Presencial (2020–2025)", None,
-                              ymax=_nc_max(df))
+                              ymax=450)
 
 
 # ── 2.q / 2.r ────────────────────────────────────────────────────────────────

@@ -225,6 +225,7 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
         fig.add_trace(go.Bar(x=anos_str, y=vals, name=nome, marker_color=cor,
                              text=txt, textposition="outside",
                              textfont=dict(color="black", size=13, weight="bold"), cliponaxis=False))
+    fig.update_layout(barmode="overlay")
     v_abs = max(abs(tot["variacao"].max()), abs(tot["variacao"].min()))
     ymax = int(v_abs * 1.4)
     ymin = -int(v_abs * 1.15)

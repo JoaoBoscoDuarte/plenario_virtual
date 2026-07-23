@@ -216,16 +216,14 @@ def fig_1d_variacao_anual(df: pd.DataFrame, show_values: bool = True) -> go.Figu
     anos = [str(a) for a in tot["ano"]]
 
     anos_str = [str(a) for a in tot["ano"]]
-    fig = go.Figure()
-    nomes_mascaras = [("ACRÉSCIMO", tot["variacao"] >= 0, CINZA), ("DECRÉSCIMO", tot["variacao"] < 0, VERMELHO)]
-    for nome, mask, cor in nomes_mascaras:
-        vals = tot["variacao"].where(mask, 0)
-        txt = [f"{'+' if tot['variacao'].iloc[i] >= 0 else ''}{br(tot['variacao'].iloc[i])}"
-               if mask.iloc[i] else "" for i in range(len(tot))] if show_values else None
-        fig.add_trace(go.Bar(x=anos_str, y=vals, name=nome, marker_color=cor,
-                             text=txt, textposition="outside",
-                             textfont=dict(color="black", size=13, weight="bold"), cliponaxis=False))
-    fig.update_layout(barmode="overlay")
+    cores = [CINZA if v >= 0 else VERMELHO for v in tot["variacao"]]
+    fig = go.Figure(go.Bar(x=anos_str, y=tot["variacao"], marker_color=cores, showlegend=False,
+                           text=[f"{'+' if v >= 0 else ''}{br(v)}" for v in tot["variacao"]] if show_values else None,
+                           textposition="outside", textfont=dict(color="black", size=13, weight="bold"),
+                           cliponaxis=False))
+    # Legend dummy
+    for nome, cor in [("ACRÉSCIMO", CINZA), ("DECRÉSCIMO", VERMELHO)]:
+        fig.add_trace(go.Bar(x=[None], y=[None], name=nome, marker_color=cor, showlegend=True))
     v_abs = max(abs(tot["variacao"].max()), abs(tot["variacao"].min()))
     ymax = int(v_abs * 1.4)
     ymin = -int(v_abs * 1.15)

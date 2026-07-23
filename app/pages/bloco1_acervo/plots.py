@@ -205,15 +205,6 @@ def fig_1c_distribuicao_baixa(df: pd.DataFrame, show_values: bool = True) -> go.
                        text="<b>ESPIN</b>", showarrow=False,
                        font=dict(color=VERMELHO, size=13, weight="bold"),
                        xref="x", yref="y")
-    # Anotação: breakdown de 2019 citado no texto
-    if "2019" in anos:
-        idx_2019 = anos.index("2019")
-        val_2019 = tot.loc[tot["ano"] == 2019, "quantidade_distribuidos"].iloc[0]
-        fig.add_annotation(x=idx_2019, y=val_2019, yanchor="bottom", yshift=10,
-                           text=f"<b>{br(val_2019)}</b><br><sup>(350 PR + 119 RC + 4 QI)</sup>",
-                           showarrow=False, font=dict(color="black", size=11),
-                           bgcolor="rgba(255,255,255,0.85)", borderpad=3,
-                           xref="x", yref="y")
     fig.update_yaxes(showline=False, showticklabels=False, ticks="")
     return fig
 

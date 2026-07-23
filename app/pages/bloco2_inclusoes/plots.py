@@ -178,19 +178,18 @@ def _classe_ano(df: pd.DataFrame, ambiente: str, show_values: bool, titulo: str,
             text=textos, textposition="outside", textfont=dict(color="black", size=20, weight="bold"),
             cliponaxis=False,
         ))
-    # mesma escala para PV e PP
+    # mesma escala para PV e PP — força range absoluto
     mask = df["ano"].between(2020, 2025)
-    _ymax = 0
-    for _amb in ("Plenário Virtual", "Plenário Presencial"):
-        _t = df[mask & (df["ambiente"] == _amb)].groupby(["ano", "classe"], observed=True).size()
-        _ymax = max(_ymax, _t.max() if len(_t) > 0 else 0)
+    ambos = df[mask].groupby(["ambiente", "ano", "classe"], observed=True).size()
+    _ymax = int(ambos.max())
     yrange = [0, _ymax * (1.35 if show_pct else 1.15)]
     fig = aplicar_padrao(
         fig, titulo, subtitulo,
         xaxis=dict(title=""), yaxis=dict(title="", range=yrange),
         barmode="group", showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.92, x=0.5, xanchor="center"),
     )
-    fig.update_yaxes(showline=False, showticklabels=False, ticks="")
+    # re-aplica range depois de qualquer reseta
+    fig.update_yaxes(range=yrange, showline=False, showticklabels=False, ticks="")
     fig.update_xaxes(tickfont=dict(size=22), title_font=dict(size=22))
     return fig
 

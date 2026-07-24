@@ -201,10 +201,10 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         "Acervo ativo por classe processual e ano, controle concentrado (1988–2025)",
         xaxis=dict(title=""), yaxis=dict(title="", range=[0, ymax * 1.2]),
         showlegend=True, legend=dict(orientation="h", yanchor="bottom", y=0.95, x=0.5, xanchor="center"),
-        height=650, margin=dict(t=150, b=70, l=60, r=40),
+        height=650, margin=dict(t=150, b=120, l=60, r=40),
     )
     fig.update_yaxes(showline=True)
-    fig.update_xaxes(tickfont=dict(size=18), title_font=dict(size=22), dtick=1, tickangle=-45)
+    fig.update_xaxes(tickfont=dict(size=16), title_font=dict(size=22), dtick=1)
     return fig
 
 

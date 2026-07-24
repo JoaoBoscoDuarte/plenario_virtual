@@ -204,7 +204,7 @@ def fig_1b2_acervo_por_classe_vertical(df: pd.DataFrame, show_values: bool = Tru
         height=650, margin=dict(t=150, b=120, l=60, r=40),
     )
     fig.update_yaxes(showline=True)
-    fig.update_xaxes(tickfont=dict(size=16), title_font=dict(size=22), dtick=1)
+    fig.update_xaxes(tickfont=dict(size=16), title_font=dict(size=22), dtick=1, tickangle=-90)
     return fig
 
 
